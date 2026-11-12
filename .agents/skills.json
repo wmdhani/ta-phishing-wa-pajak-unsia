@@ -1,0 +1,24 @@
+{
+  "entries": [
+    {
+      "path": "~/.gemini/skill-vault",
+      "include_only": [
+        "academic-researcher",
+        "building-data-apps",
+        "docx",
+        "managing-python-dependencies",
+        "ml-best-practices",
+        "pdf",
+        "pptx",
+        "research",
+        "semanticscholar",
+        "skripsi-reviewer",
+        "slides",
+        "unsia-ta-prototype",
+        "webapp-testing",
+        "xlsx",
+        "zoteus"
+      ]
+    }
+  ]
+}
