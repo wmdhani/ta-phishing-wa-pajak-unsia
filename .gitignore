@@ -1,0 +1,21 @@
+# Python virtual environment & caches
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+
+# Model artifacts & large binary assets
+*.joblib
+*.pkl
+*.mp4
+Persiapan Tugas Akhir/01_E-Book_Referensi_TA/
+Persiapan Tugas Akhir/04_Template_PPT_Presentasi/
+
+# OS & Office temporary files
+~$*
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
