@@ -7,7 +7,7 @@
     "lisensi": "CC BY-SA 4.0",
     "jumlah_baris": 1143,
     "url_sumber": "https://raw.githubusercontent.com/agustinustheo/indonesian-sms-spam-filtering/master/training_script/corpus/external/rahmi2016/dataset_sms_spam_v1.csv",
-    "sha256": "a3172c88f56704d2a9df52ecd5120d67b3ee0a4d9cd0b134355c9d142a94cf75"
+    "sha256": "865d3ea178bc8545b9229ac674148ea98d22913337c7d36fceae0b8681fbb157"
   },
   {
     "id_katalog": "FILE-RAW-02",
@@ -17,7 +17,7 @@
     "lisensi": "CC BY-SA 4.0",
     "jumlah_baris": 1143,
     "url_sumber": "https://yudiwbs.wordpress.com/2018/08/05/dataset-klasifikasi-bahasa-indonesia-sms-spam-klasifikasi-teks-dengan-scikit-learn/",
-    "sha256": "206e8cb15de401b499df4323c58527e9e6eb9e70608bafabeec3516a6d0d717c"
+    "sha256": "49001313b7180f027ab5fdd61ed26025388792711fc497fc588d9558e5438455"
   },
   {
     "id_katalog": "FILE-RAW-03",
@@ -27,7 +27,7 @@
     "lisensi": "CC BY-SA 4.0",
     "jumlah_baris": 4125,
     "url_sumber": "https://doi.org/10.1109/EIConCIT50028.2021.9431859",
-    "sha256": "00472cfb671368a76ffbc41b254611759eb93bcdcfc67c41fb28f64cdf402d95"
+    "sha256": "14c6e56a5f39a841d1b870974723aedebe7918584bf84cc07cbd96ee3f352c9f"
   },
   {
     "id_katalog": "FILE-RAW-04",
@@ -47,7 +47,7 @@
     "lisensi": "MIT License",
     "jumlah_baris": 690,
     "url_sumber": "https://github.com/Sctian514/Indonesian-sms-spam-classifier",
-    "sha256": "87b1fe25f0ace82f5f98013da8e7435b47248356b207f5495ec7f5ad70ce7d6e"
+    "sha256": "ebaf0f849001ae31dbdfe2d42020c8e44857686333ef5407a80ffc2f54fd6b0b"
   },
   {
     "id_katalog": "FILE-RAW-06",
@@ -87,7 +87,7 @@
     "lisensi": "CC BY-SA 4.0",
     "jumlah_baris": 1164,
     "url_sumber": "https://www.pajak.go.id",
-    "sha256": "1c3f04d390773a4a17b291e06382c12f110503b8f74c6cb38b6c5927ae185067"
+    "sha256": "1f203f93683009d6acd41935c988a4d44167bac0c58b9fe1b1df33402cb8f9a4"
   },
   {
     "id_katalog": "FILE-PROC-03",
@@ -97,6 +97,6 @@
     "lisensi": "CC BY-SA 4.0",
     "jumlah_baris": 2521,
     "url_sumber": "https://doi.org/10.1109/EIConCIT50028.2021.9431859",
-    "sha256": "9047e2390d695bf8bf9e75e37238317f3d97a7e6e81f21e7fcc651cd526d6b06"
+    "sha256": "dc58b5484e58cbbfbc25a095110e4d58f448d1d5d6150f6dfcdbe677ad31219b"
   }
 ]
