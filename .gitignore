@@ -6,12 +6,11 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 
-# Model artifacts & large binary assets
+# Model artifacts & large local binary assets
 *.joblib
 *.pkl
 *.mp4
-Persiapan Tugas Akhir/01_E-Book_Referensi_TA/
-Persiapan Tugas Akhir/04_Template_PPT_Presentasi/
+doc/referensi/ebook_metodologi/
 
 # OS & Office temporary files
 ~$*

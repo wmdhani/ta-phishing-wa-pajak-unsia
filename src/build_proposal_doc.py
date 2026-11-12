@@ -10,7 +10,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
 def build_docs() -> None:
-    pdf_path = "doc/Usulan_Judul_TA_Wan_Mirza_Dhani_240101020194.pdf"
+    pdf_path = "doc/proposal/Usulan_Judul_TA_Wan_Mirza_Dhani_240101020194.pdf"
     doc = SimpleDocTemplate(
         pdf_path,
         pagesize=A4,
@@ -230,7 +230,7 @@ def build_docs() -> None:
         wdoc.add_heading(sec_title, level=2)
         wdoc.add_paragraph(sec_body)
 
-    docx_path = "doc/Usulan_Judul_TA_Wan_Mirza_Dhani_240101020194.docx"
+    docx_path = "doc/proposal/Usulan_Judul_TA_Wan_Mirza_Dhani_240101020194.docx"
     wdoc.save(docx_path)
     print("DOCX created:", docx_path)
 
