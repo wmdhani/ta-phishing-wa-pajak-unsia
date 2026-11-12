@@ -53,9 +53,9 @@ Laporan Tugas Akhir ini telah berhasil dipertahankan di hadapan Dewan Penguji da
 | :--- | :--- | :--- |
 | Ketua Sidang / Dosen Penguji I | (..........................................................) | .......................... |
 | Dosen Penguji II | (..........................................................) | .......................... |
-| Dosen Pembimbing I | Novi Dian Nathasia, S.Kom, MMSI. | .......................... |
+| Dosen Pembimbing I | Novi Dian Nathasia, S.Kom., MMSI | .......................... |
 | Dosen Pembimbing II | (..........................................................) | .......................... |
-| Ketua Program Studi PJJ Informatika | Cian Ramadhona Hassolthine, S.Kom., M.Kom. | .......................... |
+| Ketua Program Studi PJJ Informatika | Syahid Abdullah, S.Si, M.Kom | .......................... |
 | Ditetapkan di Jakarta | Tanggal: ...... / ................ / 2026 | Status: Disahkan |
 
 ---
@@ -80,17 +80,19 @@ Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa karena atas rahmat-
 
 Ketertarikan penulis terhadap permasalahan dalam Tugas Akhir ini berangkat dari maraknya kasus penipuan digital melalui WhatsApp yang mencatut identitas otoritas perpajakan di Indonesia. Penulis menyadari bahwa tanpa bantuan dan bimbingan dari berbagai pihak, dari masa perkuliahan sampai pada penyusunan laporan ini, sangatlah sulit bagi penulis untuk menyelesaikan penelitian ini. Karena itu, penulis menyampaikan ucapan terima kasih yang tulus kepada:
 
-a) Bapak Dr. Ucuk Darusalam, S.T., M.T., selaku Wakil Rektor Bidang Akademik Universitas Siber Asia. Beliau telah mendukung penyediaan fasilitas pembelajaran daring yang memadai bagi mahasiswa.
+a) Bapak Jang Youn Cho, Ph.D., CPA, selaku Rektor Universitas Siber Asia. Beliau telah memimpin penyelenggaraan pendidikan tinggi berbasis pembelajaran daring yang mendukung proses studi penulis.
 
-b) Bapak Cian Ramadhona Hassolthine, S.Kom., M.Kom., selaku Ketua Program Studi PJJ Informatika Universitas Siber Asia. Beliau telah memberikan arahan kebijakan akademik selama masa studi penulis.
+b) Bapak Dr. Ucuk Darusalam, S.T., M.T., selaku Wakil Rektor Bidang Akademik, Penelitian dan Pengabdian Kepada Masyarakat Universitas Siber Asia. Beliau telah mendukung penyediaan fasilitas pembelajaran dan penelitian yang memadai bagi mahasiswa.
 
-c) Ibu Novi Dian Nathasia, S.Kom, MMSI., selaku Dosen Pembimbing Tugas Akhir. Beliau telah menyediakan waktu dan pikiran untuk membimbing penulis dalam menyelesaikan penelitian ini.
+c) Bapak Syahid Abdullah, S.Si, M.Kom, selaku Ketua Program Studi PJJ Informatika Universitas Siber Asia. Beliau telah memberikan arahan kebijakan akademik selama masa studi penulis.
 
-d) Seluruh dosen pengajar Program Studi PJJ Informatika Universitas Siber Asia. Para pengajar telah membekali penulis dengan ilmu pengetahuan komputasi yang sangat bermanfaat.
+d) Bapak Novi Dian Nathasia, S.Kom., MMSI, selaku Dosen Pembimbing Tugas Akhir. Beliau telah menyediakan waktu dan pikiran untuk membimbing penulis dalam menyelesaikan penelitian ini.
 
-e) Orang tua dan keluarga penulis yang selalu memberikan doa setiap waktu. Dukungan moral serta material dari keluarga menjadi penguat utama bagi penulis.
+e) Seluruh dosen pengajar Program Studi PJJ Informatika Universitas Siber Asia. Para pengajar telah membekali penulis dengan ilmu pengetahuan komputasi yang sangat bermanfaat.
 
-f) Rekan-rekan mahasiswa Program Studi PJJ Informatika beserta semua pihak yang telah membantu penulis. Diskusi selama penyusunan karya ilmiah ini sangat membantu penyelesaian purwarupa sistem.
+f) Orang tua dan keluarga penulis yang selalu memberikan doa setiap waktu. Dukungan moral serta material dari keluarga menjadi penguat utama bagi penulis.
+
+g) Rekan-rekan mahasiswa Program Studi PJJ Informatika beserta semua pihak yang telah membantu penulis. Diskusi selama penyusunan karya ilmiah ini sangat membantu penyelesaian purwarupa sistem.
 
 Penulis menyadari bahwa laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat dikembangkan lebih lanjut pada penelitian berikutnya. Karena itu, penulis mengharapkan saran dan kritik yang membangun dari para pembaca demi penyempurnaan sistem deteksi ini di masa mendatang. Akhir kata, penulis berharap Tuhan Yang Maha Esa berkenan membalas segala kebaikan semua pihak yang telah membantu. Semoga Tugas Akhir ini membawa manfaat nyata bagi pengembangan ilmu pengetahuan.
 
