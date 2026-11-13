@@ -20,43 +20,48 @@
 
 # HALAMAN PERNYATAAN ORISINALITAS
 
+Saya yang bertanda-tangan di bawah ini:
+
 | Atribut Identitas | Keterangan Mahasiswa |
 | :--- | :--- |
-| Pernyataan | Bertanda tangan di bawah ini |
-| Nama Mahasiswa | Wan Mirza Dhani |
-| Nomor Induk Mahasiswa | 240101020194 (Reguler PJJ) |
-| Program Studi | PJJ Informatika |
+| Nama | Wan Mirza Dhani |
+| NIM | 240101020194 |
 | Judul Tugas Akhir | Komparasi Algoritma Support Vector Machine dan Random Forest dalam Deteksi Pesan Phishing WhatsApp Mengatasnamakan Otoritas Perpajakan |
 
-"Saya menyatakan dengan sesungguhnya bahwa Tugas Akhir ini adalah hasil penelitian, pemikiran, dan pemaparan asli saya sendiri dengan arahan Dosen Pembimbing. Saya tidak mencantumkan tanpa pengakuan bahan-bahan yang telah dipublikasikan sebelumnya atau ditulis oleh orang lain, atau sebagai bahan yang pernah diajukan untuk memperoleh gelar atau ijazah pada Universitas Siber Asia maupun Perguruan Tinggi lainnya. Apabila di kemudian hari terdapat penyimpangan dan ketidakbenaran dalam pernyataan ini, saya bersedia menerima sanksi akademik sesuai dengan peraturan yang berlaku di Universitas Siber Asia serta melampirkan bukti Turnitin Similarity Check maksimal 30%. Demikian pernyataan ini saya buat."
+Menyatakan dengan sesungguhnya bahwa Tugas Akhir ini merupakan hasil penelitian, pemikiran dan pemaparan asli saya sendiri. Saya tidak mencantumkan tanpa pengakuan bahan-bahan yang telah dipublikasikan sebelumnya atau ditulis oleh orang lain, atau sebagai bahan yang pernah diajukan untuk gelar atau ijazah pada Universitas Siber Asia atau Perguruan Tinggi lainnya.
+
+Apabila di kemudian hari terdapat penyimpangan dan ketidakbenaran dalam pernyataan ini, maka saya bersedia menerima sanksi akademik sesuai dengan peraturan yang berlaku di Universitas Siber Asia.
+
+Demikian pernyataan ini saya buat.
 
 | Tempat dan Tanggal | Tanda Tangan di Atas Materai Rp10.000 | Nama Lengkap Mahasiswa |
 | :--- | :---: | :--- |
-| Jakarta, November 2026 | (Materai Rp10.000,-) | **Wan Mirza Dhani** |
+| Jakarta, ...... / ................ / 2026 | (materai Rp 10.000,-) | (Wan Mirza Dhani) |
 
 ---
 
 # HALAMAN PENGESAHAN
 
+Tugas Akhir ini diajukan oleh :
+
 | Atribut Pengajuan | Keterangan Mahasiswa |
 | :--- | :--- |
-| Diajukan Oleh | Mahasiswa Program Studi PJJ Informatika |
 | Nama | Wan Mirza Dhani |
 | NIM | 240101020194 |
 | Program Studi | PJJ Informatika |
-| Skema Tugas Akhir | Tugas Akhir *Prototype* |
 | Judul Tugas Akhir | Komparasi Algoritma Support Vector Machine dan Random Forest dalam Deteksi Pesan Phishing WhatsApp Mengatasnamakan Otoritas Perpajakan |
 
-Laporan Tugas Akhir ini telah berhasil dipertahankan di hadapan Dewan Penguji dan diterima sebagai bagian persyaratan yang diperlukan untuk memperoleh gelar Sarjana Komputer pada Program Studi PJJ Informatika Universitas Siber Asia. Seluruh catatan perbaikan dari tim penguji maupun dosen pembimbing telah diselesaikan oleh penulis sesuai prosedur akademik yang berlaku. Pengesahan karya ilmiah ini ditetapkan di Jakarta pada bulan November tahun dua ribu dua puluh enam.
+Telah berhasil dipertahankan di hadapan Dewan Penguji dan diterima sebagai bagian persyaratan yang diperlukan untuk memperoleh gelar Sarjana Komputer pada Program Studi PJJ Informatika Universitas Siber Asia.
 
 | Jabatan Dewan Sidang | Nama Lengkap dan Gelar Akademik | Tanda Tangan |
 | :--- | :--- | :--- |
-| Ketua Sidang / Dosen Penguji I | (..........................................................) | .......................... |
-| Dosen Penguji II | (..........................................................) | .......................... |
-| Dosen Pembimbing I | Novi Dian Nathasia, S.Kom., MMSI | .......................... |
-| Dosen Pembimbing II | (..........................................................) | .......................... |
-| Ketua Program Studi PJJ Informatika | Syahid Abdullah, S.Si, M.Kom | .......................... |
-| Ditetapkan di Jakarta | Tanggal: ...... / ................ / 2026 | Status: Disahkan |
+| Ketua Sidang / Dosen Penguji I | (..........................................) | .......................... |
+| Dosen Penguji II | (..........................................) | .......................... |
+| Dosen Pembimbing I | (Novi Dian Nathasia, S.Kom., MMSI) | .......................... |
+| Dosen Pembimbing II | (..........................................) | .......................... |
+| Ketua Program Studi | (Syahid Abdullah, S.Si, M.Kom) | .......................... |
+| Ditetapkan di | Jakarta | |
+| Tanggal | ...... / ................ / 2026 | |
 
 ---
 
