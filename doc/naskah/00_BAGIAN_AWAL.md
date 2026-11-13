@@ -62,13 +62,13 @@ Laporan Tugas Akhir ini telah berhasil dipertahankan di hadapan Dewan Penguji da
 
 # ABSTRAK
 
-Penipuan rekayasa sosial (*phishing*) pada WhatsApp yang mengatasnamakan Direktorat Jenderal Pajak marak terjadi melalui kiriman berkas `.apk` dan tautan tiruan *Coretax*. Penelitian ini bertujuan menguji dan membandingkan algoritma *Support Vector Machine* serta *Random Forest* berbasis pembobotan *Term Frequency-Inverse Document Frequency* (TF-IDF) untuk mendeteksi *phishing* perpajakan. Penelitian ini juga membuat *prototype* aplikasi web verifikasi mandiri. Metode eksperimental diterapkan pada 1.164 pesan berbahasa Indonesia yang memadukan 904 pesan umum dan 260 pesan pajak seimbang. Hasil pengujian membuktikan *Support Vector Machine* mencapai akurasi 98,71%, *recall* 1,00, dan *F1-Score* 0,98, mengungguli *Random Forest* berakurasi 96,57%. Model terbaik diintegrasikan ke Streamlit.
+Penipuan *phishing* pada WhatsApp berkedok Direktorat Jenderal Pajak kerap memanfaatkan berkas `.apk` serta tautan *Coretax* palsu. Penelitian ini membandingkan *Support Vector Machine* dan *Random Forest* berbasis pembobotan *Term Frequency-Inverse Document Frequency* (TF-IDF) sekaligus membangun *prototype* web verifikasi mandiri. Uji eksperimental memadukan 904 pesan umum dan 260 pesan pajak seimbang melalui *stopword removal* serta *stemming* Sastrawi menjadi 1.164 data teks. Hasil membuktikan *Support Vector Machine* meraih akurasi 98,28%, *recall* 0,98, dan *F1-Score* 0,98, mengungguli *Random Forest* berakurasi 95,28% (*recall* 0,95; *F1-Score* 0,94). Integrasi model terbaik pada Streamlit memudahkan verifikasi pesan secara cepat.
 
 Kata Kunci: Deteksi Phishing, Otoritas Perpajakan, Random Forest, Support Vector Machine, TF-IDF.
 
 # ABSTRACT
 
-Social engineering (*phishing*) scams on WhatsApp impersonating the Directorate General of Taxes have proliferated via malicious `.apk` files and fake *Coretax* links. This study aims to test and compare *Support Vector Machine* and *Random Forest* algorithms using *Term Frequency-Inverse Document Frequency* (TF-IDF) features to detect tax *phishing* messages. This research also builds a web prototype for independent verification. An experimental method is applied to 1,164 Indonesian messages combining 904 general texts and 260 balanced tax messages. Results prove *Support Vector Machine* achieves 98.71% accuracy, 1.00 recall, and 0.98 *F1-Score*, outperforming *Random Forest* (96.57%). The model powers Streamlit.
+WhatsApp *phishing* scams impersonating the Directorate General of Taxes frequently distribute malicious `.apk` files and fake *Coretax* links. This study compares *Support Vector Machine* and *Random Forest* with *Term Frequency-Inverse Document Frequency* (TF-IDF) weighting while building a self-verification web prototype. Experimental testing combines 904 general texts and 260 balanced tax messages processed via Sastrawi stopword removal and stemming into 1,164 records. Results prove *Support Vector Machine* achieves 98.28% accuracy, 0.98 recall, and 0.98 *F1-Score*, outperforming *Random Forest* at 95.28% accuracy (0.95 recall; 0.94 *F1-Score*). Integrating the best model into Streamlit enables rapid message verification.
 
 Keywords: Phishing Detection, Random Forest, Support Vector Machine, Tax Authority, TF-IDF.
 
@@ -111,35 +111,17 @@ Penulis menyadari bahwa laporan Tugas Akhir ini masih memiliki keterbatasan yang
 | Halaman Pengesahan | iii |
 | Halaman Abstrak dan *Abstract* | iv |
 | Kata Pengantar | v |
-| Daftar Isi | vi |
-| Daftar Tabel | vii |
+| Daftar Isi | vii |
 | Daftar Gambar | viii |
+| Daftar Tabel | ix |
 | Bab I Pendahuluan | 1 |
 | 1.1 Latar Belakang Masalah | 1 |
-| 1.2 Rumusan Masalah | 3 |
-| 1.3 Batasan Masalah | 4 |
-| 1.4 Tujuan Penelitian | 5 |
+| 1.2 Rumusan Masalah | 2 |
+| 1.3 Batasan Masalah | 3 |
+| 1.4 Tujuan Penelitian | 4 |
 | 1.5 Manfaat Penelitian | 5 |
 | 1.6 Metode Penelitian | 6 |
-| Bab II Landasan Metode | 8 |
-| Bab III Implementasi Metode Usulan | 14 |
-| Bab IV Hasil dan Analisa | 20 |
-| Bab V Kesimpulan | 26 |
-| Daftar Pustaka | 28 |
-| Lampiran | 30 |
-
----
-
-# DAFTAR TABEL
-
-| Nomor Tabel | Judul Tabel | Halaman |
-| :--- | :--- | :---: |
-| Tabel 1.1 | Komposisi Korpus Dataset Penelitian | 6 |
-| Tabel 2.1 | Matriks Penelitian Terdahulu | 10 |
-| Tabel 2.2 | Definisi Operasional Variabel dan Parameter | 13 |
-| Tabel 3.1 | Spesifikasi Lingkungan Pengembangan Prototipe | 15 |
-| Tabel 4.1 | Hasil Komparasi Kinerja Model pada Data Uji | 21 |
-| Tabel 4.2 | Evaluasi Tingkat Kesiapan Teknologi (TKT) Sistem | 25 |
+| Daftar Pustaka | 8 |
 
 ---
 
@@ -148,9 +130,13 @@ Penulis menyadari bahwa laporan Tugas Akhir ini masih memiliki keterbatasan yang
 | Nomor Gambar | Judul Gambar | Halaman |
 | :--- | :--- | :---: |
 | Gambar 1.1 | Tahapan Metode Penelitian | 7 |
-| Gambar 2.1 | Bagan Alir Prosedur Operasional Penelitian | 11 |
-| Gambar 3.1 | Arsitektur Sistem dan Antarmuka Purwarupa Streamlit | 18 |
-| Gambar 4.1 | Perbandingan *Confusion Matrix* Algoritma SVM dan *Random Forest* | 22 |
-| Gambar 4.2 | Pengujian Fungsional Deteksi Pesan pada Aplikasi Web | 24 |
+
+---
+
+# DAFTAR TABEL
+
+| Nomor Tabel | Judul Tabel | Halaman |
+| :--- | :--- | :---: |
+| Tabel 1.1 | Komposisi Korpus Dataset Penelitian | 6 |
 
 ---
