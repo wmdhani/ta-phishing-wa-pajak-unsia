@@ -1,18 +1,60 @@
 import re
+from functools import lru_cache
+
 import pandas as pd
+from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.svm import LinearSVC
+
+SPECIAL_TOKENS = frozenset({"token_apk", "token_url"})
+URL_PATTERN = re.compile(
+    r"https?://\S+|www\.\S+|bit\.ly/\S+|\b[a-z0-9.-]+\.(?:go\.id|co\.id|my\.id|com|net|org|xyz|id|cc)\S*"
+)
+
+
+def _build_sastrawi_tools() -> tuple[set[str], callable]:
+    stop_words = set(StopWordRemoverFactory().get_stop_words())
+    stemmer = StemmerFactory().create_stemmer()
+    inner = getattr(
+        stemmer, "delegatedStemmer", getattr(stemmer, "delegated_stemmer", stemmer)
+    )
+    # PySastrawi stores dictionary words in a list; converting to set gives O(1) lookup.
+    if hasattr(inner, "dictionary"):
+        inner.dictionary.words = set(inner.dictionary.words)
+    cached_stem = lru_cache(maxsize=20000)(stemmer.stem)
+    return stop_words, cached_stem
+
+
+STOP_WORDS, STEM_WORD = _build_sastrawi_tools()
 
 
 def clean_text(text: str) -> str:
     text = str(text).lower()
     text = re.sub(r"\.apk\b", " token_apk ", text)
-    text = re.sub(r"https?://\S+|www\.\S+|bit\.ly/\S+", " token_url ", text)
+    text = URL_PATTERN.sub(" token_url ", text)
     text = re.sub(r"[^a-z0-9\s_]", " ", text)
-    return re.sub(r"\s+", " ", text).strip()
+
+    processed = []
+    for tok in text.split():
+        if tok in SPECIAL_TOKENS:
+            processed.append(tok)
+            continue
+        if tok in STOP_WORDS:
+            continue
+        if tok.isalpha() and len(tok) > 2:
+            processed.append(STEM_WORD(tok))
+        else:
+            processed.append(tok)
+    return " ".join(processed)
 
 
 def load_combined_dataset() -> pd.DataFrame:
@@ -32,7 +74,9 @@ def main() -> None:
     df = load_combined_dataset()
     print("=== STATISTIK DATASET GABUNGAN ===")
     print(f"Total baris       : {len(df)}")
-    print(f"Distribusi label  :\n{df['label'].value_counts().rename({0: 'Aman (0)', 1: 'Phishing/Fraud (1)'})}")
+    print(
+        f"Distribusi label  :\n{df['label'].value_counts().rename({0: 'Aman (0)', 1: 'Phishing/Fraud (1)'})}"
+    )
     print(f"\nDistribusi sumber :\n{df['sumber'].value_counts()}\n")
 
     X_train, X_test, y_train, y_test = train_test_split(
@@ -55,8 +99,11 @@ def main() -> None:
     for name, model in models.items():
         model.fit(X_train_vec, y_train)
         preds = model.predict(X_test_vec)
+        cm = confusion_matrix(y_test, preds)
         print(f"=== HASIL BASELINE: {name} ===")
-        print(f"Accuracy: {accuracy_score(y_test, preds):.4f}")
+        print(f"Accuracy      : {accuracy_score(y_test, preds):.4f}")
+        print(f"F1-Score Macro: {f1_score(y_test, preds, average='macro'):.4f}")
+        print(f"Confusion Mat : TN={cm[0,0]}, FP={cm[0,1]}, FN={cm[1,0]}, TP={cm[1,1]}")
         print(classification_report(y_test, preds, target_names=["Aman (0)", "Phishing (1)"]))
 
 
