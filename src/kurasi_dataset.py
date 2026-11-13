@@ -7,16 +7,16 @@ from urllib.parse import urlparse
 
 import pandas as pd
 
-from src.tax_corpus_records import (
+from src.korpus_pajak import (
     CURATED_TAX_RECORDS,
     OFFICIAL_IOCS_DJP,
     SOURCE_METADATA,
 )
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = ROOT_DIR / "data"
-RAW_DIR = DATA_DIR / "raw"
-PROCESSED_DIR = DATA_DIR / "processed"
+DATA_DIR = ROOT_DIR / "04 Dataset"
+RAW_DIR = DATA_DIR / "01 Data Mentah"
+PROCESSED_DIR = DATA_DIR / "02 Data Olahan"
 
 
 def sha256_file(path: Path) -> str:
@@ -98,14 +98,14 @@ def export_scraped_official_sources(staged_json_path: Path) -> pd.DataFrame:
         enriched_records.append(record)
         summary_rows.append({k: v for k, v in record.items() if k != "teks_hasil_scrape"})
 
-    json_out = RAW_DIR / "scraped_official_tax_sources.json"
+    json_out = RAW_DIR / "DJP Hasil Scrape 68 Sumber Resmi.json"
     json_out.write_text(json.dumps(enriched_records, ensure_ascii=False, indent=2), encoding="utf-8")
 
     df_summary = pd.DataFrame(summary_rows)
-    csv_out = RAW_DIR / "scraped_official_tax_sources_summary.csv"
+    csv_out = RAW_DIR / "DJP Ringkasan Scrape 68 Sumber Resmi.csv"
     df_summary.to_csv(csv_out, index=False, encoding="utf-8")
 
-    ioc_out = RAW_DIR / "iocs_dan_kanal_resmi_djp.json"
+    ioc_out = RAW_DIR / "DJP Indikator Penipuan dan Kanal Resmi.json"
     ioc_out.write_text(json.dumps(OFFICIAL_IOCS_DJP, ensure_ascii=False, indent=2), encoding="utf-8")
     return df_summary
 
@@ -118,15 +118,16 @@ def export_curated_tax_dataset() -> pd.DataFrame:
         dups = df_tax[df_tax["Teks"].duplicated(keep=False)]["Teks"].tolist()
         raise ValueError(f"Duplicate texts found in CURATED_TAX_RECORDS: {dups}")
 
-    df_tax.to_csv(DATA_DIR / "dataset_pajak_curated.csv", index=False, encoding="utf-8")
-    df_tax.to_csv(PROCESSED_DIR / "dataset_pajak_curated_260.csv", index=False, encoding="utf-8")
+    df_tax.to_csv(
+        PROCESSED_DIR / "Dataset Pajak Terkurasi 260 Baris.csv", index=False, encoding="utf-8"
+    )
     return df_tax
 
 
 def build_combined_datasets(df_tax: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-    df_rahmi = pd.read_csv(DATA_DIR / "raw_sms_spam_v1.csv")
+    df_rahmi = pd.read_csv(RAW_DIR / "Rahmi 2016 Korpus SMS Spam Utama v1.csv")
     df_rahmi_bin = df_rahmi[df_rahmi["label"].isin([0, 1])][["Teks", "label"]].copy()
     df_rahmi_bin["sumber"] = "Korpus_Umum_Rahmi2016"
     df_rahmi_bin["kategori_modus"] = df_rahmi_bin["label"].map(
@@ -148,10 +149,12 @@ def build_combined_datasets(df_tax: pd.DataFrame) -> tuple[pd.DataFrame, pd.Data
     df_primary["jumlah_karakter"] = df_primary["Teks"].str.len()
 
     df_primary.to_csv(
-        PROCESSED_DIR / "dataset_gabungan_utama_biner.csv", index=False, encoding="utf-8"
+        PROCESSED_DIR / "Dataset Gabungan Utama Biner 1164 Baris.csv",
+        index=False,
+        encoding="utf-8",
     )
 
-    df_theo = pd.read_csv(RAW_DIR / "raw_sms_theodorus2021.csv")
+    df_theo = pd.read_csv(RAW_DIR / "Theodorus 2021 Korpus SMS Spam IEEE.csv")
     df_theo_bin = df_theo[df_theo["Label"].isin([0, 2])].copy()
     df_theo_bin["Teks"] = df_theo_bin["Text"].astype(str).str.strip()
     df_theo_bin["label"] = df_theo_bin["Label"].map({0: 0, 2: 1})
@@ -163,7 +166,7 @@ def build_combined_datasets(df_tax: pd.DataFrame) -> tuple[pd.DataFrame, pd.Data
     df_theo_bin["url_sumber"] = "https://doi.org/10.1109/EIConCIT50028.2021.9431859"
     df_theo_bin = df_theo_bin[["Teks", "label", "kategori_modus", "id_sumber", "url_sumber", "sumber"]]
 
-    df_saragih = pd.read_csv(RAW_DIR / "raw_sms_spam_saragih2024.csv")
+    df_saragih = pd.read_csv(RAW_DIR / "Saragih 2024 Korpus SMS Spam Indo.csv")
     df_saragih["kat_clean"] = df_saragih["Jenis_spam"].astype(str).str.strip().str.lower()
     df_saragih_bin = df_saragih[df_saragih["kat_clean"].isin(["non-spam", "penipuan"])].copy()
     df_saragih_bin["Teks"] = df_saragih_bin["pesan"].astype(str).str.strip()
@@ -196,7 +199,9 @@ def build_combined_datasets(df_tax: pd.DataFrame) -> tuple[pd.DataFrame, pd.Data
     df_ext["jumlah_karakter"] = df_ext["Teks"].str.len()
 
     df_ext.to_csv(
-        PROCESSED_DIR / "dataset_gabungan_diperluas_biner.csv", index=False, encoding="utf-8"
+        PROCESSED_DIR / "Dataset Gabungan Diperluas Biner 2521 Baris.csv",
+        index=False,
+        encoding="utf-8",
     )
     return df_primary, df_ext
 
@@ -205,109 +210,111 @@ def build_provenance_catalog(df_summary: pd.DataFrame) -> pd.DataFrame:
     dataset_files = [
         {
             "id_katalog": "FILE-RAW-01",
-            "nama_file": "data/raw_sms_spam_v1.csv",
+            "nama_file": "04 Dataset/01 Data Mentah/Rahmi 2016 Korpus SMS Spam Utama v1.csv",
             "jenis_data": "File Mentah (Korpus Dasar Utama)",
             "instansi_atau_penulis": "Ferdila Rahmi & Yudi Wibisono (Universitas Pendidikan Indonesia, 2016)",
             "lisensi": "CC BY-SA 4.0",
             "jumlah_baris": 1143,
             "url_sumber": "https://raw.githubusercontent.com/agustinustheo/indonesian-sms-spam-filtering/master/training_script/corpus/external/rahmi2016/dataset_sms_spam_v1.csv",
-            "sha256": sha256_file(DATA_DIR / "raw_sms_spam_v1.csv"),
+            "sha256": sha256_file(RAW_DIR / "Rahmi 2016 Korpus SMS Spam Utama v1.csv"),
         },
         {
             "id_katalog": "FILE-RAW-02",
-            "nama_file": "data/raw/raw_sms_spam_rahmi2016.csv",
+            "nama_file": "04 Dataset/01 Data Mentah/Rahmi 2016 Arsip Asli SMS Spam.csv",
             "jenis_data": "File Mentah (Salinan Arsip Rahmi & Wibisono 2016)",
             "instansi_atau_penulis": "Ferdila Rahmi & Yudi Wibisono (UPI, 2016)",
             "lisensi": "CC BY-SA 4.0",
             "jumlah_baris": 1143,
             "url_sumber": "https://yudiwbs.wordpress.com/2018/08/05/dataset-klasifikasi-bahasa-indonesia-sms-spam-klasifikasi-teks-dengan-scikit-learn/",
-            "sha256": sha256_file(RAW_DIR / "raw_sms_spam_rahmi2016.csv"),
+            "sha256": sha256_file(RAW_DIR / "Rahmi 2016 Arsip Asli SMS Spam.csv"),
         },
         {
             "id_katalog": "FILE-RAW-03",
-            "nama_file": "data/raw/raw_sms_theodorus2021.csv",
+            "nama_file": "04 Dataset/01 Data Mentah/Theodorus 2021 Korpus SMS Spam IEEE.csv",
             "jenis_data": "File Mentah (Korpus Benchmark IEEE EIConCIT 2021)",
             "instansi_atau_penulis": "Agustinus Theodorus, Tio K. Prasetyo, Reynaldi Hartono, Derwin Suhartono (BINUS University, 2021)",
             "lisensi": "CC BY-SA 4.0",
             "jumlah_baris": 4125,
             "url_sumber": "https://doi.org/10.1109/EIConCIT50028.2021.9431859",
-            "sha256": sha256_file(RAW_DIR / "raw_sms_theodorus2021.csv"),
+            "sha256": sha256_file(RAW_DIR / "Theodorus 2021 Korpus SMS Spam IEEE.csv"),
         },
         {
             "id_katalog": "FILE-RAW-04",
-            "nama_file": "data/raw/raw_phishing_sms_indo_kurniawan2024.csv",
+            "nama_file": "04 Dataset/01 Data Mentah/Kurniawan 2024 Korpus Phishing SMS dan Email Indo.csv",
             "jenis_data": "File Mentah (Korpus Phishing SMS & Email Bahasa Indonesia)",
             "instansi_atau_penulis": "Rasen Kurniawan (2024) - Kompilasi Kaggle & Gist Yudi Wibisono",
             "lisensi": "Open Source GitHub",
             "jumlah_baris": 1772,
             "url_sumber": "https://github.com/rasen-kurniawan/phishing-detection-eda",
-            "sha256": sha256_file(RAW_DIR / "raw_phishing_sms_indo_kurniawan2024.csv"),
+            "sha256": sha256_file(RAW_DIR / "Kurniawan 2024 Korpus Phishing SMS dan Email Indo.csv"),
         },
         {
             "id_katalog": "FILE-RAW-05",
-            "nama_file": "data/raw/raw_sms_spam_saragih2024.csv",
+            "nama_file": "04 Dataset/01 Data Mentah/Saragih 2024 Korpus SMS Spam Indo.csv",
             "jenis_data": "File Mentah (Korpus Klasifikasi SMS Spam Indonesia)",
             "instansi_atau_penulis": "Samuel Cristian Saragih (2024)",
             "lisensi": "MIT License",
             "jumlah_baris": 690,
             "url_sumber": "https://github.com/Sctian514/Indonesian-sms-spam-classifier",
-            "sha256": sha256_file(RAW_DIR / "raw_sms_spam_saragih2024.csv"),
+            "sha256": sha256_file(RAW_DIR / "Saragih 2024 Korpus SMS Spam Indo.csv"),
         },
         {
             "id_katalog": "FILE-RAW-06",
-            "nama_file": "data/raw/scraped_official_tax_sources.json",
+            "nama_file": "04 Dataset/01 Data Mentah/DJP Hasil Scrape 68 Sumber Resmi.json",
             "jenis_data": "File Mentah Hasil Web Scraping 68 Halaman Resmi Pajak & Cek Fakta",
             "instansi_atau_penulis": "DJP (pajak.go.id), DDTC News, Ortax, Jalahoaks DKI, BCA, Antara, DetikFinance",
             "lisensi": "Informasi Publik Pemerintah & Berita Terverifikasi",
             "jumlah_baris": len(df_summary),
             "url_sumber": "https://www.pajak.go.id/id/pengumuman",
-            "sha256": sha256_file(RAW_DIR / "scraped_official_tax_sources.json"),
+            "sha256": sha256_file(RAW_DIR / "DJP Hasil Scrape 68 Sumber Resmi.json"),
         },
         {
             "id_katalog": "FILE-RAW-07",
-            "nama_file": "data/raw/iocs_dan_kanal_resmi_djp.json",
+            "nama_file": "04 Dataset/01 Data Mentah/DJP Indikator Penipuan dan Kanal Resmi.json",
             "jenis_data": "File Mentah Ekstraksi IOC (Domain/Nomor Penipu) & Kanal Resmi DJP",
             "instansi_atau_penulis": "Direktorat Jenderal Pajak (PENG-31/PJ.09/2024 s.d. PENG-50/PJ.09/2025)",
             "lisensi": "Informasi Publik DJP",
             "jumlah_baris": 31,
             "url_sumber": "https://www.pajak.go.id/id/pengumuman/waspada-penipuan-yang-mengatasnamakan-direktorat-jenderal-pajak",
-            "sha256": sha256_file(RAW_DIR / "iocs_dan_kanal_resmi_djp.json"),
+            "sha256": sha256_file(RAW_DIR / "DJP Indikator Penipuan dan Kanal Resmi.json"),
         },
         {
             "id_katalog": "FILE-PROC-01",
-            "nama_file": "data/dataset_pajak_curated.csv",
+            "nama_file": "04 Dataset/02 Data Olahan/Dataset Pajak Terkurasi 260 Baris.csv",
             "jenis_data": "File Olahan (Korpus Spesifik Domain Perpajakan Seimbang)",
             "instansi_atau_penulis": "Kurasi Terverifikasi dari 68 Sumber Resmi DJP, KPP/KP2KP, Jalahoaks, DDTC, Ortax, BCA",
             "lisensi": "CC BY-SA 4.0",
             "jumlah_baris": 260,
             "url_sumber": "https://www.pajak.go.id",
-            "sha256": sha256_file(DATA_DIR / "dataset_pajak_curated.csv"),
+            "sha256": sha256_file(PROCESSED_DIR / "Dataset Pajak Terkurasi 260 Baris.csv"),
         },
         {
             "id_katalog": "FILE-PROC-02",
-            "nama_file": "data/processed/dataset_gabungan_utama_biner.csv",
+            "nama_file": "04 Dataset/02 Data Olahan/Dataset Gabungan Utama Biner 1164 Baris.csv",
             "jenis_data": "File Olahan Utama (Korpus Dasar Biner Rahmi 2016 + Korpus Pajak 260 Baris)",
             "instansi_atau_penulis": "Pipeline Eksperimen Tugas Akhir (Rahmi 2016 + Kurasi DJP 2024-2026)",
             "lisensi": "CC BY-SA 4.0",
             "jumlah_baris": 1164,
             "url_sumber": "https://www.pajak.go.id",
-            "sha256": sha256_file(PROCESSED_DIR / "dataset_gabungan_utama_biner.csv"),
+            "sha256": sha256_file(PROCESSED_DIR / "Dataset Gabungan Utama Biner 1164 Baris.csv"),
         },
         {
             "id_katalog": "FILE-PROC-03",
-            "nama_file": "data/processed/dataset_gabungan_diperluas_biner.csv",
+            "nama_file": "04 Dataset/02 Data Olahan/Dataset Gabungan Diperluas Biner 2521 Baris.csv",
             "jenis_data": "File Olahan Diperluas (Lintas Korpus Rahmi 2016 + Theodorus 2021 + Saragih 2024 + Pajak)",
             "instansi_atau_penulis": "Pipeline Eksperimen Tugas Akhir (Multi-Corpus Benchmark)",
             "lisensi": "CC BY-SA 4.0",
-            "jumlah_baris": len(pd.read_csv(PROCESSED_DIR / "dataset_gabungan_diperluas_biner.csv")),
+            "jumlah_baris": len(
+                pd.read_csv(PROCESSED_DIR / "Dataset Gabungan Diperluas Biner 2521 Baris.csv")
+            ),
             "url_sumber": "https://doi.org/10.1109/EIConCIT50028.2021.9431859",
-            "sha256": sha256_file(PROCESSED_DIR / "dataset_gabungan_diperluas_biner.csv"),
+            "sha256": sha256_file(PROCESSED_DIR / "Dataset Gabungan Diperluas Biner 2521 Baris.csv"),
         },
     ]
 
     df_cat = pd.DataFrame(dataset_files)
-    df_cat.to_csv(PROCESSED_DIR / "katalog_asal_sumber_data.csv", index=False, encoding="utf-8")
-    (PROCESSED_DIR / "katalog_asal_sumber_data.json").write_text(
+    df_cat.to_csv(PROCESSED_DIR / "Katalog Asal Sumber Data.csv", index=False, encoding="utf-8")
+    (PROCESSED_DIR / "Katalog Asal Sumber Data.json").write_text(
         json.dumps(dataset_files, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     return df_cat
@@ -318,9 +325,9 @@ def main() -> None:
         r"C:\Users\815100347\.gemini\antigravity\brain\8fd73174-f284-43cf-922d-1d9f90c3303a\scratch\cleaned_articles.json"
     )
     if staged_scrape.exists():
-        shutil.copy2(staged_scrape, RAW_DIR / "raw_scrape_snapshot.json")
+        shutil.copy2(staged_scrape, RAW_DIR / "DJP Snapshot Scrape Mentah.json")
     snapshot_path = (
-        staged_scrape if staged_scrape.exists() else RAW_DIR / "raw_scrape_snapshot.json"
+        staged_scrape if staged_scrape.exists() else RAW_DIR / "DJP Snapshot Scrape Mentah.json"
     )
 
     df_summary = export_scraped_official_sources(snapshot_path)

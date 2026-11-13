@@ -1,5 +1,6 @@
 import re
 from functools import lru_cache
+from pathlib import Path
 
 import pandas as pd
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
@@ -58,11 +59,16 @@ def clean_text(text: str) -> str:
 
 
 def load_combined_dataset() -> pd.DataFrame:
-    df_base = pd.read_csv("data/raw_sms_spam_v1.csv")
+    dataset_dir = Path(__file__).resolve().parent.parent / "04 Dataset"
+    df_base = pd.read_csv(
+        dataset_dir / "01 Data Mentah" / "Rahmi 2016 Korpus SMS Spam Utama v1.csv"
+    )
     df_base = df_base[df_base["label"].isin([0, 1])][["Teks", "label"]].copy()
     df_base["sumber"] = "Korpus_Umum"
 
-    df_tax = pd.read_csv("data/dataset_pajak_curated.csv")[["Teks", "label"]].copy()
+    df_tax = pd.read_csv(
+        dataset_dir / "02 Data Olahan" / "Dataset Pajak Terkurasi 260 Baris.csv"
+    )[["Teks", "label"]].copy()
     df_tax["sumber"] = "Korpus_Pajak"
 
     df = pd.concat([df_base, df_tax], ignore_index=True)

@@ -4,7 +4,7 @@
 
 ## Sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana Komputer pada Program Studi PJJ Informatika
 
-![Logo Universitas Siber Asia](assets/logo_unsia.png)
+![Logo Universitas Siber Asia](Aset Gambar/Logo UNSIA.png)
 
 ## Oleh :
 
@@ -226,7 +226,7 @@ Sumber: Olahan Data Penelitian (2026).
 
 Tahap analisis data diawali praproses teks bahasa Indonesia yang meliputi pembersihan karakter, *case folding*, tokenisasi `token_apk` serta `token_url`, penghapusan kata henti (*stopword removal*), dan *stemming* Sastrawi. Teks bersih itu diubah menjadi matriks numerik lewat pembobotan TF-IDF *n-gram* (1, 2) maksimal 3.000 fitur, lalu dibagi terstratifikasi sebesar 80:20 [20], [21]. Selanjutnya, proses pelatihan dan penalaan parameter dijalankan pada *Support Vector Machine* (*LinearSVC*) maupun *Random Forest Classifier*. Kinerja kedua model diukur memakai *Confusion Matrix* dan diintegrasikan ke aplikasi Streamlit pada TKT level 6. Urutan tahapan tersebut tergambar pada Gambar 1.1.
 
-![Gambar 1.1 Tahapan Metode Penelitian.](assets/gambar_1_1_tahapan_penelitian.png)
+![Gambar 1.1 Tahapan Metode Penelitian.](Aset Gambar/Gambar 1.1 Tahapan Metode Penelitian.png)
 
 Gambar 1.1 Tahapan Metode Penelitian.
 

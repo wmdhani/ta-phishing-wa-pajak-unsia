@@ -4,7 +4,7 @@
 
 ## Sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana Komputer pada Program Studi PJJ Informatika
 
-![Logo Universitas Siber Asia](assets/logo_unsia.png)
+![Logo Universitas Siber Asia](Aset Gambar/Logo UNSIA.png)
 
 ## Oleh :
 

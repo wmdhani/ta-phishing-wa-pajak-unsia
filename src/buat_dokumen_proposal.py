@@ -1,18 +1,22 @@
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import cm
-from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib import colors
+from pathlib import Path
+
 import docx
-from docx.shared import Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.shared import Cm, Pt
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import cm
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 
 def build_docs() -> None:
-    pdf_path = "doc/proposal/Usulan_Judul_TA_Wan_Mirza_Dhani_240101020194.pdf"
+    proposal_dir = Path(__file__).resolve().parent.parent / "02 Proposal"
+    proposal_dir.mkdir(parents=True, exist_ok=True)
+    pdf_path = proposal_dir / "Usulan Judul TA Wan Mirza Dhani 240101020194.pdf"
     doc = SimpleDocTemplate(
-        pdf_path,
+        str(pdf_path),
         pagesize=A4,
         topMargin=2.2 * cm,
         bottomMargin=2.2 * cm,
@@ -194,34 +198,42 @@ def build_docs() -> None:
     sections_content = [
         (
             "1. Latar Belakang & Urgensi Masalah",
-            "Maraknya penipuan berbasis rekayasa sosial (social engineering) melalui WhatsApp yang mengatasnamakan "
-            "Direktorat Jenderal Pajak (DJP)—seperti modus pemutakhiran data Coretax, surat tagihan pajak kurang bayar, "
-            "pemadanan NIK-NPWP, hingga pengiriman file berbahaya berformat .apk—sering mengecoh masyarakat karena "
-            "menggunakan gaya bahasa menyerupai surat dinas resmi. Diperlukan sistem deteksi otomatis berbasis Natural "
-            "Language Processing (NLP) untuk membantu pengguna memverifikasi indikasi penipuan dari teks pesan yang diterima.",
+            (
+                "Maraknya penipuan berbasis rekayasa sosial (social engineering) melalui WhatsApp yang mengatasnamakan "
+                "Direktorat Jenderal Pajak (DJP)—seperti modus pemutakhiran data Coretax, surat tagihan pajak kurang bayar, "
+                "pemadanan NIK-NPWP, hingga pengiriman file berbahaya berformat .apk—sering mengecoh masyarakat karena "
+                "menggunakan gaya bahasa menyerupai surat dinas resmi. Diperlukan sistem deteksi otomatis berbasis Natural "
+                "Language Processing (NLP) untuk membantu pengguna memverifikasi indikasi penipuan dari teks pesan yang diterima."
+            ),
         ),
         (
             "2. Rumusan Masalah",
-            "1) Pesan penipuan (phishing) WhatsApp bertema perpajakan memiliki pola kalimat persuasif yang sulit "
-            "dibedakan oleh wajib pajak awam sehingga berisiko menimbulkan kerugian finansial dan pencurian data.\n"
-            "2) Diperlukan pengujian empiris untuk membandingkan kinerja algoritma Support Vector Machine (SVM) dan "
-            "Random Forest (RF) dalam mengklasifikasikan teks pesan berbahasa Indonesia bertema perpajakan.",
+            (
+                "1) Pesan penipuan (phishing) WhatsApp bertema perpajakan memiliki pola kalimat persuasif yang sulit "
+                "dibedakan oleh wajib pajak awam sehingga berisiko menimbulkan kerugian finansial dan pencurian data.\n"
+                "2) Diperlukan pengujian empiris untuk membandingkan kinerja algoritma Support Vector Machine (SVM) dan "
+                "Random Forest (RF) dalam mengklasifikasikan teks pesan berbahasa Indonesia bertema perpajakan."
+            ),
         ),
         (
             "3. Sumber Data & Kesiapan Dataset",
-            "Penelitian ini tidak menggunakan data internal/rahasia instansi, melainkan murni memanfaatkan data publik "
-            "terbuka yang telah selesai dihimpun dan dikurasi (1.164 baris dataset gabungan utama):\n"
-            "- Korpus Dasar Publik (904 baris): Dataset benchmark SMS/pesan penipuan vs pesan normal berbahasa Indonesia (335 penipuan dan 569 normal).\n"
-            "- Korpus Spesifik Perpajakan (260 baris seimbang): 130 sampel teks modus penipuan pajak dari imbauan publik resmi DJP (pajak.go.id / cek fakta / media massa) disandingkan dengan 130 format pesan resmi layanan publik DJP.",
+            (
+                "Penelitian ini tidak menggunakan data internal/rahasia instansi, melainkan murni memanfaatkan data publik "
+                "terbuka yang telah selesai dihimpun dan dikurasi (1.164 baris dataset gabungan utama):\n"
+                "- Korpus Dasar Publik (904 baris): Dataset benchmark SMS/pesan penipuan vs pesan normal berbahasa Indonesia (335 penipuan dan 569 normal).\n"
+                "- Korpus Spesifik Perpajakan (260 baris seimbang): 130 sampel teks modus penipuan pajak dari imbauan publik resmi DJP (pajak.go.id / cek fakta / media massa) disandingkan dengan 130 format pesan resmi layanan publik DJP."
+            ),
         ),
         (
             "4. Metode & Rencana Luaran Prototype",
-            "- Tahapan NLP: Text Preprocessing (Cleaning, Case Folding, Normalisasi, Stopword Removal, Stemming Sastrawi) "
-            "dan pembobotan fitur kata menggunakan TF-IDF.\n"
-            "- Komparasi Model: Membandingkan Support Vector Machine (SVM) dan Random Forest menggunakan Confusion Matrix "
-            "(Accuracy, Precision, Recall, dan F1-Score).\n"
-            "- Bentuk Prototype: Aplikasi web interaktif berbasis Python (Streamlit) tempat pengguna menempelkan teks "
-            "pesan WhatsApp mencurigakan dan langsung memperoleh status analisis (Aman / Indikasi Phishing) beserta skor probabilitasnya.",
+            (
+                "- Tahapan NLP: Text Preprocessing (Cleaning, Case Folding, Normalisasi, Stopword Removal, Stemming Sastrawi) "
+                "dan pembobotan fitur kata menggunakan TF-IDF.\n"
+                "- Komparasi Model: Membandingkan Support Vector Machine (SVM) dan Random Forest menggunakan Confusion Matrix "
+                "(Accuracy, Precision, Recall, dan F1-Score).\n"
+                "- Bentuk Prototype: Aplikasi web interaktif berbasis Python (Streamlit) tempat pengguna menempelkan teks "
+                "pesan WhatsApp mencurigakan dan langsung memperoleh status analisis (Aman / Indikasi Phishing) beserta skor probabilitasnya."
+            ),
         ),
     ]
 
@@ -229,7 +241,7 @@ def build_docs() -> None:
         wdoc.add_heading(sec_title, level=2)
         wdoc.add_paragraph(sec_body)
 
-    docx_path = "doc/proposal/Usulan_Judul_TA_Wan_Mirza_Dhani_240101020194.docx"
+    docx_path = proposal_dir / "Usulan Judul TA Wan Mirza Dhani 240101020194.docx"
     wdoc.save(docx_path)
     print("DOCX created:", docx_path)
 

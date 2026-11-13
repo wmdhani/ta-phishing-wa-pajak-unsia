@@ -4,37 +4,37 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.tax_corpus_records import SOURCE_METADATA
+from src.korpus_pajak import SOURCE_METADATA
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = ROOT_DIR / "data"
-RAW_DIR = DATA_DIR / "raw"
-PROCESSED_DIR = DATA_DIR / "processed"
+DATA_DIR = ROOT_DIR / "04 Dataset"
+RAW_DIR = DATA_DIR / "01 Data Mentah"
+PROCESSED_DIR = DATA_DIR / "02 Data Olahan"
 
 
 def test_raw_corpora_exist_and_row_counts() -> None:
-    df_v1 = pd.read_csv(DATA_DIR / "raw_sms_spam_v1.csv")
+    df_v1 = pd.read_csv(RAW_DIR / "Rahmi 2016 Korpus SMS Spam Utama v1.csv")
     assert len(df_v1) == 1143
     assert set(df_v1["label"].unique()) == {0, 1, 2}
 
-    df_rahmi = pd.read_csv(RAW_DIR / "raw_sms_spam_rahmi2016.csv")
+    df_rahmi = pd.read_csv(RAW_DIR / "Rahmi 2016 Arsip Asli SMS Spam.csv")
     assert len(df_rahmi) == 1143
 
-    df_theo = pd.read_csv(RAW_DIR / "raw_sms_theodorus2021.csv")
+    df_theo = pd.read_csv(RAW_DIR / "Theodorus 2021 Korpus SMS Spam IEEE.csv")
     assert len(df_theo) == 4125
 
-    df_kurniawan = pd.read_csv(RAW_DIR / "raw_phishing_sms_indo_kurniawan2024.csv")
+    df_kurniawan = pd.read_csv(RAW_DIR / "Kurniawan 2024 Korpus Phishing SMS dan Email Indo.csv")
     assert len(df_kurniawan) == 1772
 
-    df_saragih = pd.read_csv(RAW_DIR / "raw_sms_spam_saragih2024.csv")
+    df_saragih = pd.read_csv(RAW_DIR / "Saragih 2024 Korpus SMS Spam Indo.csv")
     assert len(df_saragih) == 690
 
 
 def test_scraped_official_tax_sources_valid() -> None:
     scraped_json = json.loads(
-        (RAW_DIR / "scraped_official_tax_sources.json").read_text(encoding="utf-8")
+        (RAW_DIR / "DJP Hasil Scrape 68 Sumber Resmi.json").read_text(encoding="utf-8")
     )
-    df_summary = pd.read_csv(RAW_DIR / "scraped_official_tax_sources_summary.csv")
+    df_summary = pd.read_csv(RAW_DIR / "DJP Ringkasan Scrape 68 Sumber Resmi.csv")
     assert len(scraped_json) == 68
     assert len(df_summary) == 68
     for item in scraped_json:
@@ -44,7 +44,7 @@ def test_scraped_official_tax_sources_valid() -> None:
 
 
 def test_curated_tax_dataset_balance_and_provenance() -> None:
-    df_tax = pd.read_csv(DATA_DIR / "dataset_pajak_curated.csv")
+    df_tax = pd.read_csv(PROCESSED_DIR / "Dataset Pajak Terkurasi 260 Baris.csv")
     assert len(df_tax) == 260
     assert (df_tax["label"] == 1).sum() == 130
     assert (df_tax["label"] == 0).sum() == 130
@@ -56,21 +56,21 @@ def test_curated_tax_dataset_balance_and_provenance() -> None:
 
 
 def test_processed_combined_datasets() -> None:
-    df_primary = pd.read_csv(PROCESSED_DIR / "dataset_gabungan_utama_biner.csv")
+    df_primary = pd.read_csv(PROCESSED_DIR / "Dataset Gabungan Utama Biner 1164 Baris.csv")
     assert len(df_primary) == 1164
     assert set(df_primary["label"].unique()) == {0, 1}
     assert (df_primary["label"] == 1).sum() == 465
     assert (df_primary["label"] == 0).sum() == 699
     assert not df_primary["clean_text"].isna().any()
 
-    df_ext = pd.read_csv(PROCESSED_DIR / "dataset_gabungan_diperluas_biner.csv")
+    df_ext = pd.read_csv(PROCESSED_DIR / "Dataset Gabungan Diperluas Biner 2521 Baris.csv")
     assert len(df_ext) == 2521
     assert set(df_ext["label"].unique()) == {0, 1}
     assert not df_ext["clean_text"].duplicated().any()
 
 
 def test_provenance_catalog_sha256_matches_files() -> None:
-    df_cat = pd.read_csv(PROCESSED_DIR / "katalog_asal_sumber_data.csv")
+    df_cat = pd.read_csv(PROCESSED_DIR / "Katalog Asal Sumber Data.csv")
     assert len(df_cat) == 10
     for _, row in df_cat.iterrows():
         file_path = ROOT_DIR / row["nama_file"]

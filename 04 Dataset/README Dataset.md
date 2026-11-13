@@ -11,31 +11,30 @@ Seluruh data dalam repositori ini bersumber dari publikasi resmi pemerintah, rep
 ## 1. Arsitektur dan Struktur Direktori Data
 
 ```text
-data/
-├── README_DATASET.md                                 # Dokumentasi lengkap dataset & asal sumber data
-├── raw_sms_spam_v1.csv                               # Korpus dasar utama (Rahmi & Wibisono, 2016 - 1.143 baris)
-├── dataset_pajak_curated.csv                         # Korpus domain perpajakan terkurasi (260 baris seimbang)
-├── raw/                                              # Direktori seluruh file mentah (raw data)
-│   ├── scraped_official_tax_sources.json             # Teks & metadata hasil scraping 68 halaman resmi pajak
-│   ├── scraped_official_tax_sources_summary.csv      # Tabel ringkasan metadata & SHA-256 68 halaman hasil scrape
-│   ├── raw_scrape_snapshot.json                      # Salinan mentah tangkapan HTML/teks hasil scraper
-│   ├── iocs_dan_kanal_resmi_djp.json                 # Ekstraksi domain phishing, nomor WA penipu, & kanal resmi DJP
-│   ├── raw_sms_spam_rahmi2016.csv                    # Arsip asli dataset_sms_spam_v1.csv (UPI, 2016)
-│   ├── penjelasan_rahmi2016.txt                      # Catatan lisensi & distribusi kelas asli (Yudi Wibisono)
-│   ├── LICENSE_rahmi2016.md                          # Bukti lisensi CC BY-SA 4.0 & SHA-256 korpus Rahmi (2016)
-│   ├── raw_sms_theodorus2021.csv                     # Korpus SMS Spam IEEE EIConCIT (Theodorus dkk., 2021 - 4.125 baris)
-│   ├── SMS_Collection_theodorus2021.xlsx             # Berkas Excel asli korpus Theodorus dkk. (2021)
-│   ├── CITATION_theodorus2021.cff                    # Metadata sitasi ilmiah resmi IEEE EIConCIT 2021
-│   ├── README_theodorus2021.md                       # Dokumentasi asli repositori Theodorus dkk. (2021)
-│   ├── raw_phishing_sms_indo_kurniawan2024.csv       # Korpus Phishing SMS & Email Indonesia (1.772 baris)
-│   ├── raw_sms_spam_saragih2024.csv                  # Korpus SMS Spam Indonesia 5 kategori (690 baris)
-│   └── spam_saragih2024.xlsx                         # Berkas Excel asli korpus Saragih (2024)
-└── processed/                                        # Direktori seluruh file olahan siap latih (processed data)
-    ├── dataset_pajak_curated_260.csv                 # Salinan arsip korpus spesifik pajak (260 baris)
-    ├── dataset_gabungan_utama_biner.csv              # Dataset gabungan utama biner (1.164 baris: 904 umum + 260 pajak)
-    ├── dataset_gabungan_diperluas_biner.csv          # Dataset gabungan lintas korpus terdeduplikasi (2.521 baris)
-    ├── katalog_asal_sumber_data.csv                  # Katalog provenans seluruh berkas beserta hash SHA-256
-    └── katalog_asal_sumber_data.json                 # Katalog provenans format JSON
+04 Dataset/
+├── README Dataset.md                                       # Dokumentasi lengkap dataset & asal sumber data
+├── 01 Data Mentah/                                         # Direktori seluruh file mentah (raw data)
+│   ├── DJP Hasil Scrape 68 Sumber Resmi.json               # Teks & metadata hasil scraping 68 halaman resmi pajak
+│   ├── DJP Ringkasan Scrape 68 Sumber Resmi.csv            # Tabel ringkasan metadata & SHA-256 68 halaman hasil scrape
+│   ├── DJP Snapshot Scrape Mentah.json                     # Salinan mentah tangkapan HTML/teks hasil scraper
+│   ├── DJP Indikator Penipuan dan Kanal Resmi.json         # Ekstraksi domain phishing, nomor WA penipu, & kanal resmi DJP
+│   ├── Rahmi 2016 Korpus SMS Spam Utama v1.csv             # Korpus dasar utama (Rahmi & Wibisono, 2016 - 1.143 baris)
+│   ├── Rahmi 2016 Arsip Asli SMS Spam.csv                  # Arsip asli v1.0 dataset SMS spam (UPI, 2016)
+│   ├── Rahmi 2016 Catatan Korpus.txt                       # Catatan lisensi & distribusi kelas asli (Yudi Wibisono)
+│   ├── Rahmi 2016 Lisensi CC BY SA.md                      # Bukti lisensi CC BY-SA 4.0 & SHA-256 korpus Rahmi (2016)
+│   ├── Theodorus 2021 Korpus SMS Spam IEEE.csv             # Korpus SMS Spam IEEE EIConCIT (Theodorus dkk., 2021 - 4.125 baris)
+│   ├── Theodorus 2021 Koleksi SMS Asli.xlsx                # Berkas Excel asli korpus Theodorus dkk. (2021)
+│   ├── Theodorus 2021 Sitasi Resmi.cff                     # Metadata sitasi ilmiah resmi IEEE EIConCIT 2021
+│   ├── Theodorus 2021 Dokumentasi Korpus.md                # Dokumentasi asli repositori Theodorus dkk. (2021)
+│   ├── Kurniawan 2024 Korpus Phishing SMS dan Email Indo.csv # Korpus Phishing SMS & Email Indonesia (1.772 baris)
+│   ├── Saragih 2024 Korpus SMS Spam Indo.csv               # Korpus SMS Spam Indonesia 5 kategori (690 baris)
+│   └── Saragih 2024 Dataset SMS Asli.xlsx                  # Berkas Excel asli korpus Saragih (2024)
+└── 02 Data Olahan/                                         # Direktori seluruh file olahan siap latih (processed data)
+    ├── Dataset Pajak Terkurasi 260 Baris.csv               # Korpus domain perpajakan terkurasi (260 baris seimbang)
+    ├── Dataset Gabungan Utama Biner 1164 Baris.csv         # Dataset gabungan utama biner (1.164 baris: 904 umum + 260 pajak)
+    ├── Dataset Gabungan Diperluas Biner 2521 Baris.csv     # Dataset gabungan lintas korpus terdeduplikasi (2.521 baris)
+    ├── Katalog Asal Sumber Data.csv                        # Katalog provenans seluruh berkas beserta hash SHA-256
+    └── Katalog Asal Sumber Data.json                       # Katalog provenans format JSON
 ```
 
 ---
@@ -46,13 +45,13 @@ Tabel berikut memuat daftar berkas mentah yang dikumpulkan beserta penulis atau 
 
 | ID Katalog | Lokasi Berkas | Jumlah Rekaman | Penulis / Instansi Sumber | Lisensi | Tautan Asal Sumber / DOI | Checksum SHA-256 (16 Karakter Awal) |
 | :--- | :--- | :---: | :--- | :--- | :--- | :--- |
-| `FILE-RAW-01` | `data/raw_sms_spam_v1.csv` | 1.143 baris | Ferdila Rahmi & Yudi Wibisono (Universitas Pendidikan Indonesia, 2016) | CC BY-SA 4.0 | https://repository.upi.edu/26936/ | `a3172c88f56704d2` |
-| `FILE-RAW-02` | `data/raw/raw_sms_spam_rahmi2016.csv` | 1.143 baris | Ferdila Rahmi & Yudi Wibisono (Arsip Asli v1.0 Agustus 2018) | CC BY-SA 4.0 | https://yudiwbs.wordpress.com/2018/08/05/dataset-klasifikasi-bahasa-indonesia-sms-spam-klasifikasi-teks-dengan-scikit-learn/ | `206e8cb15de401b4` |
-| `FILE-RAW-03` | `data/raw/raw_sms_theodorus2021.csv` | 4.125 baris | Agustinus Theodorus, Tio K. Prasetyo, Reynaldi Hartono, Derwin Suhartono (BINUS University, IEEE EIConCIT 2021) | CC BY-SA 4.0 | https://doi.org/10.1109/EIConCIT50028.2021.9431859 | `00472cfb671368a7` |
-| `FILE-RAW-04` | `data/raw/raw_phishing_sms_indo_kurniawan2024.csv` | 1.772 baris | Rasen Kurniawan (2024), kompilasi korpus Kaggle & Gist Yudi Wibisono | Open Source | https://github.com/rasen-kurniawan/phishing-detection-eda | `b94131b9bc67b4b1` |
-| `FILE-RAW-05` | `data/raw/raw_sms_spam_saragih2024.csv` | 690 baris | Samuel Cristian Saragih (2024) | MIT License | https://github.com/Sctian514/Indonesian-sms-spam-classifier | `87b1fe25f0ace82f` |
-| `FILE-RAW-06` | `data/raw/scraped_official_tax_sources.json` | 68 artikel | Direktorat Jenderal Pajak (`pajak.go.id`), DDTC News, Ortax, Jalahoaks DKI Jakarta, BCA, Antara, DetikFinance | Informasi Publik | https://www.pajak.go.id/id/pengumuman | `60b571cc67630a5b` |
-| `FILE-RAW-07` | `data/raw/iocs_dan_kanal_resmi_djp.json` | 31 indikator | Direktorat Jenderal Pajak (`PENG-31/PJ.09/2024` s.d. `PENG-50/PJ.09/2025`) | Informasi Publik | https://www.pajak.go.id/id/pengumuman/waspada-penipuan-yang-mengatasnamakan-direktorat-jenderal-pajak | `e7883bd235c40700` |
+| `FILE-RAW-01` | `04 Dataset/01 Data Mentah/Rahmi 2016 Korpus SMS Spam Utama v1.csv` | 1.143 baris | Ferdila Rahmi & Yudi Wibisono (Universitas Pendidikan Indonesia, 2016) | CC BY-SA 4.0 | https://repository.upi.edu/26936/ | `865d3ea178bc8545` |
+| `FILE-RAW-02` | `04 Dataset/01 Data Mentah/Rahmi 2016 Arsip Asli SMS Spam.csv` | 1.143 baris | Ferdila Rahmi & Yudi Wibisono (Arsip Asli v1.0 Agustus 2018) | CC BY-SA 4.0 | https://yudiwbs.wordpress.com/2018/08/05/dataset-klasifikasi-bahasa-indonesia-sms-spam-klasifikasi-teks-dengan-scikit-learn/ | `49001313b7180f02` |
+| `FILE-RAW-03` | `04 Dataset/01 Data Mentah/Theodorus 2021 Korpus SMS Spam IEEE.csv` | 4.125 baris | Agustinus Theodorus, Tio K. Prasetyo, Reynaldi Hartono, Derwin Suhartono (BINUS University, IEEE EIConCIT 2021) | CC BY-SA 4.0 | https://doi.org/10.1109/EIConCIT50028.2021.9431859 | `14c6e56a5f39a841` |
+| `FILE-RAW-04` | `04 Dataset/01 Data Mentah/Kurniawan 2024 Korpus Phishing SMS dan Email Indo.csv` | 1.772 baris | Rasen Kurniawan (2024), kompilasi korpus Kaggle & Gist Yudi Wibisono | Open Source | https://github.com/rasen-kurniawan/phishing-detection-eda | `b94131b9bc67b4b1` |
+| `FILE-RAW-05` | `04 Dataset/01 Data Mentah/Saragih 2024 Korpus SMS Spam Indo.csv` | 690 baris | Samuel Cristian Saragih (2024) | MIT License | https://github.com/Sctian514/Indonesian-sms-spam-classifier | `ebaf0f849001ae31` |
+| `FILE-RAW-06` | `04 Dataset/01 Data Mentah/DJP Hasil Scrape 68 Sumber Resmi.json` | 68 artikel | Direktorat Jenderal Pajak (`pajak.go.id`), DDTC News, Ortax, Jalahoaks DKI Jakarta, BCA, Antara, DetikFinance | Informasi Publik | https://www.pajak.go.id/id/pengumuman | `60b571cc67630a5b` |
+| `FILE-RAW-07` | `04 Dataset/01 Data Mentah/DJP Indikator Penipuan dan Kanal Resmi.json` | 31 indikator | Direktorat Jenderal Pajak (`PENG-31/PJ.09/2024` s.d. `PENG-50/PJ.09/2025`) | Informasi Publik | https://www.pajak.go.id/id/pengumuman/waspada-penipuan-yang-mengatasnamakan-direktorat-jenderal-pajak | `e7883bd235c40700` |
 
 ### Rincian Korpus Akademik Terbuka
 1. **Korpus Rahmi & Wibisono (2016)**: Berisi 1.143 pesan singkat berbahasa Indonesia yang terbagi ke dalam tiga label asli: `0` = SMS Normal (569 pesan), `1` = Penipuan/Fraud (335 pesan), dan `2` = Promo/Iklan (239 pesan). Data pribadi pada korpus ini telah dianonimkan oleh penyusun aslinya menggunakan penanda `nama1`.
@@ -65,11 +64,11 @@ Tabel berikut memuat daftar berkas mentah yang dikumpulkan beserta penulis atau 
 
 | ID Katalog | Lokasi Berkas | Jumlah Baris | Distribusi Kelas Biner | Keterangan Pengolahan | Checksum SHA-256 (16 Karakter Awal) |
 | :--- | :--- | :---: | :--- | :--- | :--- |
-| `FILE-PROC-01` | `data/dataset_pajak_curated.csv` | 260 baris | `1` (Phishing Pajak): 130<br>`0` (Aman/Resmi Pajak): 130 | Kurasi seimbang 50:50 dari 68 sumber resmi, dilengkapi kolom `Teks`, `label`, `kategori_modus`, `sumber_referensi`, `id_sumber`, dan `url_sumber`. | `4cdcf6da8748d89b` |
-| `FILE-PROC-02` | `data/processed/dataset_gabungan_utama_biner.csv` | 1.164 baris | `1` (Phishing/Fraud): 465<br>`0` (Aman/Normal): 699 | Penggabungan subset biner `raw_sms_spam_v1.csv` (904 baris) dan `dataset_pajak_curated.csv` (260 baris), dilengkapi kolom `clean_text`, `ada_token_apk`, `ada_token_url`, `jumlah_kata`, dan `jumlah_karakter`. | `1c3f04d390773a4a` |
-| `FILE-PROC-03` | `data/processed/dataset_gabungan_diperluas_biner.csv` | 2.521 baris | `1` (Phishing/Fraud): 822<br>`0` (Aman/Normal): 1.699 | Penggabungan terdeduplikasi berdasarkan `clean_text` dari korpus Rahmi (2016), Theodorus (2021), Saragih (2024), dan korpus pajak terkurasi (260 baris). | `9047e2390d695bf8` |
+| `FILE-PROC-01` | `04 Dataset/02 Data Olahan/Dataset Pajak Terkurasi 260 Baris.csv` | 260 baris | `1` (Phishing Pajak): 130<br>`0` (Aman/Resmi Pajak): 130 | Kurasi seimbang 50:50 dari 68 sumber resmi, dilengkapi kolom `Teks`, `label`, `kategori_modus`, `sumber_referensi`, `id_sumber`, dan `url_sumber`. | `4cdcf6da8748d89b` |
+| `FILE-PROC-02` | `04 Dataset/02 Data Olahan/Dataset Gabungan Utama Biner 1164 Baris.csv` | 1.164 baris | `1` (Phishing/Fraud): 465<br>`0` (Aman/Normal): 699 | Penggabungan subset biner `Rahmi 2016 Korpus SMS Spam Utama v1.csv` (904 baris) dan `Dataset Pajak Terkurasi 260 Baris.csv` (260 baris), dilengkapi kolom `clean_text`, `ada_token_apk`, `ada_token_url`, `jumlah_kata`, dan `jumlah_karakter`. | `1f203f93683009d6` |
+| `FILE-PROC-03` | `04 Dataset/02 Data Olahan/Dataset Gabungan Diperluas Biner 2521 Baris.csv` | 2.521 baris | `1` (Phishing/Fraud): 822<br>`0` (Aman/Normal): 1.699 | Penggabungan terdeduplikasi berdasarkan `clean_text` dari korpus Rahmi (2016), Theodorus (2021), Saragih (2024), dan korpus pajak terkurasi (260 baris). | `dc58b5484e58cbbf` |
 
-### Distribusi 22 Kategori Modus pada `data/dataset_pajak_curated.csv` (260 Baris)
+### Distribusi 22 Kategori Modus pada `Dataset Pajak Terkurasi 260 Baris.csv` (260 Baris)
 
 Penyeimbangan kelas `1` (130 baris) dan kelas `0` (130 baris) pada domain perpajakan dirancang agar algoritma Support Vector Machine (SVM) dan Random Forest tidak mengalami bias kata kunci (*keyword bias*). Apabila kosakata seperti `pajak`, `NPWP`, `Coretax`, `SPT`, `EFIN`, `M-Pajak`, atau `billing` hanya muncul pada kelas penipuan, model akan salah mengklasifikasikan pesan WhatsApp Blast resmi DJP sebagai *phishing*.
 
@@ -109,7 +108,7 @@ Penyeimbangan kelas `1` (130 baris) dan kelas `0` (130 baris) pada domain perpaj
 
 ## 4. Indikator Kompromi (*Indicators of Compromise*) & Kanal Resmi dari Rilis DJP
 
-Dari hasil *scraping* dokumen pengumuman resmi DJP (`data/raw/iocs_dan_kanal_resmi_djp.json`), berikut adalah indikator teknis yang tercatat secara eksplisit dalam rilis resmi pemerintah:
+Dari hasil *scraping* dokumen pengumuman resmi DJP (`04 Dataset/01 Data Mentah/DJP Indikator Penipuan dan Kanal Resmi.json`), berikut adalah indikator teknis yang tercatat secara eksplisit dalam rilis resmi pemerintah:
 
 1. **Domain *Phishing* yang Diumumkan Resmi oleh DJP**:
    - `djp[.]linepajak-go[.]com` (Sumber: `PENG-31/PJ.09/2024` / `SRC-001`)
@@ -130,9 +129,9 @@ Dari hasil *scraping* dokumen pengumuman resmi DJP (`data/raw/iocs_dan_kanal_res
 
 ---
 
-## 5. Daftar Lengkap 68 Sumber Web Resmi Hasil Scraping (`data/raw/scraped_official_tax_sources.json`)
+## 5. Daftar Lengkap 68 Sumber Web Resmi Hasil Scraping (`DJP Hasil Scrape 68 Sumber Resmi.json`)
 
-Seluruh teks bersih hasil *scraping* tersimpan di dalam `data/raw/scraped_official_tax_sources.json` dan ringkasannya di `data/raw/scraped_official_tax_sources_summary.csv`.
+Seluruh teks bersih hasil *scraping* tersimpan di dalam `04 Dataset/01 Data Mentah/DJP Hasil Scrape 68 Sumber Resmi.json` dan ringkasannya di `04 Dataset/01 Data Mentah/DJP Ringkasan Scrape 68 Sumber Resmi.csv`.
 
 | ID Sumber | Kategori Sumber | Instansi Penerbit | Nomor Dokumen / Rujukan | Tautan URL Resmi |
 | :--- | :--- | :--- | :--- | :--- |
@@ -181,12 +180,12 @@ Seluruh teks bersih hasil *scraping* tersimpan di dalam `data/raw/scraped_offici
 | `SRC-043` | Berita Layanan Resmi | KPP Pratama Jakarta Jatinegara | Inovasi WA Terverifikasi | https://www.pajak.go.id/id/berita/kpp-jatinegara-luncurkan-inovasi-layanan-whatsapp-terverifikasi |
 | `SRC-044` | Berita Layanan Resmi | KP2KP Perdagangan | Layanan Billing via WA | https://www.pajak.go.id/id/berita/kp2kp-perdagangan-bantu-wajib-pajak-buat-kode-billing-lewat-whatsapp |
 | `SRC-045` | Berita Layanan Resmi | Direktorat Jenderal Pajak | Portal Reformasi Coretax | https://pajak.go.id/id/reformdjp/coretax |
-| `SRC-046` s.d. `SRC-058` | Portal Berita Pajak | DDTC News | 13 Artikel Rilis Resmi DJP (`SP-12/2024`, `SP-30/2024`, `PENG-31`, `PENG-1`, `PENG-4`, `PENG-50`, WA Blast Coretax & Survei) | `https://news.ddtc.co.id` (tautan spesifik per artikel di `scraped_official_tax_sources_summary.csv`) |
-| `SRC-059` s.d. `SRC-061` | Portal Berita Pajak | Ortax | 3 Artikel Kajian Modus Penipuan Pejabat DJP & Coretax | `https://ortax.org` (tautan spesifik di `scraped_official_tax_sources_summary.csv`) |
-| `SRC-062` s.d. `SRC-064` | Portal Cek Fakta | Jalahoaks Pemprov DKI Jakarta | 3 Klarifikasi Hoaks WA Surat Tagihan Pajak, Pemadanan NPWP, & Pembaruan Data DJP | `https://jalahoaks.jakarta.go.id` (tautan spesifik di `scraped_official_tax_sources_summary.csv`) |
+| `SRC-046` s.d. `SRC-058` | Portal Berita Pajak | DDTC News | 13 Artikel Rilis Resmi DJP (`SP-12/2024`, `SP-30/2024`, `PENG-31`, `PENG-1`, `PENG-4`, `PENG-50`, WA Blast Coretax & Survei) | `https://news.ddtc.co.id` (tautan spesifik per artikel di `DJP Ringkasan Scrape 68 Sumber Resmi.csv`) |
+| `SRC-059` s.d. `SRC-061` | Portal Berita Pajak | Ortax | 3 Artikel Kajian Modus Penipuan Pejabat DJP & Coretax | `https://ortax.org` (tautan spesifik di `DJP Ringkasan Scrape 68 Sumber Resmi.csv`) |
+| `SRC-062` s.d. `SRC-064` | Portal Cek Fakta | Jalahoaks Pemprov DKI Jakarta | 3 Klarifikasi Hoaks WA Surat Tagihan Pajak, Pemadanan NPWP, & Pembaruan Data DJP | `https://jalahoaks.jakarta.go.id` (tautan spesifik di `DJP Ringkasan Scrape 68 Sumber Resmi.csv`) |
 | `SRC-065` | Edukasi Keamanan Bank | PT Bank Central Asia Tbk (BCA) | Awas Modus Penipuan Pajak Mengatasnamakan DJP | https://www.bca.co.id/id/informasi/awas-modus/2024/10/01/08/21/awas-modus-penipuan-pajak-mengatasnamakan-djp |
-| `SRC-066` s.d. `SRC-067` | Kantor Berita Nasional | LKBN Antara | Imbauan DJP & Peringatan Kemkomdigi soal Phishing Coretax DJP | `https://www.antaranews.com` (tautan spesifik di `scraped_official_tax_sources_summary.csv`) |
-| `SRC-068` s.d. `SRC-069` | Media Ekonomi Nasional | DetikFinance | Daftar Modus Penipuan Terbaru Catut Nama DJP | `https://finance.detik.com` (tautan spesifik di `scraped_official_tax_sources_summary.csv`) |
+| `SRC-066` s.d. `SRC-067` | Kantor Berita Nasional | LKBN Antara | Imbauan DJP & Peringatan Kemkomdigi soal Phishing Coretax DJP | `https://www.antaranews.com` (tautan spesifik di `DJP Ringkasan Scrape 68 Sumber Resmi.csv`) |
+| `SRC-068` s.d. `SRC-069` | Media Ekonomi Nasional | DetikFinance | Daftar Modus Penipuan Terbaru Catut Nama DJP | `https://finance.detik.com` (tautan spesifik di `DJP Ringkasan Scrape 68 Sumber Resmi.csv`) |
 
 ---
 
@@ -195,13 +194,13 @@ Seluruh teks bersih hasil *scraping* tersimpan di dalam `data/raw/scraped_offici
 Untuk mereproduksi seluruh berkas data olahan dan katalog provenans dari berkas mentah, jalankan:
 
 ```powershell
-.\.venv\Scripts\python.exe -m src.scrape_and_curate_data
+& "$env:LOCALAPPDATA\venvs\ta-phishing-pajak-unsia\Scripts\python.exe" -m src.kurasi_dataset
 ```
 
 Untuk menjalankan evaluasi komparasi *baseline* Support Vector Machine (`LinearSVC`) dan `RandomForestClassifier` (pembagian *stratified train-test split* 80:20, TF-IDF *n-gram* `(1, 2)` dengan 3.000 fitur, praproses *stopword removal* dan *stemming* Sastrawi, serta tokenisasi khusus `token_apk` dan `token_url`):
 
 ```powershell
-.\.venv\Scripts\python.exe src\explore_data.py
+& "$env:LOCALAPPDATA\venvs\ta-phishing-pajak-unsia\Scripts\python.exe" src\eksperimen_baseline.py
 ```
 
 ### Ringkasan Performa Baseline pada Dataset Gabungan Utama (1.164 Baris; Data Uji = 233 Baris)

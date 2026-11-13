@@ -10,8 +10,8 @@ __pycache__/
 *.joblib
 *.pkl
 *.mp4
-doc/referensi/ebook_metodologi/
-doc/referensi/daftar_pustaka/*.pdf
+03 Referensi/Ebook Metodologi/
+03 Referensi/Daftar Pustaka/*.pdf
 
 # OS & Office temporary files
 ~$*

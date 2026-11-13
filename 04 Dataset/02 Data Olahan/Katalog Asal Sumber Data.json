@@ -1,7 +1,7 @@
 [
   {
     "id_katalog": "FILE-RAW-01",
-    "nama_file": "data/raw_sms_spam_v1.csv",
+    "nama_file": "04 Dataset/01 Data Mentah/Rahmi 2016 Korpus SMS Spam Utama v1.csv",
     "jenis_data": "File Mentah (Korpus Dasar Utama)",
     "instansi_atau_penulis": "Ferdila Rahmi & Yudi Wibisono (Universitas Pendidikan Indonesia, 2016)",
     "lisensi": "CC BY-SA 4.0",
@@ -11,7 +11,7 @@
   },
   {
     "id_katalog": "FILE-RAW-02",
-    "nama_file": "data/raw/raw_sms_spam_rahmi2016.csv",
+    "nama_file": "04 Dataset/01 Data Mentah/Rahmi 2016 Arsip Asli SMS Spam.csv",
     "jenis_data": "File Mentah (Salinan Arsip Rahmi & Wibisono 2016)",
     "instansi_atau_penulis": "Ferdila Rahmi & Yudi Wibisono (UPI, 2016)",
     "lisensi": "CC BY-SA 4.0",
@@ -21,7 +21,7 @@
   },
   {
     "id_katalog": "FILE-RAW-03",
-    "nama_file": "data/raw/raw_sms_theodorus2021.csv",
+    "nama_file": "04 Dataset/01 Data Mentah/Theodorus 2021 Korpus SMS Spam IEEE.csv",
     "jenis_data": "File Mentah (Korpus Benchmark IEEE EIConCIT 2021)",
     "instansi_atau_penulis": "Agustinus Theodorus, Tio K. Prasetyo, Reynaldi Hartono, Derwin Suhartono (BINUS University, 2021)",
     "lisensi": "CC BY-SA 4.0",
@@ -31,7 +31,7 @@
   },
   {
     "id_katalog": "FILE-RAW-04",
-    "nama_file": "data/raw/raw_phishing_sms_indo_kurniawan2024.csv",
+    "nama_file": "04 Dataset/01 Data Mentah/Kurniawan 2024 Korpus Phishing SMS dan Email Indo.csv",
     "jenis_data": "File Mentah (Korpus Phishing SMS & Email Bahasa Indonesia)",
     "instansi_atau_penulis": "Rasen Kurniawan (2024) - Kompilasi Kaggle & Gist Yudi Wibisono",
     "lisensi": "Open Source GitHub",
@@ -41,7 +41,7 @@
   },
   {
     "id_katalog": "FILE-RAW-05",
-    "nama_file": "data/raw/raw_sms_spam_saragih2024.csv",
+    "nama_file": "04 Dataset/01 Data Mentah/Saragih 2024 Korpus SMS Spam Indo.csv",
     "jenis_data": "File Mentah (Korpus Klasifikasi SMS Spam Indonesia)",
     "instansi_atau_penulis": "Samuel Cristian Saragih (2024)",
     "lisensi": "MIT License",
@@ -51,7 +51,7 @@
   },
   {
     "id_katalog": "FILE-RAW-06",
-    "nama_file": "data/raw/scraped_official_tax_sources.json",
+    "nama_file": "04 Dataset/01 Data Mentah/DJP Hasil Scrape 68 Sumber Resmi.json",
     "jenis_data": "File Mentah Hasil Web Scraping 68 Halaman Resmi Pajak & Cek Fakta",
     "instansi_atau_penulis": "DJP (pajak.go.id), DDTC News, Ortax, Jalahoaks DKI, BCA, Antara, DetikFinance",
     "lisensi": "Informasi Publik Pemerintah & Berita Terverifikasi",
@@ -61,7 +61,7 @@
   },
   {
     "id_katalog": "FILE-RAW-07",
-    "nama_file": "data/raw/iocs_dan_kanal_resmi_djp.json",
+    "nama_file": "04 Dataset/01 Data Mentah/DJP Indikator Penipuan dan Kanal Resmi.json",
     "jenis_data": "File Mentah Ekstraksi IOC (Domain/Nomor Penipu) & Kanal Resmi DJP",
     "instansi_atau_penulis": "Direktorat Jenderal Pajak (PENG-31/PJ.09/2024 s.d. PENG-50/PJ.09/2025)",
     "lisensi": "Informasi Publik DJP",
@@ -71,7 +71,7 @@
   },
   {
     "id_katalog": "FILE-PROC-01",
-    "nama_file": "data/dataset_pajak_curated.csv",
+    "nama_file": "04 Dataset/02 Data Olahan/Dataset Pajak Terkurasi 260 Baris.csv",
     "jenis_data": "File Olahan (Korpus Spesifik Domain Perpajakan Seimbang)",
     "instansi_atau_penulis": "Kurasi Terverifikasi dari 68 Sumber Resmi DJP, KPP/KP2KP, Jalahoaks, DDTC, Ortax, BCA",
     "lisensi": "CC BY-SA 4.0",
@@ -81,7 +81,7 @@
   },
   {
     "id_katalog": "FILE-PROC-02",
-    "nama_file": "data/processed/dataset_gabungan_utama_biner.csv",
+    "nama_file": "04 Dataset/02 Data Olahan/Dataset Gabungan Utama Biner 1164 Baris.csv",
     "jenis_data": "File Olahan Utama (Korpus Dasar Biner Rahmi 2016 + Korpus Pajak 260 Baris)",
     "instansi_atau_penulis": "Pipeline Eksperimen Tugas Akhir (Rahmi 2016 + Kurasi DJP 2024-2026)",
     "lisensi": "CC BY-SA 4.0",
@@ -91,7 +91,7 @@
   },
   {
     "id_katalog": "FILE-PROC-03",
-    "nama_file": "data/processed/dataset_gabungan_diperluas_biner.csv",
+    "nama_file": "04 Dataset/02 Data Olahan/Dataset Gabungan Diperluas Biner 2521 Baris.csv",
     "jenis_data": "File Olahan Diperluas (Lintas Korpus Rahmi 2016 + Theodorus 2021 + Saragih 2024 + Pajak)",
     "instansi_atau_penulis": "Pipeline Eksperimen Tugas Akhir (Multi-Corpus Benchmark)",
     "lisensi": "CC BY-SA 4.0",

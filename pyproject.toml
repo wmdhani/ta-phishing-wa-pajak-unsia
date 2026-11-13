@@ -2,7 +2,7 @@
 name = "ta-phishing-pajak-unsia"
 version = "0.1.0"
 description = "Tugas Akhir Prototype PJJ Informatika UNSIA: Komparasi SVM dan Random Forest dalam Deteksi Pesan Phishing WhatsApp Mengatasnamakan Otoritas Perpajakan"
-readme = "data/README_DATASET.md"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "matplotlib>=3.9.0",
