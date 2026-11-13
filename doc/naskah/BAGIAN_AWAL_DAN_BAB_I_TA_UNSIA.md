@@ -62,13 +62,13 @@ Laporan Tugas Akhir ini telah berhasil dipertahankan di hadapan Dewan Penguji da
 
 # ABSTRAK
 
-Penipuan rekayasa sosial (*phishing*) pada WhatsApp yang mengatasnamakan Direktorat Jenderal Pajak marak terjadi melalui kiriman berkas `.apk` dan tautan tiruan *Coretax*. Penelitian ini bertujuan menguji dan membandingkan algoritma *Support Vector Machine* serta *Random Forest* berbasis pembobotan *Term Frequency-Inverse Document Frequency* (TF-IDF) untuk mendeteksi *phishing* perpajakan. Penelitian ini juga membuat *prototype* aplikasi web verifikasi mandiri. Metode eksperimental diterapkan pada 1.164 pesan berbahasa Indonesia yang memadukan 904 pesan umum dan 260 pesan pajak seimbang. Hasil pengujian membuktikan *Support Vector Machine* mencapai akurasi 98,71%, *recall* 1,00, dan *F1-Score* 0,98, mengungguli *Random Forest* berakurasi 96,57%. Model terbaik diintegrasikan ke Streamlit.
+Penipuan *phishing* pada WhatsApp berkedok Direktorat Jenderal Pajak kerap memanfaatkan berkas `.apk` serta tautan *Coretax* palsu. Penelitian ini membandingkan *Support Vector Machine* dan *Random Forest* berbasis pembobotan *Term Frequency-Inverse Document Frequency* (TF-IDF) sekaligus membangun *prototype* web verifikasi mandiri. Uji eksperimental memadukan 904 pesan umum dan 260 pesan pajak seimbang melalui *stopword removal* serta *stemming* Sastrawi menjadi 1.164 data teks. Hasil membuktikan *Support Vector Machine* meraih akurasi 98,28%, *recall* 0,98, dan *F1-Score* 0,98, mengungguli *Random Forest* berakurasi 95,28% (*recall* 0,95; *F1-Score* 0,94). Integrasi model terbaik pada Streamlit memudahkan verifikasi pesan secara cepat.
 
 Kata Kunci: Deteksi Phishing, Otoritas Perpajakan, Random Forest, Support Vector Machine, TF-IDF.
 
 # ABSTRACT
 
-Social engineering (*phishing*) scams on WhatsApp impersonating the Directorate General of Taxes have proliferated via malicious `.apk` files and fake *Coretax* links. This study aims to test and compare *Support Vector Machine* and *Random Forest* algorithms using *Term Frequency-Inverse Document Frequency* (TF-IDF) features to detect tax *phishing* messages. This research also builds a web prototype for independent verification. An experimental method is applied to 1,164 Indonesian messages combining 904 general texts and 260 balanced tax messages. Results prove *Support Vector Machine* achieves 98.71% accuracy, 1.00 recall, and 0.98 *F1-Score*, outperforming *Random Forest* (96.57%). The model powers Streamlit.
+WhatsApp *phishing* scams impersonating the Directorate General of Taxes frequently distribute malicious `.apk` files and fake *Coretax* links. This study compares *Support Vector Machine* and *Random Forest* with *Term Frequency-Inverse Document Frequency* (TF-IDF) weighting while building a self-verification web prototype. Experimental testing combines 904 general texts and 260 balanced tax messages processed via Sastrawi stopword removal and stemming into 1,164 records. Results prove *Support Vector Machine* achieves 98.28% accuracy, 0.98 recall, and 0.98 *F1-Score*, outperforming *Random Forest* at 95.28% accuracy (0.95 recall; 0.94 *F1-Score*). Integrating the best model into Streamlit enables rapid message verification.
 
 Keywords: Phishing Detection, Random Forest, Support Vector Machine, Tax Authority, TF-IDF.
 
@@ -111,35 +111,17 @@ Penulis menyadari bahwa laporan Tugas Akhir ini masih memiliki keterbatasan yang
 | Halaman Pengesahan | iii |
 | Halaman Abstrak dan *Abstract* | iv |
 | Kata Pengantar | v |
-| Daftar Isi | vi |
-| Daftar Tabel | vii |
+| Daftar Isi | vii |
 | Daftar Gambar | viii |
+| Daftar Tabel | ix |
 | Bab I Pendahuluan | 1 |
 | 1.1 Latar Belakang Masalah | 1 |
-| 1.2 Rumusan Masalah | 3 |
-| 1.3 Batasan Masalah | 4 |
-| 1.4 Tujuan Penelitian | 5 |
+| 1.2 Rumusan Masalah | 2 |
+| 1.3 Batasan Masalah | 3 |
+| 1.4 Tujuan Penelitian | 4 |
 | 1.5 Manfaat Penelitian | 5 |
 | 1.6 Metode Penelitian | 6 |
-| Bab II Landasan Metode | 8 |
-| Bab III Implementasi Metode Usulan | 14 |
-| Bab IV Hasil dan Analisa | 20 |
-| Bab V Kesimpulan | 26 |
-| Daftar Pustaka | 28 |
-| Lampiran | 30 |
-
----
-
-# DAFTAR TABEL
-
-| Nomor Tabel | Judul Tabel | Halaman |
-| :--- | :--- | :---: |
-| Tabel 1.1 | Komposisi Korpus Dataset Penelitian | 6 |
-| Tabel 2.1 | Matriks Penelitian Terdahulu | 10 |
-| Tabel 2.2 | Definisi Operasional Variabel dan Parameter | 13 |
-| Tabel 3.1 | Spesifikasi Lingkungan Pengembangan Prototipe | 15 |
-| Tabel 4.1 | Hasil Komparasi Kinerja Model pada Data Uji | 21 |
-| Tabel 4.2 | Evaluasi Tingkat Kesiapan Teknologi (TKT) Sistem | 25 |
+| Daftar Pustaka | 8 |
 
 ---
 
@@ -148,10 +130,14 @@ Penulis menyadari bahwa laporan Tugas Akhir ini masih memiliki keterbatasan yang
 | Nomor Gambar | Judul Gambar | Halaman |
 | :--- | :--- | :---: |
 | Gambar 1.1 | Tahapan Metode Penelitian | 7 |
-| Gambar 2.1 | Bagan Alir Prosedur Operasional Penelitian | 11 |
-| Gambar 3.1 | Arsitektur Sistem dan Antarmuka Purwarupa Streamlit | 18 |
-| Gambar 4.1 | Perbandingan *Confusion Matrix* Algoritma SVM dan *Random Forest* | 22 |
-| Gambar 4.2 | Pengujian Fungsional Deteksi Pesan pada Aplikasi Web | 24 |
+
+---
+
+# DAFTAR TABEL
+
+| Nomor Tabel | Judul Tabel | Halaman |
+| :--- | :--- | :---: |
+| Tabel 1.1 | Komposisi Korpus Dataset Penelitian | 6 |
 
 ---
 
@@ -159,17 +145,17 @@ Penulis menyadari bahwa laporan Tugas Akhir ini masih memiliki keterbatasan yang
 
 ## 1.1 Latar Belakang Masalah
 
-Transformasi digital pada administrasi perpajakan di Indonesia telah mendorong Direktorat Jenderal Pajak (DJP) untuk memperluas pemanfaatan saluran komunikasi elektronik [1]. Inovasi layanan itu mencakup pembaruan sistem inti administrasi perpajakan (*Coretax Administration System*) pada laman `coretaxdjp.pajak.go.id` dan aplikasi bergerak *M-Pajak*. Pemerintah juga menggencarkan pemadanan Nomor Induk Kependudukan (NIK) sebagai Nomor Pokok Wajib Pajak (NPWP) serta pengiriman informasi melalui *WhatsApp Blast* resmi [2]. Saluran pesan instan tersebut mempercepat penyampaian pengingat Surat Pemberitahuan (SPT) Tahunan kepada masyarakat. Namun, celah kerawanan baru ikut terbuka.
+Transformasi digital pada administrasi perpajakan di Indonesia memperluas pemanfaatan saluran komunikasi elektronik oleh Direktorat Jenderal Pajak (DJP) [1]. Pembaruan itu mencakup peluncuran sistem inti administrasi perpajakan (*Coretax Administration System*) pada laman `coretaxdjp.pajak.go.id` serta aplikasi bergerak *M-Pajak*. Di samping pemadanan Nomor Induk Kependudukan (NIK) sebagai Nomor Pokok Wajib Pajak (NPWP), layanan tersebut juga memanfaatkan *WhatsApp Blast* resmi [2]. Saluran pesan instan ini sukses mempercepat penyampaian pengingat Surat Pemberitahuan (SPT) Tahunan kepada wajib pajak. Namun, keterbukaan kanal itu ikut membuka celah penipuan digital yang berbahaya.
 
-Kepercayaan masyarakat terhadap saluran komunikasi instansi pemerintah itu dimanfaatkan oleh pelaku kejahatan siber melalui serangan rekayasa sosial (*social engineering*) pada WhatsApp [3], [4]. Kompilasi terhadap 68 dokumen pengumuman resmi DJP (`PENG-31/PJ.09/2024` hingga `PENG-50/PJ.09/2025`) dan laporan kasus Kantor Pelayanan Pajak (KPP) mengungkap dua belas kategori modus penipuan perpajakan [5]. Pelaku mengirimkan berkas berbahaya berformat *Android Package Kit* (`.apk`) berkedok aplikasi *Coretax* atau *M-Pajak* kepada calon korban. Modus lainnya menggunakan tautan situs tiruan `coretax-online.com` dan `djp.linepajak-go.com` maupun tagihan pajak palsu berformat PDF. Tujuannya adalah memicu kepanikan calon korban.
+Kepercayaan wajib pajak terhadap kanal resmi instansi memicu maraknya serangan rekayasa sosial (*social engineering*) melalui aplikasi WhatsApp [3], [4]. Kompilasi terhadap 68 dokumen pengumuman resmi DJP (`PENG-31/PJ.09/2024` hingga `PENG-50/PJ.09/2025`) dan laporan kasus Kantor Pelayanan Pajak (KPP) mengungkap dua belas kategori modus penipuan perpajakan [5]. Penyerang menyebarkan berkas berbahaya berformat *Android Package Kit* (`.apk`) dengan menyamar sebagai pembaruan aplikasi *Coretax* maupun *M-Pajak*. Pelaku juga menyisipkan tautan tiruan seperti `coretax-online.com` dan `djp.linepajak-go.com` atau tagihan pajak palsu berformat PDF untuk memicu kepanikan korban.
 
-Wajib pajak awam maupun staf administrasi perusahaan sering kesulitan ketika harus membedakan pesan *WhatsApp Blast* resmi DJP dari pesan penipuan tersebut [1], [5]. Hal ini terjadi karena pelaku meniru format surat dinas yang mencantumkan nomor peraturan perpajakan secara meyakinkan. Pesan palsu itu juga memuat istilah administrasi resmi seperti kode *billing* dan *Electronic Filing Identification Number* (EFIN). Apabila sistem deteksi hanya dilatih memakai korpus spam umum tanpa penyeimbangan teks resmi perpajakan, model akan mengalami bias kata kunci (*keyword bias*). Akibatnya, pesan resmi ikut terdeteksi sebagai penipuan.
+Wajib pajak awam maupun staf administrasi perusahaan kerap kesulitan membedakan *WhatsApp Blast* resmi DJP dari pesan penipuan [1], [5]. Kemiripan itu sengaja dirancang pelaku dengan meniru struktur surat dinas lengkap beserta pencantuman nomor peraturan perpajakan. Pesan tiruan tersebut juga menyelipkan istilah sahih seperti kode *billing* dan *Electronic Filing Identification Number* (EFIN). Model deteksi yang semata dilatih pada korpus spam umum rentan terkena bias kata kunci. Pesan resmi DJP pun rentan terblokir keliru.
 
-Sejumlah penelitian terdahulu telah menguji algoritma pembelajaran mesin untuk penyaringan pesan spam berbahasa Indonesia. Studi komparatif pada korpus pesan singkat (SMS) umum membuktikan bahwa *Support Vector Machine* (SVM) dan *Random Forest* menghasilkan akurasi tinggi saat dipadukan dengan pembobotan *Term Frequency-Inverse Document Frequency* (TF-IDF) maupun *Term Frequency-Relevance Frequency* (TF-RF) [6], [7], [8], [9]. Penelitian lain membahas deteksi tautan *phishing* berbasis fitur *Uniform Resource Locator* (URL) [10] dan klasifikasi *email phishing* berbahasa Inggris [11]. Kajian pada WhatsApp pun sudah mulai diterapkan untuk deteksi *phishing* berbahasa lokal Surabaya [12] serta spam bot umum [13], [14]. Objek kajiannya masih bersifat umum.
+Berbagai studi terdahulu menguji algoritma pembelajaran mesin untuk menyaring pesan berbahaya lintas bahasa. Eksperimen pada pesan singkat (SMS) Indonesia membuktikan *Support Vector Machine* (SVM) dan *Random Forest* meraih akurasi tinggi ketika dipadukan bersama pembobotan *Term Frequency-Inverse Document Frequency* (TF-IDF) maupun *Term Frequency-Relevance Frequency* (TF-RF) [6], [7], [8], [9], [10]. Kajian serupa menyasar identifikasi tautan *phishing* berbasis fitur *Uniform Resource Locator* (URL) [11] serta penyaringan spam surel [12], [13]. Riset WhatsApp sebelumnya baru menjangkau dialek Surabaya [14], *bot* umum [15], dan penipuan umum [16].
 
-Meskipun metode klasifikasi teks telah berkembang, kajian khusus mengenai penipuan beratasnamakan otoritas perpajakan masih sangat terbatas. Studi sebelumnya tentang penyalahgunaan data wajib pajak baru meninjau aspek hukum tanpa membangun sistem deteksi otomatis [3]. Celah penelitian (*research gap*) ini menunjukkan belum adanya komparasi *Support Vector Machine* dan *Random Forest* pada teks *phishing* perpajakan di WhatsApp. Kebaruan ilmiah (*novelty*) penelitian ini hadir melalui penyusunan 260 pesan pajak seimbang yang dipadukan dengan 904 pesan umum. Praproses teks juga dilengkapi tokenisasi pola `.apk` (`token_apk`) dan tautan (`token_url`).
+Kajian khusus deteksi penipuan bertema otoritas perpajakan masih tergolong langka. Riset terdahulu soal penyalahgunaan data wajib pajak baru menelaah sisi regulasi tanpa merancang model otomatis [3]. Celah riset (*research gap*) inilah yang memotivasi komparasi SVM terhadap *Random Forest* pada teks *phishing* WhatsApp bertema pajak. Kebaruan penelitian hadir lewat penyusunan 260 pesan pajak seimbang bersama 904 pesan umum, disertai tokenisasi khusus pola berkas `.apk` (`token_apk`) serta tautan (`token_url`).
 
-Luaran (*outcome*) penelitian ini diwujudkan menjadi suatu purwarupa (*prototype*) aplikasi web interaktif berbasis bahasa pemrograman Python dan *framework* Streamlit [15], [16]. Aplikasi tersebut mengintegrasikan model klasifikasi terbaik untuk mencapai Tingkat Kesiapan Teknologi (TKT) level 6 melalui demonstrasi sistem pada lingkungan kasus yang relevan. Pengguna dapat langsung menempelkan teks pesan WhatsApp yang mencurigakan pada antarmuka aplikasi untuk memperoleh status klasifikasi beserta skor kemungkinannya. Pada tahap pengembangan selanjutnya (*future prospect development*), model ini dapat dijadikan layanan *Application Programming Interface* (API). Sistem tersebut mendukung pelindungan wajib pajak.
+Luaran penelitian berwujud *prototype* aplikasi web interaktif berbasis Python dan *framework* Streamlit [17], [18]. Aplikasi ini ditargetkan mencapai Tingkat Kesiapan Teknologi (TKT) level 6 melalui demonstrasi kasus nyata yang relevan. Pengguna dapat menempelkan teks WhatsApp mencurigakan guna memperoleh status klasifikasi beserta skor kemungkinannya. Mesin klasifikasi itu juga mudah diperluas menjadi layanan *Application Programming Interface* (API) demi memperkuat pelindungan wajib pajak.
 
 ## 1.2 Rumusan Masalah
 
@@ -187,9 +173,9 @@ Agar pembahasan dalam penelitian ini tetap terarah dan fokus pada pokok persoala
 
 a) Objek penelitian dibatasi pada analisis klasifikasi biner terhadap teks pesan singkat berbahasa Indonesia. Kelas pertama adalah pesan penipuan atau rekayasa sosial (*phishing/fraud* berlabel `1`), sedangkan kelas kedua adalah pesan aman atau layanan resmi perpajakan (berlabel `0`).
 
-b) Sumber data penelitian menggunakan korpus publik terbuka tanpa memakai data rahasia internal wajib pajak. Dataset gabungan utama berjumlah 1.164 baris yang terdiri atas 904 baris korpus dasar SMS berbahasa Indonesia [6] dan 260 baris korpus spesifik perpajakan terkurasi seimbang dari 68 publikasi resmi periode 2024 sampai 2026 [2], [5].
+b) Sumber data penelitian menggunakan korpus publik terbuka tanpa memakai data rahasia internal wajib pajak. Total dataset gabungan utama memuat 1.164 baris pesan singkat. Korpus itu memadukan 904 baris SMS berbahasa Indonesia [6] dan 260 baris teks spesifik perpajakan dari 68 publikasi resmi periode 2024 sampai 2026 [2], [5].
 
-c) Tahapan praproses teks (*text preprocessing*) meliputi pembersihan karakter nonalfanumerik, penyeragaman huruf kecil (*case folding*), serta pengubahan pola berkas `.apk` menjadi `token_apk` dan tautan menjadi `token_url`. Proses tersebut dilanjutkan dengan penghapusan kata henti (*stopword removal*), *stemming* Sastrawi, dan pembobotan TF-IDF *n-gram* $(1, 2)$ maksimal 3.000 fitur.
+c) Tahapan praproses teks (*text preprocessing*) meliputi pembersihan karakter nonalfanumerik, penyeragaman huruf kecil (*case folding*), pengubahan pola berkas `.apk` menjadi `token_apk`, serta transformasi tautan menjadi `token_url` sebelum melewati penghapusan kata henti (*stopword removal*), *stemming* Sastrawi, dan pembobotan TF-IDF *n-gram* (1, 2) maksimal 3.000 fitur.
 
 d) Algoritma klasifikasi pembelajaran mesin yang dibandingkan dalam eksperimen ini dibatasi pada metode *Support Vector Machine* (*LinearSVC*) dan *Random Forest Classifier*. Pembagian himpunan data latih terhadap data uji dilakukan secara terstratifikasi (*stratified train-test split*) dengan proporsi 80:20, yaitu 931 data latih dan 233 data uji.
 
@@ -219,25 +205,27 @@ c) Manfaat bagi Masyarakat dan Wajib Pajak: Menyediakan alat bantu verifikasi ma
 
 ## 1.6 Metode Penelitian
 
-Penelitian ini menggunakan pendekatan kuantitatif eksperimental yang dipadukan dengan metode perancangan teknik atau *Research and Development* (R&D) sesuai skema Tugas Akhir *Prototype* di Universitas Siber Asia [15], [16]. Pengumpulan data dilakukan melalui studi dokumentasi dan ekstraksi otomatis (*web scraping*) pada 68 sumber informasi publik yang otoritatif [17]. Sumber tersebut meliputi pengumuman resmi Direktorat Jenderal Pajak (`pajak.go.id`), siaran pers unit kerja KPP, portal cek fakta pemerintah daerah, serta berita perpajakan nasional terverifikasi [2], [5]. Seluruh data yang dihimpun merupakan informasi publik terbuka sehingga tidak melanggar kerahasiaan data wajib pajak.
+Penelitian ini menerapkan pendekatan kuantitatif eksperimental yang dipadukan bersama *Research and Development* (R&D) sesuai skema Tugas Akhir *Prototype* di Universitas Siber Asia [17], [18]. Pengumpulan data ditempuh lewat studi dokumentasi dan ekstraksi otomatis pada 68 sumber informasi publik otoritatif [19]. Sumber tersebut mencakup pengumuman resmi Direktorat Jenderal Pajak (`pajak.go.id`), siaran pers KPP, portal cek fakta, serta berita pajak terverifikasi [2], [5]. Seluruh data bersifat publik terbuka.
 
-Data spesifik perpajakan yang terkumpul sebanyak 260 baris tersebut dikurasi secara seimbang menjadi 130 pesan *phishing* dari 12 kategori modus dan 130 pesan resmi dari 10 kategori layanan. Penyeimbangan proporsi kelas ini dilakukan agar model klasifikasi tidak mengalami bias kata kunci terhadap istilah administrasi perpajakan. Korpus perpajakan itu kemudian digabungkan dengan 904 baris korpus dasar SMS berbahasa Indonesia berlisensi terbuka sehingga membentuk dataset gabungan utama sebanyak 1.164 baris [6], [7]. Rincian komposisi datanya tampak pada Tabel 1.1.
+Data spesifik perpajakan sebanyak 260 baris tersebut dikurasi seimbang menjadi 130 pesan *phishing* dari 12 kategori modus dan 130 pesan resmi dari 10 kategori layanan. Penyeimbangan kelas itu mencegah bias kata kunci perpajakan. Korpus pajak lalu digabung bersama 904 baris korpus dasar SMS berbahasa Indonesia hingga membentuk dataset utama sebanyak 1.164 baris [6]. Rincian komposisi datanya tersaji pada Tabel 1.1.
 
 Tabel 1.1 Komposisi Korpus Dataset Penelitian
 
 | Nama Korpus Data | Sumber Rujukan Utama | Kelas Phishing (Baris) | Kelas Aman (Baris) | Total Rekaman (Baris) |
 | :--- | :--- | :---: | :---: | :---: |
-| Korpus Dasar SMS Indonesia | Repositori Publik UPI & IEEE EIConCIT [6], [7] | 335 | 569 | 904 |
+| Korpus Dasar SMS Indonesia | Repositori Publik UPI (Rahmi & Wibisono) [6] | 335 | 569 | 904 |
 | Korpus Spesifik Perpajakan | Kurasi 68 Sumber Resmi DJP & Cek Fakta [2], [5] | 130 | 130 | 260 |
-| Dataset Gabungan Utama | Penggabungan Biner Terverifikasi SHA-256 | 465 | 699 | 1.164 |
+| Dataset Gabungan Utama | Penggabungan Korpus Dasar dan Perpajakan | 465 | 699 | 1.164 |
 
-Tahap analisis data diawali praproses teks bahasa Indonesia yang meliputi pembersihan karakter, *case folding*, tokenisasi `token_apk` dan `token_url`, penghapusan kata henti, serta *stemming* Sastrawi. Teks bersih itu diubah menjadi matriks numerik dengan pembobotan TF-IDF *n-gram* $(1, 2)$ maksimal 3.000 fitur, lalu dibagi terstratifikasi sebesar 80:20 [18], [19]. Selanjutnya, dilakukan pelatihan dan penalaan parameter pada *Support Vector Machine* (*LinearSVC*) serta *Random Forest Classifier*. Kinerja kedua model diukur memakai *Confusion Matrix* dan diintegrasikan ke aplikasi Streamlit pada TKT level 6. Urutan tahapan itu tampak pada Gambar 1.1.
+Sumber: Olahan Data Penelitian (2026).
+
+Tahap analisis data diawali praproses teks bahasa Indonesia yang meliputi pembersihan karakter, *case folding*, tokenisasi `token_apk` serta `token_url`, penghapusan kata henti (*stopword removal*), dan *stemming* Sastrawi. Teks bersih itu diubah menjadi matriks numerik lewat pembobotan TF-IDF *n-gram* (1, 2) maksimal 3.000 fitur, lalu dibagi terstratifikasi sebesar 80:20 [20], [21]. Selanjutnya, proses pelatihan dan penalaan parameter dijalankan pada *Support Vector Machine* (*LinearSVC*) maupun *Random Forest Classifier*. Kinerja kedua model diukur memakai *Confusion Matrix* dan diintegrasikan ke aplikasi Streamlit pada TKT level 6. Urutan tahapan tersebut tergambar pada Gambar 1.1.
 
 ![Gambar 1.1 Tahapan Metode Penelitian.](assets/gambar_1_1_tahapan_penelitian.png)
 
 Gambar 1.1 Tahapan Metode Penelitian.
 
-Berdasarkan karakteristik matriks fitur TF-IDF yang berdimensi tinggi dan bersifat renggang (*sparse matrix*), penelitian ini merumuskan hipotesis kerja untuk diuji secara empiris pada tahap eksperimen [18], [19]. Hipotesis penelitian ini menyatakan bahwa terdapat perbedaan kinerja klasifikasi yang terukur antara kedua algoritma, dan algoritma *Support Vector Machine* (*LinearSVC*) menghasilkan nilai *Recall* serta *F1-Score* deteksi pesan *phishing* perpajakan yang lebih unggul dibandingkan *Random Forest*. Hasil eksperimen pendahuluan (*baseline*) pada 233 data uji mendukung hipotesis tersebut karena *Support Vector Machine* mampu mencapai akurasi 98,71% dan *Recall* 1,00. Capaian itu melampaui algoritma *Random Forest* yang memperoleh akurasi 96,57% serta *Recall* 0,95.
+Berdasarkan sifat matriks fitur TF-IDF yang berdimensi tinggi dan renggang (*sparse matrix*), riset ini menetapkan hipotesis kerja untuk diuji pada tahap eksperimen [20], [21]. Hipotesis menyatakan adanya perbedaan kinerja terukur, dengan *Support Vector Machine* (*LinearSVC*) meraih *Recall* dan *F1-Score* lebih tinggi daripada *Random Forest*. Uji pendahuluan pada 233 data uji membuktikan *Support Vector Machine* mencapai akurasi 98,28%, *Recall* 0,98, serta *F1-Score* 0,98 dengan hanya dua galat negatif palsu dan dua positif palsu. *Random Forest* tertinggal pada akurasi 95,28%, *Recall* 0,95, dan *F1-Score* 0,94.
 
 ---
 
@@ -247,7 +235,7 @@ Berdasarkan karakteristik matriks fitur TF-IDF yang berdimensi tinggi dan bersif
 
 [2] Direktorat Jenderal Pajak, “Pengiriman WhatsApp Blast dalam rangka edukasi Coretax DJP,” *Portal Resmi Direktorat Jenderal Pajak Kementerian Keuangan Republik Indonesia*, 2024. [Online]. Available: https://www.pajak.go.id/id/pengumuman/pengiriman-whatsapp-blast-dalam-rangka-edukasi-coretax-djp
 
-[3] N. B. Prakoso, H. Ayu, and H. Zakaria, “Misuse of taxpayer data for phising scams,” *Journal of International Islamic Law, Human Right and Public Policy*, 2026, doi: 10.5281/zenodo.21853028.
+[3] N. B. Prakoso, H. Ayu, and H. Zakaria, “Misuse of taxpayer data for phising scams,” *Journal of International Islamic Law, Human Rights, and Public Policy*, vol. 4, no. 3, pp. 1560-1569, Jul. 2026, doi: 10.5281/zenodo.21853029.
 
 [4] R. Alabdan, “Phishing attacks survey: Types, vectors, and technical approaches,” *Future Internet*, vol. 12, no. 10, p. 168, Oct. 2020, doi: 10.3390/fi12100168.
 
@@ -255,28 +243,32 @@ Berdasarkan karakteristik matriks fitur TF-IDF yang berdimensi tinggi dan bersif
 
 [6] F. Rahmi and Y. Wibisono, “Dataset klasifikasi bahasa Indonesia SMS spam,” *Repositori Universitas Pendidikan Indonesia*, Bandung, 2016. [Online]. Available: https://repository.upi.edu/26936/
 
-[7] A. Theodorus, T. K. Prasetyo, R. Hartono, and D. Suhartono, “Short Message Service (SMS) spam filtering using machine learning in Bahasa Indonesia,” in *Proc. East Indonesia Conf. Comput. Inf. Technol. (EIConCIT)*, Apr. 2021, pp. 199-203, doi: 10.1109/EIConCIT50028.2021.9431859.
+[7] A. Theodorus, T. K. Prasetyo, R. Hartono, and D. Suhartono, “Short Message Service (SMS) spam filtering using machine learning in Bahasa Indonesia,” in *Proc. 3rd East Indonesia Conf. Comput. Inf. Technol. (EIConCIT)*, Apr. 2021, pp. 199-203, doi: 10.1109/EIConCIT50028.2021.9431859.
 
-[8] D. Irawan, E. B. Perkasa, and Y. Yurindra, “Perbandingan klassifikasi SMS berbasis Support Vector Machine, Naive Bayes Classifier, Random Forest dan Bagging Classifier,” *Jurnal Sisfokom (Sistem Informasi dan Komputer)*, vol. 10, no. 3, pp. 432-437, Dec. 2021, doi: 10.32736/sisfokom.v10i3.1302.
+[8] D. Irawan, E. B. Perkasa, Yurindra, D. Wahyuningsih, and E. Helmud, “Perbandingan klassifikasi SMS berbasis Support Vector Machine, Naive Bayes Classifier, Random Forest dan Bagging Classifier,” *Jurnal Sisfokom (Sistem Informasi dan Komputer)*, vol. 10, no. 3, pp. 432-437, Dec. 2021, doi: 10.32736/sisfokom.v10i3.1302.
 
-[9] M. S. Al Ghofany, R. Dwiyansaputra, F. Bimantoro, and A. Aranta, “Indonesian SMS spam detection using TF-RF feature weighting method and Support Vector Machine classifier,” in *Proc. Int. Conf. Intell. Cybern. Technol. Appl. (ICICyTA)*, 2022, pp. 112-119, doi: 10.2991/978-94-6463-084-8_12.
+[9] M. S. Al Ghofany, R. Dwiyansaputra, F. Bimantoro, and A. Aranta, “Indonesian SMS spam detection using TF-RF feature weighting method and Support Vector Machine classifier,” in *Proc. First Mandalika Int. Multi-Conf. Sci. Eng. (MIMSE-I-C)*, 2022, pp. 117-129, doi: 10.2991/978-94-6463-084-8_12.
 
-[10] F. F. Tampinongkol, A. R. Kamila, and A. C. Wardhana, “Implementation of Random Forest classification and Support Vector Machine algorithms for phishing link detection,” *Journal of Informatics Information System Software Engineering and Applications (INISTA)*, vol. 7, no. 1, pp. 1-10, Nov. 2024, doi: 10.20895/inista.v7i1.1588.
+[10] E. Z. Astuti, C. A. Sari, E. H. Rachmawanto, and R. R. Ali, “Comparative study of machine learning algorithms for performing ham or spam classification in SMS,” *Scientific Journal of Informatics*, vol. 11, no. 1, pp. 177-186, Feb. 2024, doi: 10.15294/sji.v11i1.47364.
 
-[11] A. Al Tawil, L. H. Almazaydeh, D. Qawasmeh, B. Qawasmeh, M. Alshinwan, and K. Elleithy, “Comparative analysis of machine learning algorithms for email phishing detection using TF-IDF, Word2Vec, and BERT,” *Computers, Materials & Continua*, vol. 81, no. 2, pp. 3395-3412, Nov. 2024, doi: 10.32604/cmc.2024.057279.
+[11] F. F. Tampinongkol, A. R. Kamila, and A. C. Wardhana, “Implementation of Random Forest classification and Support Vector Machine algorithms for phishing link detection,” *Journal of Informatics Information System Software Engineering and Applications (INISTA)*, vol. 7, no. 1, pp. 127-137, Nov. 2024, doi: 10.20895/inista.v7i1.1588.
 
-[12] F. M. Efendi, A. K. Adisusilo, and S. Budiprayitno, “Pengembangan sistem deteksi phishing pada WhatsApp berbasis AI dengan integrasi bahasa lokal Surabaya,” *Melek IT Information Technology Journal*, vol. 11, no. 1, pp. 45-54, 2025, doi: 10.30742/melekitjournal.v11i1.417.
+[12] A. Al Tawil, L. H. Almazaydeh, D. Qawasmeh, B. Qawasmeh, M. Alshinwan, and K. Elleithy, “Comparative analysis of machine learning algorithms for email phishing detection using TF-IDF, Word2Vec, and BERT,” *Computers, Materials & Continua*, vol. 81, no. 2, pp. 3395-3412, Nov. 2024, doi: 10.32604/cmc.2024.057279.
 
-[13] R. B. Saputra, M. Azwar, and L. Widyawati, “Implementasi algoritma SVM pada bot WhatsApp untuk deteksi pesan spam,” *Jurnal Manajemen Informatika dan Sistem Informasi*, vol. 9, no. 1, pp. 12-21, Jan. 2026, doi: 10.36595/misi.v9i1.1803.
+[13] A. A. Ningtias, N. Anwar, A. Ichwani, and R. T. Iswahyudi, “Komparasi kinerja Support Vector Machine dan Random Forest untuk deteksi spam email berbasis TF-IDF teks,” *IKRA-ITH Informatika: Jurnal Komputer dan Informatika*, vol. 10, no. 3, pp. 45-51, Nov. 2026.
 
-[14] A. A. Ningtias, N. Anwar, and A. Ichwani, “Komparasi kinerja Support Vector Machine dan Random Forest untuk deteksi spam email berbasis TF-IDF teks,” *IKRA-ITH Informatika: Jurnal Komputer dan Informatika*, vol. 10, no. 1, pp. 55-64, 2026.
+[14] F. M. Efendi, A. K. Adisusilo, and S. Budiprayitno, “Pengembangan sistem deteksi phishing pada WhatsApp berbasis AI dengan integrasi bahasa lokal Surabaya,” *Melek IT Information Technology Journal*, vol. 11, no. 1, pp. 101-112, Jun. 2025, doi: 10.30742/melekitjournal.v11i1.417.
 
-[15] C. R. Hassolthine, U. Darusalam, and M. Ikhwani, *Pedoman Teknis Penulisan Tugas Akhir Mahasiswa Universitas Siber Asia (SK Rektor Nomor 01 Tahun 2024)*. Jakarta: Universitas Siber Asia, 2024.
+[15] R. B. Saputra, M. Azwar, L. Widyawati, Husain, and K. A. Latif, “Implementasi algoritma SVM pada bot WhatsApp untuk deteksi pesan spam,” *Jurnal Manajemen Informatika dan Sistem Informasi*, vol. 9, no. 1, pp. 39-51, Jan. 2026, doi: 10.36595/misi.v9i1.1803.
 
-[16] Sugiyono, *Metode Penelitian Kuantitatif, Kualitatif, dan R&D*, ed. ke-2. Bandung: Alfabeta, 2023.
+[16] M. A. Sembiring, M. F. L. Sibuea, and Anjani, “Optimasi model klasifikasi pesan penipuan digital berbahasa Indonesia menggunakan XGBoost dengan Bayesian Optimization dan SMOTE,” *Journal of Science and Social Research*, vol. 9, no. 3, pp. 5329-5336, Jun. 2026, doi: 10.54314/jssr.v9i3.7212.
 
-[17] M. Darwin, M. R. Mamondol, S. A. Sormin, and Y. Nurhayati, *Metode Penelitian Pendekatan Kuantitatif*. Bandung: Media Sains Indonesia, 2021.
+[17] C. R. Hassolthine, U. Darusalam, and M. Ikhwani, *Pedoman Teknis Penulisan Tugas Akhir Mahasiswa Universitas Siber Asia (SK Rektor Nomor 01 Tahun 2024)*. Jakarta: Universitas Siber Asia, 2024.
 
-[18] Sugiyono, *Statistika untuk Penelitian*. Bandung: Alfabeta, 2019.
+[18] Sugiyono, *Metode Penelitian Kuantitatif, Kualitatif, dan R&D*, ed. ke-2. Bandung: Alfabeta, 2023.
 
-[19] L. P. Sinambela, *Metodologi Penelitian Kuantitatif: Teoretik dan Praktik*. Depok: Rajawali Pers, 2021.
+[19] M. Darwin, M. R. Mamondol, S. A. Sormin, and Y. Nurhayati, *Metode Penelitian Pendekatan Kuantitatif*. Bandung: Media Sains Indonesia, 2021.
+
+[20] Sugiyono, *Statistika untuk Penelitian*. Bandung: Alfabeta, 2019.
+
+[21] L. P. Sinambela, *Metodologi Penelitian Kuantitatif: Teoretik dan Praktik*. Depok: Rajawali Pers, 2021.
