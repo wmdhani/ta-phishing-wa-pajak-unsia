@@ -32,6 +32,7 @@ Penelitian yang sudah ada baru mencakup **irisan parsial** (masih membahas SMS u
 | 8 | Saputra et al. (2026) | Deteksi Pesan Spam Bot WhatsApp | Support Vector Machine (SVM) | Berfokus pada integrasi bot spam umum dan hanya menguji SVM tanpa komparasi Random Forest serta bukan domain perpajakan. |
 | 9 | Ningtias et al. (2026) | Deteksi Spam Email | TF-IDF + SVM dan Random Forest | Komparasi metodenya serupa, namun objek datanya adalah email spam umum, bukan pesan phishing WhatsApp bertema perpajakan. |
 | 10 | Prakoso et al. (2026) | Penyalahgunaan Data Wajib Pajak untuk Phishing | Kajian Hukum / Regulasi | Membahas aspek hukum perlindungan data wajib pajak; tidak membangun model Machine Learning maupun sistem deteksi otomatis. |
+| 11 | Sembiring et al. (2026) | Klasifikasi Pesan Penipuan Digital Indonesia | XGBoost + Bayesian Optimization + SMOTE | Berfokus pada penipuan digital lintas topik tanpa pengkhususan tema perpajakan maupun perbandingan dengan SVM dan Random Forest. |
 
 ---
 
@@ -39,26 +40,26 @@ Penelitian yang sudah ada baru mencakup **irisan parsial** (masih membahas SMS u
 
 Berikut referensi terverifikasi yang dapat langsung disalin ke Bab I, Bab II, dan Daftar Pustaka (urutan penomoran `[1]`, `[2]`, dst. disesuaikan nanti dengan kemunculan pertama di naskah):
 
-[1] D. Irawan, E. B. Perkasa, and Y. Yurindra, “Perbandingan Klassifikasi SMS Berbasis Support Vector Machine, Naive Bayes Classifier, Random Forest dan Bagging Classifier,” *Jurnal Sisfokom (Sistem Informasi dan Komputer)*, vol. 10, no. 3, 2021, doi: [10.32736/sisfokom.v10i3.1302](https://doi.org/10.32736/sisfokom.v10i3.1302).
+[1] D. Irawan, E. B. Perkasa, Yurindra, D. Wahyuningsih, and E. Helmud, “Perbandingan klassifikasi SMS berbasis Support Vector Machine, Naive Bayes Classifier, Random Forest dan Bagging Classifier,” *Jurnal Sisfokom (Sistem Informasi dan Komputer)*, vol. 10, no. 3, pp. 432-437, Dec. 2021, doi: [10.32736/sisfokom.v10i3.1302](https://doi.org/10.32736/sisfokom.v10i3.1302).
 
-[2] A. Theodorus, T. K. Prasetyo, R. Hartono, *et al.*, “Short Message Service (SMS) Spam Filtering using Machine Learning in Bahasa Indonesia,” in *East Indonesia Conference on Computer and Information Technology (EIConCIT)*, 2021, doi: [10.1109/eiconcit50028.2021.9431859](https://doi.org/10.1109/eiconcit50028.2021.9431859).
+[2] A. Theodorus, T. K. Prasetyo, R. Hartono, and D. Suhartono, “Short Message Service (SMS) spam filtering using machine learning in Bahasa Indonesia,” in *Proc. 3rd East Indonesia Conf. Comput. Inf. Technol. (EIConCIT)*, Apr. 2021, pp. 199-203, doi: [10.1109/EIConCIT50028.2021.9431859](https://doi.org/10.1109/EIConCIT50028.2021.9431859).
 
-[3] M. S. Al Ghofany, R. Dwiyansaputra, F. Bimantoro, *et al.*, “Indonesian SMS Spam Detection Using TF-RF Feature Weighting Method and Support Vector Machine Classifier,” 2022, doi: [10.2991/978-94-6463-084-8_12](https://doi.org/10.2991/978-94-6463-084-8_12).
+[3] M. S. Al Ghofany, R. Dwiyansaputra, F. Bimantoro, and A. Aranta, “Indonesian SMS spam detection using TF-RF feature weighting method and Support Vector Machine classifier,” in *Proc. First Mandalika Int. Multi-Conf. Sci. Eng. (MIMSE-I-C)*, 2022, pp. 117-129, doi: [10.2991/978-94-6463-084-8_12](https://doi.org/10.2991/978-94-6463-084-8_12).
 
-[4] E. Z. Astuti, C. A. Sari, E. H. Rachmawanto, *et al.*, “Comparative Study of Machine Learning Algorithms for Performing Ham or Spam Classification in SMS,” *Scientific Journal of Informatics*, vol. 11, no. 1, 2024, doi: [10.15294/sji.v11i1.47364](https://doi.org/10.15294/sji.v11i1.47364).
+[4] E. Z. Astuti, C. A. Sari, E. H. Rachmawanto, and R. R. Ali, “Comparative study of machine learning algorithms for performing ham or spam classification in SMS,” *Scientific Journal of Informatics*, vol. 11, no. 1, pp. 177-186, Feb. 2024, doi: [10.15294/sji.v11i1.47364](https://doi.org/10.15294/sji.v11i1.47364).
 
-[5] F. F. Tampinongkol, A. R. Kamila, and A. C. Wardhana, “Implementation of Random Forest Classification and Support Vector Machine Algorithms for Phishing Link Detection,” *Journal of Informatics Information System Software Engineering and Applications (INISTA)*, vol. 7, no. 1, 2024, doi: [10.20895/inista.v7i1.1588](https://doi.org/10.20895/inista.v7i1.1588).
+[5] F. F. Tampinongkol, A. R. Kamila, and A. C. Wardhana, “Implementation of Random Forest classification and Support Vector Machine algorithms for phishing link detection,” *Journal of Informatics Information System Software Engineering and Applications (INISTA)*, vol. 7, no. 1, pp. 127-137, Nov. 2024, doi: [10.20895/inista.v7i1.1588](https://doi.org/10.20895/inista.v7i1.1588).
 
-[6] A. Al Tawil, L. H. Almazaydeh, D. Qawasmeh, *et al.*, “Comparative Analysis of Machine Learning Algorithms for Email Phishing Detection Using TF-IDF, Word2Vec, and BERT,” *Computers, Materials & Continua*, 2024, doi: [10.32604/cmc.2024.057279](https://doi.org/10.32604/cmc.2024.057279).
+[6] A. Al Tawil, L. H. Almazaydeh, D. Qawasmeh, B. Qawasmeh, M. Alshinwan, and K. Elleithy, “Comparative analysis of machine learning algorithms for email phishing detection using TF-IDF, Word2Vec, and BERT,” *Computers, Materials & Continua*, vol. 81, no. 2, pp. 3395-3412, Nov. 2024, doi: [10.32604/cmc.2024.057279](https://doi.org/10.32604/cmc.2024.057279).
 
-[7] F. M. Efendi, A. K. Adisusilo, and S. Budiprayitno, “Pengembangan Sistem Deteksi Phishing pada WhatsApp Berbasis AI dengan Integrasi Bahasa Lokal Surabaya,” *Melek IT Information Technology Journal*, vol. 11, no. 1, 2025, doi: [10.30742/melekitjournal.v11i1.417](https://doi.org/10.30742/melekitjournal.v11i1.417).
+[7] F. M. Efendi, A. K. Adisusilo, and S. Budiprayitno, “Pengembangan sistem deteksi phishing pada WhatsApp berbasis AI dengan integrasi bahasa lokal Surabaya,” *Melek IT Information Technology Journal*, vol. 11, no. 1, pp. 101-112, Jun. 2025, doi: [10.30742/melekitjournal.v11i1.417](https://doi.org/10.30742/melekitjournal.v11i1.417).
 
-[8] R. B. Saputra, M. Azwar, and L. Widyawati, “Implementasi Algoritma SVM pada Bot WhatsApp untuk Deteksi Pesan Spam,” *Jurnal Manajemen Informatika dan Sistem Informasi*, vol. 9, no. 1, 2026, doi: [10.36595/misi.v9i1.1803](https://doi.org/10.36595/misi.v9i1.1803).
+[8] R. B. Saputra, M. Azwar, L. Widyawati, Husain, and K. A. Latif, “Implementasi algoritma SVM pada bot WhatsApp untuk deteksi pesan spam,” *Jurnal Manajemen Informatika dan Sistem Informasi*, vol. 9, no. 1, pp. 39-51, Jan. 2026, doi: [10.36595/misi.v9i1.1803](https://doi.org/10.36595/misi.v9i1.1803).
 
-[9] A. A. Ningtias, N. Anwar, and A. Ichwani, “Komparasi Kinerja Support Vector Machine dan Random Forest untuk Deteksi Spam Email Berbasis TF-IDF Teks,” *IKRA-ITH Informatika: Jurnal Komputer dan Informatika*, 2026.
+[9] A. A. Ningtias, N. Anwar, A. Ichwani, and R. T. Iswahyudi, “Komparasi kinerja Support Vector Machine dan Random Forest untuk deteksi spam email berbasis TF-IDF teks,” *IKRA-ITH Informatika: Jurnal Komputer dan Informatika*, vol. 10, no. 3, pp. 45-51, Nov. 2026.
 
-[10] M. A. Sembiring, M. F. L. Sibuea, and A. Anjani, “Optimasi Model Klasifikasi Pesan Penipuan Digital Berbahasa Indonesia Menggunakan XGBoost dengan Bayesian Optimization dan SMOTE,” *Journal of Science and Social Research*, vol. 9, no. 3, 2026, doi: [10.54314/jssr.v9i3.7212](https://doi.org/10.54314/jssr.v9i3.7212).
+[10] M. A. Sembiring, M. F. L. Sibuea, and Anjani, “Optimasi model klasifikasi pesan penipuan digital berbahasa Indonesia menggunakan XGBoost dengan Bayesian Optimization dan SMOTE,” *Journal of Science and Social Research*, vol. 9, no. 3, pp. 5329-5336, Jun. 2026, doi: [10.54314/jssr.v9i3.7212](https://doi.org/10.54314/jssr.v9i3.7212).
 
-[11] N. B. Prakoso, H. Ayu, and H. Zakaria, “Misuse of Taxpayer Data for Phising Scams,” *Journal of International Islamic Law, Human Right and Public Policy*, 2026, doi: [10.5281/zenodo.21853028](https://doi.org/10.5281/zenodo.21853028).
+[11] N. B. Prakoso, H. Ayu, and H. Zakaria, “Misuse of taxpayer data for phising scams,” *Journal of International Islamic Law, Human Rights, and Public Policy*, vol. 4, no. 3, pp. 1560-1569, Jul. 2026, doi: [10.5281/zenodo.21853029](https://doi.org/10.5281/zenodo.21853029).
 
-[12] R. Alabdan, “Phishing Attacks Survey: Types, Vectors, and Technical Approaches,” *Future Internet*, vol. 12, no. 10, p. 168, 2020, doi: [10.3390/fi12100168](https://doi.org/10.3390/fi12100168).
+[12] R. Alabdan, “Phishing attacks survey: Types, vectors, and technical approaches,” *Future Internet*, vol. 12, no. 10, p. 168, Oct. 2020, doi: [10.3390/fi12100168](https://doi.org/10.3390/fi12100168).

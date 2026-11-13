@@ -2,7 +2,7 @@
 
 **Judul:** Komparasi Algoritma Support Vector Machine dan Random Forest dalam Deteksi Pesan Phishing WhatsApp Mengatasnamakan Otoritas Perpajakan  
 **Mahasiswa:** Wan Mirza Dhani (`240101020194`)  
-**Pembimbing:** Novi Dian Nathasia, S.Kom, MMSI.
+**Pembimbing:** Novi Dian Nathasia, S.Kom., MMSI  
 
 ---
 

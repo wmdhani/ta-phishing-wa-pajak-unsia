@@ -74,7 +74,7 @@ def build_docs() -> None:
     meta_data = [
         ["Nama Mahasiswa", ": Wan Mirza Dhani"],
         ["NIM", ": 240101020194"],
-        ["Dosen Pembimbing", ": Novi Dian Nathasia, S.Kom, MMSI."],
+        ["Dosen Pembimbing", ": Novi Dian Nathasia, S.Kom., MMSI"],
         ["Skema Tugas Akhir", ": Tugas Akhir Prototype"],
     ]
     t = Table(meta_data, colWidths=[4.2 * cm, 11 * cm], hAlign="LEFT")
@@ -139,11 +139,11 @@ def build_docs() -> None:
     story.append(
         Paragraph(
             "Penelitian ini <b>tidak menggunakan data internal/rahasia instansi</b>, melainkan murni memanfaatkan "
-            "data publik terbuka yang telah mulai dikumpulkan (saat ini telah siap <b>944 baris data awal</b>):<br/>"
-            "• <b>Korpus Dasar Publik (904 baris)</b>: Dataset <i>benchmark</i> SMS/pesan penipuan vs pesan normal berbahasa Indonesia.<br/>"
-            "• <b>Korpus Spesifik Perpajakan (40 baris awal, akan diperluas ke 150–300 baris)</b>: Sampel teks modus "
-            "penipuan pajak dari rilis imbauan publik resmi DJP (<i>pajak.go.id</i> / media massa) disandingkan dengan "
-            "format notifikasi resmi publik DJP agar model tidak mengalami <i>bias</i> kata kunci.",
+            "data publik terbuka yang telah selesai dihimpun dan dikurasi (<b>1.164 baris dataset gabungan utama</b>):<br/>"
+            "• <b>Korpus Dasar Publik (904 baris)</b>: Dataset <i>benchmark</i> SMS/pesan penipuan vs pesan normal berbahasa Indonesia (335 penipuan dan 569 normal).<br/>"
+            "• <b>Korpus Spesifik Perpajakan (260 baris seimbang)</b>: Sampel teks 130 pesan modus "
+            "penipuan pajak dari rilis imbauan publik resmi DJP (<i>pajak.go.id</i> / cek fakta / media massa) disandingkan dengan "
+            "130 format pesan resmi layanan publik DJP agar model tidak mengalami <i>bias</i> kata kunci.",
             body_style,
         )
     )
@@ -183,7 +183,7 @@ def build_docs() -> None:
     p_meta = wdoc.add_paragraph()
     p_meta.add_run("Nama Mahasiswa\t: Wan Mirza Dhani\n")
     p_meta.add_run("NIM\t\t\t: 240101020194\n")
-    p_meta.add_run("Dosen Pembimbing\t: Novi Dian Nathasia, S.Kom, MMSI.\n")
+    p_meta.add_run("Dosen Pembimbing\t: Novi Dian Nathasia, S.Kom., MMSI\n")
     p_meta.add_run("Skema Tugas Akhir\t: Tugas Akhir Prototype")
 
     wdoc.add_heading("Usulan Judul Tugas Akhir", level=2)
@@ -210,10 +210,9 @@ def build_docs() -> None:
         (
             "3. Sumber Data & Kesiapan Dataset",
             "Penelitian ini tidak menggunakan data internal/rahasia instansi, melainkan murni memanfaatkan data publik "
-            "terbuka yang telah mulai dikumpulkan (saat ini terkumpul 944 baris data awal):\n"
-            "- Korpus Dasar Publik (904 baris): Dataset benchmark SMS/pesan penipuan vs pesan normal berbahasa Indonesia.\n"
-            "- Korpus Spesifik Perpajakan (40 baris awal, akan diperluas ke 150-300 baris): Sampel teks modus penipuan "
-            "pajak dari imbauan publik resmi DJP (pajak.go.id / media massa) disandingkan dengan format notifikasi resmi publik DJP.",
+            "terbuka yang telah selesai dihimpun dan dikurasi (1.164 baris dataset gabungan utama):\n"
+            "- Korpus Dasar Publik (904 baris): Dataset benchmark SMS/pesan penipuan vs pesan normal berbahasa Indonesia (335 penipuan dan 569 normal).\n"
+            "- Korpus Spesifik Perpajakan (260 baris seimbang): 130 sampel teks modus penipuan pajak dari imbauan publik resmi DJP (pajak.go.id / cek fakta / media massa) disandingkan dengan 130 format pesan resmi layanan publik DJP.",
         ),
         (
             "4. Metode & Rencana Luaran Prototype",

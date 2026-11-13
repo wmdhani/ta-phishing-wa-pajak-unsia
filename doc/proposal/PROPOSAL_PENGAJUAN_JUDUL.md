@@ -9,7 +9,7 @@
 ### Data Mahasiswa dan Pembimbing
 * **Nama Mahasiswa**: Wan Mirza Dhani
 * **NIM**: 240101020194
-* **Dosen Pembimbing**: Novi Dian Nathasia, S.Kom, MMSI.
+* **Dosen Pembimbing**: Novi Dian Nathasia, S.Kom., MMSI
 
 ---
 

@@ -198,7 +198,7 @@ Untuk mereproduksi seluruh berkas data olahan dan katalog provenans dari berkas 
 .\.venv\Scripts\python.exe -m src.scrape_and_curate_data
 ```
 
-Untuk menjalankan evaluasi komparasi *baseline* Support Vector Machine (`LinearSVC`) dan `RandomForestClassifier` (pembagian *stratified train-test split* 80:20, TF-IDF *n-gram* `(1, 2)` dengan 3.000 fitur, serta tokenisasi khusus `token_apk` dan `token_url`):
+Untuk menjalankan evaluasi komparasi *baseline* Support Vector Machine (`LinearSVC`) dan `RandomForestClassifier` (pembagian *stratified train-test split* 80:20, TF-IDF *n-gram* `(1, 2)` dengan 3.000 fitur, praproses *stopword removal* dan *stemming* Sastrawi, serta tokenisasi khusus `token_apk` dan `token_url`):
 
 ```powershell
 .\.venv\Scripts\python.exe src\explore_data.py
@@ -208,5 +208,5 @@ Untuk menjalankan evaluasi komparasi *baseline* Support Vector Machine (`LinearS
 
 | Algoritma | Accuracy | Precision (Phishing `1`) | Recall (Phishing `1`) | F1-Score (Phishing `1`) | F1-Score Macro |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Support Vector Machine (`LinearSVC`)** | **98,71%** | 0,97 | **1,00** | **0,98** | **0,99** |
-| **Random Forest (`n_estimators=200`)** | **96,57%** | 0,97 | 0,95 | 0,96 | 0,96 |
+| **Support Vector Machine (`LinearSVC`)** | **98,28%** | **0,98** | **0,98** | **0,98** | **0,98** |
+| **Random Forest (`n_estimators=200`)** | **95,28%** | 0,94 | 0,95 | 0,94 | 0,95 |
