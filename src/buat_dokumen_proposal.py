@@ -13,17 +13,9 @@ from docx.oxml.ns import nsdecls, qn
 from docx.shared import Cm, Pt, RGBColor
 
 try:
-    from src.terapkan_metadata_dokumen import (
-        PROPOSAL_METADATA,
-        align_deliverable_timestamps,
-        finalize_docx_and_pdf,
-    )
+    from src.terapkan_metadata_dokumen import export_docx_to_pdf_via_word
 except ImportError:
-    from terapkan_metadata_dokumen import (
-        PROPOSAL_METADATA,
-        align_deliverable_timestamps,
-        finalize_docx_and_pdf,
-    )
+    from terapkan_metadata_dokumen import export_docx_to_pdf_via_word
 
 FONT_NAME = "Times New Roman"
 DEFAULT_TEXT_COLOR = RGBColor(0x11, 0x11, 0x11)
@@ -221,14 +213,24 @@ def build_proposal_docx(docx_path: Path) -> None:
             (
                 (
                     "\u2014sering mengecoh masyarakat karena meniru gaya bahasa surat dinas resmi. "
-                    "Di sisi lain, penyaring spam umum rentan mengalami bias kata kunci terhadap pesan resmi DJP. "
-                    "Diperlukan sistem verifikasi otomatis berbasis "
+                    "Di sisi lain, penyaring spam umum rentan mengalami bias kata kunci terhadap pesan resmi DJP, "
+                    "sedangkan pemeriksaan web manual mengharuskan pengguna menyalin-tempel pesan satu per satu. "
+                    "Diperlukan sistem deteksi otomatis berbasis "
                 ),
                 False,
                 False,
             ),
             ("Natural Language Processing", False, True),
-            (" (NLP) untuk membantu wajib pajak memeriksa indikasi penipuan secara mandiri.", False, False),
+            (
+                (
+                    " (NLP) yang terintegrasi ke REST API, ekstensi peramban WhatsApp Web dengan penjelasan "
+                    "kata pemicu, dan "
+                ),
+                False,
+                False,
+            ),
+            ("dashboard", False, True),
+            (" Streamlit.", False, False),
         ],
     )
 
@@ -269,9 +271,18 @@ def build_proposal_docx(docx_path: Path) -> None:
             ("LinearSVC", False, True),
             (") dan ", False, False),
             ("Random Forest Classifier", False, True),
-            (" pada fitur teks TF-IDF ", False, False),
+            (" pada fitur TF-IDF ", False, False),
             ("n-gram", False, True),
-            (".", False, False),
+            (
+                (
+                    " guna diintegrasikan ke sistem verifikasi langsung tanpa salin-tempel melalui REST API (FastAPI), "
+                    "ekstensi peramban WhatsApp Web dengan penjelasan kata pemicu, serta "
+                ),
+                False,
+                False,
+            ),
+            ("dashboard", False, True),
+            (" Streamlit.", False, False),
         ],
     ):
         _add_body_paragraph(doc, item, indent_cm=0.42, first_line_cm=-0.42, space_after_pt=1.5)
@@ -302,7 +313,7 @@ def build_proposal_docx(docx_path: Path) -> None:
             (": Dataset ", False, False),
             ("benchmark", False, True),
             (
-                " SMS/pesan penipuan vs pesan normal berbahasa Indonesia (335 penipuan dan 569 normal).",
+                " SMS/pesan penipuan vs pesan normal berbahasa Indonesia (335 penipuan dan 569 normal, dari 1.143 baris pascaeksklusi 239 pesan promo/operator).",
                 False,
                 False,
             ),
@@ -311,13 +322,13 @@ def build_proposal_docx(docx_path: Path) -> None:
             ("\u2022 ", False, False),
             ("Korpus Spesifik Perpajakan (260 baris seimbang)", True, False),
             (": Kurasi dari ", False, False),
-            ("68 sumber publik resmi", True, False),
-            (" periode 2024\u20132026 (", False, False),
+            ("65 dari 68 sumber publik", True, False),
+            (" yang dihimpun (sebagian besar terbit 2024\u20132026: ", False, False),
             ("pajak.go.id", False, True),
             (
                 (
                     ", KPP/KP2KP, portal cek fakta, dan media pajak terverifikasi) terdiri atas 130 pesan modus "
-                    "penipuan pajak (12 kategori) dan 130 format pesan resmi/normal (10 kategori) untuk mencegah bias kata kunci."
+                    "penipuan pajak (12 kategori) dan 130 pesan resmi/normal (10 kategori) untuk mencegah bias kata kunci."
                 ),
                 False,
                 False,
@@ -326,7 +337,7 @@ def build_proposal_docx(docx_path: Path) -> None:
     ):
         _add_body_paragraph(doc, bullet, indent_cm=0.35, first_line_cm=-0.28, space_after_pt=1.5)
 
-    _add_section_heading(doc, "4. Metode, Hasil Uji Awal & Rencana Luaran Prototype")
+    _add_section_heading(doc, "4. Metode, Hasil Uji Ablasi & Rencana Luaran Prototype")
     for bullet in (
         [
             ("\u2022 ", False, False),
@@ -349,46 +360,65 @@ def build_proposal_docx(docx_path: Path) -> None:
         ],
         [
             ("\u2022 ", False, False),
-            ("Komparasi Model & Uji Awal", True, False),
+            ("Komparasi Model & Uji Ablasi", True, False),
             (": Pembagian terstratifikasi 80:20 (931 latih; 233 uji) membandingkan ", False, False),
             ("Support Vector Machine (LinearSVC)", True, False),
             (" dan ", False, False),
             ("Random Forest Classifier", True, False),
             (" via ", False, False),
             ("Confusion Matrix", False, True),
-            (". Hasil ", False, False),
+            (". Pada uji ", False, False),
             ("baseline", False, True),
-            (" awal membuktikan LinearSVC meraih akurasi ", False, False),
+            (", LinearSVC meraih akurasi ", False, False),
             ("98,28%", True, False),
             (" (", False, False),
             ("Recall", False, True),
             (" 0,98; ", False, False),
             ("F1-Score", False, True),
-            (" 0,98), mengungguli Random Forest sebesar ", False, False),
+            (" 0,98) vs Random Forest ", False, False),
             ("95,28%", True, False),
-            (" (", False, False),
-            ("Recall", False, True),
-            (" 0,95; ", False, False),
-            ("F1-Score", False, True),
-            (" 0,94).", False, False),
+            (". Uji ablasi 44 pesan uji pajak membuktikan korpus pajak seimbang menaikkan akurasi subset pajak dari ", False, False),
+            ("40,91%", True, False),
+            (" (korpus SMS umum) dan ", False, False),
+            ("52,27%", True, False),
+            (" (tanpa pesan resmi pajak) menjadi ", False, False),
+            ("97,73%", True, False),
+            (".", False, False),
         ],
         [
             ("\u2022 ", False, False),
-            ("Bentuk Prototype", True, False),
-            (": Aplikasi web interaktif berbasis Python (", False, False),
-            ("Streamlit", True, False),
+            ("Arsitektur Prototype (TKT 6)", True, False),
+            (": Sistem terpadu berbasis ", False, False),
+            ("REST API (FastAPI)", True, False),
+            (", ", False, False),
+            ("Ekstensi Peramban WhatsApp Web (Manifest V3)", True, False),
+            (" (tombol/lencana cek langsung pada gelembung obrolan dan menu klik kanan tanpa ", False, False),
+            ("copy-paste", False, True),
+            ("), serta ", False, False),
+            ("Dashboard Streamlit", True, False),
+            (", dilengkapi lapisan ", False, False),
+            ("explainable detection", False, True),
+            (" (bobot kata pemicu ", False, False),
+            ("LinearSVC", False, True),
+            (", deteksi ", False, False),
+            (".apk/token_apk", False, True),
+            (", dan verifikasi domain ", False, False),
+            ("pajak.go.id", False, True),
+            (").", False, False),
+        ],
+        [
+            ("\u2022 ", False, False),
+            ("Manfaat bagi Masyarakat & UNSIA", True, False),
             (
                 (
-                    ") pada target TKT level 6 tempat pengguna menempelkan teks pesan WhatsApp dan "
-                    "langsung memperoleh status analisis ("
+                    ": Memudahkan wajib pajak memeriksa pesan langsung di WhatsApp Web serta menyediakan korpus "
+                    "terbuka dan modul purwarupa sebagai aset praktikum/pembelajaran NLP Prodi PJJ Sistem Informasi "
                 ),
                 False,
                 False,
             ),
-            ("Aman", False, True),
-            (" / ", False, False),
-            ("Indikasi Phishing", False, True),
-            (") beserta skor probabilitasnya.", False, False),
+            ("Universitas Siber Asia (UNSIA)", True, False),
+            (" dan penguat literasi keamanan siber ekosistem kampus daring.", False, False),
         ],
     ):
         _add_body_paragraph(doc, bullet, indent_cm=0.35, first_line_cm=-0.28, space_after_pt=1.5)
@@ -403,10 +433,9 @@ def build_docs() -> None:
     pdf_path = proposal_dir / "Usulan Judul TA Wan Mirza Dhani 240101020194.pdf"
 
     build_proposal_docx(docx_path)
-    out_pdf = finalize_docx_and_pdf(docx_path, PROPOSAL_METADATA, pdf_path=pdf_path)
-    align_deliverable_timestamps()
+    out_pdf, pdf_info = export_docx_to_pdf_via_word(docx_path, pdf_path=pdf_path)
     print("DOCX updated:", docx_path)
-    print("PDF exported via Word COM:", out_pdf)
+    print("PDF exported via Word COM:", out_pdf, pdf_info)
 
 
 if __name__ == "__main__":

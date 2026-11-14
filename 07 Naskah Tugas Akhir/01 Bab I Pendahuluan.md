@@ -8,11 +8,11 @@ Kepercayaan masyarakat yang tinggi kepada institusi negara kerap dimanfaatkan un
 
 Masyarakat umum dan pegawai administrasi keuangan di perusahaan sering kesulitan membedakan siaran asli otoritas pajak dari pesan penipuan [1], [5]. Penipu meniru format surat dinas lengkap dengan nomor regulasinya sehingga pesan tampak meyakinkan. Mereka juga menyisipkan istilah teknis yang biasa dipakai petugas, misalnya kode *billing* pembayaran atau nomor EFIN. Jika filter spam hanya dilatih dengan korpus pesan umum yang tidak diseimbangkan, kata kunci perpajakan tersebut dapat menimbulkan salah prediksi, dan pengumuman sah dari instansi pun ikut terblokir.
 
-Beberapa penelitian terdahulu telah membandingkan algoritma pembelajaran mesin untuk mendeteksi pesan teks berbahaya. Untuk bahasa Indonesia, tersedia korpus SMS berlabel normal, penipuan, dan promo [6]. Pengujian pada kumpulan SMS berbahasa Indonesia memperlihatkan bahwa *Support Vector Machine* dan *Random Forest* dapat mencapai akurasi tinggi dengan representasi kata seperti *bag of words*, TF-IDF, maupun pembobotan TF-RF [7], [8], [9], [10]. Penelitian lain mengkaji deteksi tautan palsu berdasarkan ciri URL [11], deteksi surel *phishing* [12], dan klasifikasi spam berbasis TF-IDF [13]. Adapun studi pada platform WhatsApp baru menyoroti dialek Surabaya [14] dan peladen *bot* [15], sedangkan klasifikasi pesan penipuan digital berbahasa Indonesia secara umum telah diuji dengan XGBoost [16].
+Beberapa penelitian terdahulu telah membandingkan algoritma pembelajaran mesin untuk mendeteksi pesan teks berbahaya. Untuk bahasa Indonesia, tersedia korpus SMS berlabel normal, penipuan, dan promo [6]. Pengujian pada pesan singkat (*SMS* dan *smishing*) memperlihatkan bahwa *Support Vector Machine* dan *Random Forest* mampu meraih akurasi tinggi saat dipadukan dengan representasi kata seperti *bag of words*, TF-IDF, maupun pembobotan TF-RF [7], [8], [9], [10], [22], [23], [24], [25]. Penelitian lain mengkaji deteksi tautan palsu berdasarkan ciri URL [11], deteksi surel *phishing* dan komparasi *Support Vector Machine* melawan *Random Forest* [12], [26], [27], serta klasifikasi spam berbasis TF-IDF [13]. Adapun studi penipuan berbahasa Indonesia pada platform digital baru menyoroti dialek Surabaya di WhatsApp [14], peladen *bot* [15], konten penipuan di media sosial X [28], serta klasifikasi pesan penipuan lintas topik menggunakan XGBoost [16].
 
-Kajian empiris yang secara khusus menyaring penipuan berkedok lembaga pajak masih sangat jarang. Literatur yang tersedia lebih banyak membahas aspek hukum kebocoran data pembayar pajak tanpa membangun sistem klasifikasi otomatis [3]. Celah inilah yang mendasari perbandingan ketepatan *LinearSVC* dan *Random Forest* pada teks penipuan WhatsApp bertema pajak. Penelitian ini menyusun 260 pesan perpajakan berimbang untuk digabungkan dengan 904 pesan umum, dan rancangannya mencakup penyandian `token_apk` bagi berkas instalasi serta `token_url` bagi pranala.
+Kajian empiris yang secara khusus menyaring penipuan berkedok lembaga pajak masih sangat jarang. Literatur yang tersedia lebih banyak membahas aspek hukum kebocoran data pembayar pajak tanpa membangun sistem klasifikasi otomatis [3]. Celah inilah yang mendasari perbandingan ketepatan *LinearSVC* dan *Random Forest* pada teks penipuan WhatsApp bertema pajak. Selain menyusun 260 pesan perpajakan berimbang yang dipadukan dengan 904 pesan umum beserta penyandian `token_apk` dan `token_url` untuk menghilangkan bias kata kunci (*keyword bias*), penelitian ini menghadirkan keterjelasan prediksi (*explainable detection*) berbasis bobot fitur `LinearSVC` serta pemeriksaan domain resmi `pajak.go.id` agar pengguna mengetahui alasan suatu pesan ditandai berbahaya [29], [30].
 
-Hasil penelitian ini nantinya diwujudkan sebagai purwarupa aplikasi web interaktif yang dibuat dengan Python dan pustaka Streamlit. Aplikasi dirancang untuk memenuhi standar kesiapan TKT 6 melalui pengujian skenario pesan yang menyerupai kasus nyata [17]. Pengguna cukup menempelkan isi pesan mencurigakan ke halaman antarmuka, lalu sistem menghitung kelas prediksi beserta probabilitas risikonya. Arsitektur mesin klasifikasinya dibuat modular agar mudah dikembangkan menjadi layanan web yang melindungi publik secara lebih luas.
+Untuk mengatasi kerepotan pengguna apabila harus menyalin dan menempelkan pesan ke situs terpisah, hasil penelitian ini diwujudkan dalam purwarupa TKT 6 yang memadukan layanan *backend* REST API berbasis FastAPI, *dashboard* analitik Streamlit, dan ekstensi peramban (*browser extension*) pada *WhatsApp Web* [17], [31]. Ekstensi tersebut menyuntikkan tombol *Cek Phishing* langsung pada gelembung percakapan serta menyediakan menu klik kanan yang menampilkan kelas prediksi, skor risiko, dan sorotan kata pemicu secara instan. Arsitektur mesin klasifikasinya juga dirancang modular sehingga mudah diintegrasikan untuk melindungi publik secara lebih luas.
 
 ## 1.2 Rumusan Masalah
 
@@ -22,7 +22,7 @@ a) Pesan *phishing* meniru struktur kalimat kedinasan dan menyisipkan istilah pe
 
 b) Penyaring spam konvensional yang hanya bertumpu pada korpus SMS umum, tanpa teks resmi pajak, mudah mengalami penyimpangan bobot kata. Ketimpangan data latih itu dapat membuat pengumuman sah dari otoritas terblokir (*false positive*) atau membuat pesan penipuan baru lolos (*false negative*).
 
-c) *Support Vector Machine* memisahkan kelas pada ruang fitur berdimensi tinggi secara linear, sedangkan *Random Forest* bekerja dengan gabungan banyak pohon keputusan. Karena cara kerjanya berbeda, kedua algoritma perlu diuji langsung pada fitur TF-IDF unigram-bigram agar pemilihan model terbaik untuk purwarupa aplikasi web punya dasar yang terukur.
+c) *Support Vector Machine* memisahkan kelas pada ruang fitur berdimensi tinggi secara linear, sedangkan *Random Forest* bekerja dengan gabungan banyak pohon keputusan. Kedua algoritma perlu diuji langsung pada fitur TF-IDF unigram-bigram agar pemilihan model terbaik memiliki dasar yang terukur, sekaligus menjadi landasan perancangan mekanisme verifikasi langsung berbasis REST API, *dashboard* web, dan ekstensi *WhatsApp Web* yang dilengkapi penjelasan indikator pemicu.
 
 ## 1.3 Batasan Masalah
 
@@ -38,7 +38,7 @@ d) Eksperimen hanya membandingkan *LinearSVC* dari keluarga *Support Vector Mach
 
 e) Kualitas prediksi dinilai dengan empat indikator dari tabel *Confusion Matrix*, yaitu *Accuracy*, *Precision*, *Recall*, dan *F1-Score*. Pengamatan difokuskan pada algoritma yang lebih konsisten menekan salah prediksi negatif maupun salah blokir terhadap pesan sah.
 
-f) Produk akhir berupa purwarupa aplikasi web yang dibuat dengan Python dan pustaka antarmuka Streamlit untuk memenuhi sasaran TKT 6. Aplikasi menerima teks yang ditempelkan pengguna, kemudian langsung menampilkan status bahaya beserta persentase keyakinan prediksinya.
+f) Produk akhir dikemas sebagai purwarupa TKT 6 menggunakan bahasa Python yang terdiri atas *backend* REST API berbasis FastAPI, antarmuka *dashboard* Streamlit, dan ekstensi peramban *WhatsApp Web* (Manifest V3). Sistem tersebut dilengkapi fitur penjelasan kata pemicu (*explainable AI*) dari bobot fitur `LinearSVC`, deteksi berkas `.apk`, serta pemeriksaan domain resmi `pajak.go.id` tanpa perlu salin-tempel manual ke situs terpisah.
 
 ## 1.4 Tujuan Penelitian
 
@@ -48,17 +48,17 @@ a) Menyusun dataset teks perpajakan berbahasa Indonesia dengan porsi seimbang an
 
 b) Menguji dan membandingkan kinerja klasifikasi *LinearSVC* dan *Random Forest* berdasarkan akurasi, presisi, *recall*, dan *F1-Score*. Eksperimen ini bertujuan membuktikan kemampuan model mengenali modus penipuan pajak tanpa mengorbankan keandalannya dalam membaca pesan resmi.
 
-c) Merancang purwarupa sistem web pendeteksi pesan penipuan berbasis Streamlit yang memuat model klasifikasi terbaik hasil pengujian. Layanan ini disiapkan agar masyarakat dapat memeriksa pesan mencurigakan secara mandiri lewat perangkat masing-masing.
+c) Merancang purwarupa sistem pendeteksi pesan penipuan terpadu berbasis REST API FastAPI, *dashboard* Streamlit, dan ekstensi peramban *WhatsApp Web* berfitur penjelasan indikator risiko yang memuat model klasifikasi terbaik hasil pengujian. Layanan ini disiapkan agar masyarakat dapat memeriksa pesan mencurigakan secara langsung saat berinteraksi di *WhatsApp Web* maupun melalui *dashboard* web.
 
 ## 1.5 Manfaat Penelitian
 
-Model klasifikasi dan purwarupa sistem deteksi pesan ini diharapkan memberi manfaat nyata bagi dunia akademik, institusi terkait, dan pembayar pajak. Dataset yang seimbang dan antarmuka uji mandiri dirancang untuk menjawab kebutuhan literasi keamanan digital pada tingkat pengguna akhir. Manfaat penelitian ini dibagi ke dalam tiga aspek berikut:
+Model klasifikasi dan purwarupa sistem deteksi pesan ini diharapkan memberi manfaat nyata bagi dunia akademik dan Universitas Siber Asia (UNSIA), institusi publik terkait, serta masyarakat pembayar pajak. Dataset yang seimbang, arsitektur layanan API terpadu, dan antarmuka uji langsung dirancang untuk menjawab kebutuhan literasi keamanan digital pada tingkat pengguna akhir. Manfaat penelitian ini dibagi ke dalam tiga aspek berikut:
 
-a) Kontribusi Akademik dan Ilmu Komputer: Menyajikan referensi hasil uji empiris yang terdokumentasi dengan baik tentang kelebihan dan kekurangan *Support Vector Machine* dibandingkan *Random Forest* pada fitur teks pendek. Korpus perpajakan terbuka ini juga dapat dipakai peneliti lain untuk memajukan pemrosesan bahasa alami di Indonesia.
+a) Kontribusi Akademik dan Manfaat bagi Universitas Siber Asia: Menyajikan referensi hasil uji empiris yang terdokumentasi dengan baik tentang kelebihan dan kekurangan *Support Vector Machine* dibandingkan *Random Forest* beserta pembuktian mitigasi *keyword bias* pada teks pendek. Bagi Universitas Siber Asia, korpus perpajakan terbuka dan modul purwarupa ini dapat menjadi aset pembelajaran serta referensi praktikum *Natural Language Processing* pada Program Studi PJJ Sistem Informasi, sekaligus mendukung literasi keamanan siber bagi sivitas akademika di lingkungan perkuliahan daring.
 
 b) Dukungan Teknis bagi Institusi Publik: Menghasilkan temuan pola kalimat dan purwarupa perangkat lunak yang dapat dipertimbangkan DJP maupun pengelola keamanan informasi sebagai pelengkap. Pemetaan dua belas modus penipuan perpajakan ini juga berguna untuk menyusun materi penyuluhan kepada masyarakat yang berbasis bukti lapangan.
 
-c) Kemudahan Proteksi bagi Pembayar Pajak: Menyediakan sarana verifikasi daring yang ringan dan dapat dibuka kapan saja melalui peramban ponsel maupun komputer. Sebelum telanjur mengeklik pranala palsu atau mengunduh berkas `.apk`, masyarakat dapat menilai risiko suatu pesan mencurigakan dengan cepat.
+c) Kemudahan Proteksi bagi Pembayar Pajak: Menyediakan sarana verifikasi daring melalui *dashboard* web maupun tombol pemeriksaan langsung pada ekstensi *WhatsApp Web* tanpa perlu menyalin pesan secara manual. Sebelum telanjur mengeklik pranala palsu atau mengunduh berkas `.apk`, masyarakat dapat menilai risiko suatu pesan beserta alasan indikator pemicunya secara instan.
 
 ## 1.6 Metode Penelitian
 
@@ -76,13 +76,13 @@ Tabel 1.1 Komposisi Korpus Dataset Penelitian
 
 Sumber: Olahan Data Penelitian (2026).
 
-Praproses teks bahasa Indonesia mencakup penghapusan karakter asing, pengecilan huruf, penyandian `token_apk`, dan penyandian `token_url`. Teks lalu melewati pembuangan kata henti, pengembalian ke kata dasar dengan Sastrawi, dan transformasi menjadi matriks TF-IDF unigram-bigram sebanyak 3.000 kolom [9], [10], [13], sebelum dibagi 80:20 secara terstratifikasi [11]. Pelatihan dan penyetelan parameter dilakukan pada *LinearSVC* dan *Random Forest*. Model yang unggul berdasarkan *Confusion Matrix* kemudian dihubungkan ke antarmuka Streamlit TKT 6. Urutan tahapannya ditunjukkan pada Gambar 1.1.
+Praproses teks bahasa Indonesia mencakup penghapusan karakter asing, pengecilan huruf, penyandian `token_apk`, dan penyandian `token_url`. Teks lalu melewati pembuangan kata henti, pengembalian ke kata dasar dengan Sastrawi, dan transformasi menjadi matriks TF-IDF unigram-bigram sebanyak 3.000 kolom [9], [10], [13], [23], [24], sebelum dibagi 80:20 secara terstratifikasi [11], [27]. Pelatihan dan penyetelan parameter dilakukan pada *LinearSVC* dan *Random Forest*. Model yang unggul berdasarkan *Confusion Matrix* kemudian diintegrasikan ke layanan REST API FastAPI, *dashboard* Streamlit, dan ekstensi peramban *WhatsApp Web* berfitur penjelasan kata pemicu untuk mencapai TKT 6 [29], [31]. Urutan tahapannya ditunjukkan pada Gambar 1.1.
 
 ![Gambar 1.1 Tahapan Metode Penelitian.](Aset Gambar/Gambar 1.1 Tahapan Metode Penelitian.png)
 
 Gambar 1.1 Tahapan Metode Penelitian.
 
-Matriks bobot TF-IDF memiliki ribuan dimensi dengan sebagian besar nilainya nol (*sparse*), sedangkan SVM dikenal mampu menangani data berdimensi tinggi dengan baik [11]. Berdasarkan hal itu, disusun hipotesis kerja [20], [21] bahwa *LinearSVC* sebagai pemisah linear menghasilkan *Recall* dan *F1-Score* yang lebih baik daripada *Random Forest*. Dugaan tersebut sejalan dengan uji pendahuluan pada 233 data uji: *LinearSVC* memperoleh akurasi 98,28%, *Recall* 0,98, dan *F1-Score* 0,98 dengan hanya dua negatif palsu dan dua positif palsu. Pada data uji yang sama, *Random Forest* mencatat akurasi 95,28%, *Recall* 0,95, dan *F1-Score* 0,94.
+Matriks bobot TF-IDF memiliki ribuan dimensi dengan sebagian besar nilainya nol (*sparse*), sedangkan SVM dikenal mampu menangani data berdimensi tinggi dengan baik [11], [29]. Berdasarkan hal itu, disusun hipotesis kerja [20], [21] bahwa *LinearSVC* sebagai pemisah linear menghasilkan *Recall* dan *F1-Score* yang lebih baik daripada *Random Forest*. Uji *ablation* pada 44 pesan pajak di himpunan uji membuktikan pentingnya penyeimbangan korpus: pelatihan menggunakan korpus SMS umum saja hanya menghasilkan akurasi 40,91% pada pesan pajak, sedangkan pelatihan tanpa penyeimbangan pesan resmi pajak hanya mencapai 52,27% karena seluruh 21 pesan resmi DJP terkena *false positive*. Dengan penyeimbangan korpus pajak (1.164 baris), akurasi khusus pesan pajak melonjak menjadi 97,73% dan akurasi keseluruhan *LinearSVC* mencapai 98,28% (*Recall* 0,98; *F1-Score* 0,98; hanya dua negatif palsu dan dua positif palsu), mengungguli *Random Forest* pada data uji yang sama dengan akurasi 95,28%, *Recall* 0,95, dan *F1-Score* 0,94.
 
 ---
 
@@ -129,3 +129,23 @@ Matriks bobot TF-IDF memiliki ribuan dimensi dengan sebagian besar nilainya nol 
 [20] Sugiyono, *Statistika untuk Penelitian*. Bandung: Alfabeta, 2019.
 
 [21] L. P. Sinambela, *Metodologi Penelitian Kuantitatif: Teoretik dan Praktik*. Depok: Rajawali Pers, 2021.
+
+[22] A. Setiyono and H. F. Pardede, “Klasifikasi SMS spam menggunakan Support Vector Machine,” *Jurnal Pilar Nusa Mandiri*, vol. 15, no. 2, pp. 275-280, Sep. 2019, doi: 10.33480/pilar.v15i2.693.
+
+[23] N. J. Saputra, “Analysis of SMS spam detection using TF-IDF: A study on SMS Spam Collection dataset,” *Jurnal Sosial Teknologi*, vol. 4, no. 4, pp. 213-217, Apr. 2024, doi: 10.59188/jurnalsostech.v4i4.1214.
+
+[24] H. Ahammad, M. Samsuzzaman, M. H. Rashid, and M. A. Masud, “Comparative analysis of machine learning algorithms for spam SMS classification using TF-IDF vectorization,” in *Proc. IEEE Int. Conf. Future Mach. Learn. Data Sci. (FMLDS)*, Nov. 2025, pp. 736-741, doi: 10.1109/fmlds67896.2025.00123.
+
+[25] S. K. Birthriya, P. Ahlawat, and A. K. Jain, “Machine learning-based smishing detection using fuzzy logic and TF-IDF feature engineering,” *Franklin Open*, vol. 14, p. 100506, Mar. 2026, doi: 10.1016/j.fraope.2026.100506.
+
+[26] R. Fauzan, A. V. Vitianingsih, D. Cahyono, A. L. Maukar, and Y. A. B. Suprio, “Penerapan algoritma klasifikasi pada machine learning untuk deteksi phishing,” *MALCOM: Indonesian Journal of Machine Learning and Computer Science*, vol. 5, no. 2, pp. 531-540, Mar. 2025, doi: 10.57152/malcom.v5i2.1968.
+
+[27] I. P. Sari, O. K. Sulaiman, D. Apdilah, and P. Simanjuntak, “Analisis komparatif Support Vector Machine dan Random Forest untuk deteksi email phishing,” *Applied Information Technology and Computer Science (AICOMS)*, vol. 4, no. 2, pp. 18-27, Nov. 2025, doi: 10.58466/aicoms.v4i2.1806.
+
+[28] I. K. Izzah, I. Riadi, and A. Fadlil, “Analisis kinerja machine learning untuk deteksi konten penipuan berbahasa Indonesia di Twitter,” *Rabit: Jurnal Teknologi dan Sistem Informasi Univrab*, vol. 11, no. 1, pp. 725-742, Jan. 2026, doi: 10.36341/rabit.v11i1.7124.
+
+[29] P. Mishra and A. Yadav, “An explainable and reproducible lightweight machine learning framework for SMS spam detection using TF-IDF and Linear Support Vector Classification,” *International Journal of Advanced Science and Computer Applications*, vol. 5, no. 2, Sep. 2026, doi: 10.47679/ijasca.v5i2.269.
+
+[30] J. Ismail, R. A. Nasution, and M. N. Gea, “Deteksi phishing URL menggunakan XGBoost dengan Explainable AI pada Web Page Phishing Detection dataset,” *IDEALIS: InDonEsiA journaL Information System*, vol. 9, no. 2, pp. 268-277, Jul. 2026, doi: 10.36080/idealis.v9i2.3810.
+
+[31] Suwarno, V. Capricornness, and Y. Christian, “Implementasi machine learning berbasis browser extension untuk deteksi URL phishing menggunakan Logistic Regression classification,” *Komputa: Jurnal Ilmiah Komputer dan Informatika*, vol. 15, no. 1, May 2026, doi: 10.34010/komputa.v15i1.18882.
