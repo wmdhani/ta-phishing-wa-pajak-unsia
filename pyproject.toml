@@ -1,7 +1,7 @@
 [project]
 name = "ta-phishing-pajak-unsia"
 version = "0.1.0"
-description = "Tugas Akhir Prototype PJJ Informatika UNSIA: Komparasi SVM dan Random Forest dalam Deteksi Pesan Phishing WhatsApp Mengatasnamakan Otoritas Perpajakan"
+description = "Tugas Akhir Prototype PJJ Sistem Informasi UNSIA: Komparasi SVM dan Random Forest dalam Deteksi Pesan Phishing WhatsApp Mengatasnamakan Otoritas Perpajakan"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

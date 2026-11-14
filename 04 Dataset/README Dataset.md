@@ -55,7 +55,7 @@ Tabel berikut memuat daftar berkas mentah yang dikumpulkan beserta penulis atau 
 
 ### Rincian Korpus Akademik Terbuka
 1. **Korpus Rahmi & Wibisono (2016)**: Berisi 1.143 pesan singkat berbahasa Indonesia yang terbagi ke dalam tiga label asli: `0` = SMS Normal (569 pesan), `1` = Penipuan/Fraud (335 pesan), dan `2` = Promo/Iklan (239 pesan). Data pribadi pada korpus ini telah dianonimkan oleh penyusun aslinya menggunakan penanda `nama1`.
-2. **Korpus Theodorus dkk. (2021) - IEEE EIConCIT**: Merupakan dataset pendamping makalah ilmiah yang telah menjadi referensi utama nomor `[2]` pada proposal penelitian ini (*Short Message Service (SMS) Spam Filtering using Machine Learning in Bahasa Indonesia*, DOI: `10.1109/EIConCIT50028.2021.9431859`). Berisi 4.125 pesan (`0` = *ham*/normal sebanyak 2.323 baris, `1` = *promo* sebanyak 1.382 baris, dan `2` = *spam*/penipuan sebanyak 420 baris).
+2. **Korpus Theodorus dkk. (2021) - IEEE EIConCIT**: Merupakan dataset pendamping makalah ilmiah yang menjadi salah satu referensi utama pada naskah Bab I (`[7]`) dan daftar kebaruan penelitian (*Short Message Service (SMS) Spam Filtering using Machine Learning in Bahasa Indonesia*, DOI: `10.1109/EIConCIT50028.2021.9431859`). Berisi 4.125 pesan (`0` = *ham*/normal sebanyak 2.323 baris, `1` = *promo* sebanyak 1.382 baris, dan `2` = *spam*/penipuan sebanyak 420 baris).
 3. **Korpus Kurniawan (2024) & Saragih (2024)**: Digunakan sebagai korpus pembanding dan pengayaan lintas sumber (*cross-corpus validation*), mencakup pesan *phishing* dan penipuan pinjaman ilegal, undian palsu, serta pesan normal berbahasa Indonesia.
 
 ---
@@ -64,7 +64,7 @@ Tabel berikut memuat daftar berkas mentah yang dikumpulkan beserta penulis atau 
 
 | ID Katalog | Lokasi Berkas | Jumlah Baris | Distribusi Kelas Biner | Keterangan Pengolahan | Checksum SHA-256 (16 Karakter Awal) |
 | :--- | :--- | :---: | :--- | :--- | :--- |
-| `FILE-PROC-01` | `04 Dataset/02 Data Olahan/Dataset Pajak Terkurasi 260 Baris.csv` | 260 baris | `1` (Phishing Pajak): 130<br>`0` (Aman/Resmi Pajak): 130 | Kurasi seimbang 50:50 dari 68 sumber resmi, dilengkapi kolom `Teks`, `label`, `kategori_modus`, `sumber_referensi`, `id_sumber`, dan `url_sumber`. | `4cdcf6da8748d89b` |
+| `FILE-PROC-01` | `04 Dataset/02 Data Olahan/Dataset Pajak Terkurasi 260 Baris.csv` | 260 baris | `1` (Phishing Pajak): 130<br>`0` (Aman/Resmi Pajak): 130 | Kurasi seimbang 50:50 dari 65 di antara 68 sumber yang dihimpun (SRC-046, SRC-049, dan SRC-061 tidak dipakai), dilengkapi kolom `Teks`, `label`, `kategori_modus`, `sumber_referensi`, `id_sumber`, dan `url_sumber`. | `4cdcf6da8748d89b` |
 | `FILE-PROC-02` | `04 Dataset/02 Data Olahan/Dataset Gabungan Utama Biner 1164 Baris.csv` | 1.164 baris | `1` (Phishing/Fraud): 465<br>`0` (Aman/Normal): 699 | Penggabungan subset biner `Rahmi 2016 Korpus SMS Spam Utama v1.csv` (904 baris) dan `Dataset Pajak Terkurasi 260 Baris.csv` (260 baris), dilengkapi kolom `clean_text`, `ada_token_apk`, `ada_token_url`, `jumlah_kata`, dan `jumlah_karakter`. | `1f203f93683009d6` |
 | `FILE-PROC-03` | `04 Dataset/02 Data Olahan/Dataset Gabungan Diperluas Biner 2521 Baris.csv` | 2.521 baris | `1` (Phishing/Fraud): 822<br>`0` (Aman/Normal): 1.699 | Penggabungan terdeduplikasi berdasarkan `clean_text` dari korpus Rahmi (2016), Theodorus (2021), Saragih (2024), dan korpus pajak terkurasi (260 baris). | `dc58b5484e58cbbf` |
 
@@ -141,7 +141,7 @@ Seluruh teks bersih hasil *scraping* tersimpan di dalam `04 Dataset/01 Data Ment
 | `SRC-004` | Pengumuman Resmi DJP | Direktorat Jenderal Pajak | `PENG-4/PJ.09/2025` | https://pajak.go.id/id/pengumuman/waspada-penipuan-yang-mengatasnamakan-djp |
 | `SRC-005` | Pengumuman Resmi DJP | Direktorat Jenderal Pajak | `PENG-50/PJ.09/2025` | https://pajak.go.id/id/pengumuman/imbauan-kewaspadaan-terhadap-modus-penipuan-mengatasnamakan-pejabatpegawai-direktorat |
 | `SRC-006` | Pengumuman Resmi DJP | Direktorat Jenderal Pajak | Pengumuman Email Palsu | https://pajak.go.id/id/pengumuman/waspada-penipuan-mengatasnamakan-djp |
-| `SRC-007` | Pengumuman Resmi DJP | Direktorat Jenderal Pajak | Pengumuman WA Blast Coretax | https://www.pajak.go.id/id/pengumuman/pengiriman-whatsapp-blast-dalam-rangka-edukasi-coretax-djp |
+| `SRC-007` | Pengumuman Resmi DJP | Direktorat Jenderal Pajak | Pengumuman WA Blast Coretax (`PENG-32/PJ.09/2024`) | https://pajak.go.id/id/pengumuman/penyebarluasan-informasi-mengenai-coretax |
 | `SRC-008` | Siaran Pers DJP | Direktorat Jenderal Pajak | `SP-12/2024` | https://www.pajak.go.id/id/siaran-pers/modus-penipuan-mengatasnamakan-djp |
 | `SRC-009` | Siaran Pers DJP | Kanwil DJP Bali | `SP-17/WPJ.18/2024` | https://www.pajak.go.id/id/siaran-pers/waspada-marak-beredar-penipuan-mengatasnamakan-djp-melalui-media-whatsapp-dan-email |
 | `SRC-010` | Siaran Pers DJP | Kanwil DJP Kalselteng | Siaran Pers Kalselteng | https://www.pajak.go.id/id/siaran-pers/kanwil-djp-kalselteng-ingatkan-waspada-email-palsu-tagihan-pajak-mengatasnamakan-djp |
@@ -182,10 +182,10 @@ Seluruh teks bersih hasil *scraping* tersimpan di dalam `04 Dataset/01 Data Ment
 | `SRC-045` | Berita Layanan Resmi | Direktorat Jenderal Pajak | Portal Reformasi Coretax | https://pajak.go.id/id/reformdjp/coretax |
 | `SRC-046` s.d. `SRC-058` | Portal Berita Pajak | DDTC News | 13 Artikel Rilis Resmi DJP (`SP-12/2024`, `SP-30/2024`, `PENG-31`, `PENG-1`, `PENG-4`, `PENG-50`, WA Blast Coretax & Survei) | `https://news.ddtc.co.id` (tautan spesifik per artikel di `DJP Ringkasan Scrape 68 Sumber Resmi.csv`) |
 | `SRC-059` s.d. `SRC-061` | Portal Berita Pajak | Ortax | 3 Artikel Kajian Modus Penipuan Pejabat DJP & Coretax | `https://ortax.org` (tautan spesifik di `DJP Ringkasan Scrape 68 Sumber Resmi.csv`) |
-| `SRC-062` s.d. `SRC-064` | Portal Cek Fakta | Jalahoaks Pemprov DKI Jakarta | 3 Klarifikasi Hoaks WA Surat Tagihan Pajak, Pemadanan NPWP, & Pembaruan Data DJP | `https://jalahoaks.jakarta.go.id` (tautan spesifik di `DJP Ringkasan Scrape 68 Sumber Resmi.csv`) |
-| `SRC-065` | Edukasi Keamanan Bank | PT Bank Central Asia Tbk (BCA) | Awas Modus Penipuan Pajak Mengatasnamakan DJP | https://www.bca.co.id/id/informasi/awas-modus/2024/10/01/08/21/awas-modus-penipuan-pajak-mengatasnamakan-djp |
-| `SRC-066` s.d. `SRC-067` | Kantor Berita Nasional | LKBN Antara | Imbauan DJP & Peringatan Kemkomdigi soal Phishing Coretax DJP | `https://www.antaranews.com` (tautan spesifik di `DJP Ringkasan Scrape 68 Sumber Resmi.csv`) |
-| `SRC-068` s.d. `SRC-069` | Media Ekonomi Nasional | DetikFinance | Daftar Modus Penipuan Terbaru Catut Nama DJP | `https://finance.detik.com` (tautan spesifik di `DJP Ringkasan Scrape 68 Sumber Resmi.csv`) |
+| `SRC-062` s.d. `SRC-065` | Portal Cek Fakta | Jalahoaks Pemprov DKI Jakarta | 4 Klarifikasi Hoaks WA & Email Surat Tagihan Pajak, Pemadanan NPWP, & Restitusi Pajak | `https://jalahoaks.jakarta.go.id` (tautan spesifik di `DJP Ringkasan Scrape 68 Sumber Resmi.csv`) |
+| `SRC-066` | Edukasi Keamanan Bank | PT Bank Central Asia Tbk (BCA) | Waspada Modus Penipuan Terbaru Mengatasnamakan Petugas Pajak | https://www.bca.co.id/id/informasi/awas-modus/2026/02/10/11/07/waspada-modus-penipuan-terbaru-mengatasnamakan-petugas-pajak |
+| `SRC-067` | Kantor Berita Nasional | LKBN Antara | Peringatan Kemkomdigi soal Situs Coretax Palsu | https://kalbar.antaranews.com/berita/674561/kemkomdigi-mengimbau-masyarakat-untuk-waspadai-situs-coretax-palsu |
+| `SRC-068` | Media Ekonomi Nasional | DetikFinance | DJP Beri Peringatan Massal Pemilik NPWP soal Penipuan Pajak | https://finance.detik.com/berita-ekonomi-bisnis/d-8748189/djp-beri-peringatan-massal-pemilik-npwp-siap-siap-dapat-pesan-ini |
 
 ---
 

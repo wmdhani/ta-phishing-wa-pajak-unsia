@@ -5,7 +5,7 @@ Berkas pada folder ini merupakan salinan dokumen sumber resmi dan artikel *open-
 | No | Sitasi Ringkas | Status | Lokasi Berkas / Keterangan |
 | :---: | :--- | :--- | :--- |
 | `[1]` | Waluyo (2020), *Perpajakan Indonesia*, ed. 13, Salemba Empat | Tidak tersedia gratis (buku komersial) | Terbitan berhak cipta Penerbit Salemba Empat; tidak tersedia PDF resmi *open-access*. |
-| `[2]` | DJP, Pengumuman WA Blast Edukasi Coretax (`PENG-32/PJ.09/2024`) | Diunduh | `03 Referensi/Daftar Pustaka/02 DJP 2024 PENG-32 Penyebarluasan Informasi Coretax WA Blast.pdf` (Catatan: URL lama pada naskah mengarah ke 404; tautan aktif di portal DJP adalah `https://pajak.go.id/id/pengumuman/penyebarluasan-informasi-mengenai-coretax`). |
+| `[2]` | DJP, Pengumuman WA Blast Edukasi Coretax (`PENG-32/PJ.09/2024`) | Diunduh | `03 Referensi/Daftar Pustaka/02 DJP 2024 PENG-32 Penyebarluasan Informasi Coretax WA Blast.pdf` (Tautan aktif portal DJP: `https://pajak.go.id/id/pengumuman/penyebarluasan-informasi-mengenai-coretax`). |
 | `[3]` | Prakoso et al. (2026), *JISHUP*, DOI `10.5281/zenodo.21853029` | Diunduh | `03 Referensi/Daftar Pustaka/03 Prakoso 2026 Misuse of Taxpayer Data for Phishing Scams.pdf` |
 | `[4]` | Alabdan (2020), *Future Internet*, DOI `10.3390/fi12100168` | Diunduh (arsip OA MDPI via Wayback) | `03 Referensi/Daftar Pustaka/04 Alabdan 2020 Phishing Attacks Survey Future Internet.pdf` |
 | `[5]` | DJP, Pengumuman Waspada Penipuan (`PENG-31/PJ.09/2024` s.d. `PENG-18/PJ.09/2026`) | Diunduh (5 PDF resmi DJP) | `05a DJP 2024 PENG-31 Waspada Penipuan.pdf`, `05b DJP 2025 PENG-4 Waspada Penipuan.pdf`, `05c DJP 2025 PENG-29 Waspada Penipuan.pdf`, `05d DJP 2025 PENG-50 Waspada Penipuan.pdf`, `05e DJP 2026 PENG-18 Waspada Penipuan.pdf` |
