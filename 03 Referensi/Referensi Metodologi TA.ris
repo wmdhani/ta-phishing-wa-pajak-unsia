@@ -1,23 +1,295 @@
 TY  - BOOK
+TI  - Perpajakan Indonesia
+AU  - Waluyo
+PY  - 2020
+ET  - 13
+CY  - Jakarta
+PB  - Salemba Empat
+N1  - IEEE [01]
+KW  - perpajakan
+KW  - indonesia
+ER  - 
+
+TY  - ELEC
+TI  - Penyebarluasan Informasi Mengenai Coretax (Pengumuman Nomor PENG-32/PJ.09/2024)
+AU  - Direktorat Jenderal Pajak
+PY  - 2024
+CY  - Jakarta
+PB  - Kementerian Keuangan Republik Indonesia
+UR  - https://pajak.go.id/id/pengumuman/penyebarluasan-informasi-mengenai-coretax
+N1  - IEEE [02]
+KW  - coretax
+KW  - djp
+KW  - pengumuman resmi
+ER  - 
+
+TY  - JOUR
+TI  - Misuse of taxpayer data for phising scams
+AU  - Prakoso, N. B.
+AU  - Ayu, H.
+AU  - Zakaria, H.
+PY  - 2026
+JO  - Journal of International Islamic Law, Human Rights, and Public Policy
+VL  - 4
+IS  - 3
+SP  - 1560
+EP  - 1569
+DO  - 10.5281/zenodo.21853029
+N1  - IEEE [03]
+KW  - phishing pajak
+KW  - uu pdp
+ER  - 
+
+TY  - JOUR
+TI  - Phishing attacks survey: Types, vectors, and technical approaches
+AU  - Alabdan, Roba
+PY  - 2020
+JO  - Future Internet
+VL  - 12
+IS  - 10
+SP  - 168
+DO  - 10.3390/fi12100168
+N1  - IEEE [04]
+KW  - phishing survey
+KW  - smishing
+ER  - 
+
+TY  - ELEC
+TI  - Waspada penipuan yang mengatasnamakan Direktorat Jenderal Pajak (Pengumuman Nomor PENG-31/PJ.09/2024 s.d. PENG-18/PJ.09/2026)
+AU  - Direktorat Jenderal Pajak
+PY  - 2026
+CY  - Jakarta
+PB  - Kementerian Keuangan Republik Indonesia
+UR  - https://www.pajak.go.id/id/pengumuman/waspada-penipuan-yang-mengatasnamakan-direktorat-jenderal-pajak
+N1  - IEEE [05]
+KW  - penipuan pajak
+KW  - djp
+ER  - 
+
+TY  - THES
+TI  - Aplikasi SMS spam filtering pada Android menggunakan algoritma Naïve Bayes
+AU  - Rahmi, F.
+AU  - Wibisono, Y.
+PY  - 2016
+CY  - Bandung
+PB  - Universitas Pendidikan Indonesia
+UR  - https://repository.upi.edu/26936/
+N1  - IEEE [06]
+KW  - sms spam
+KW  - bahasa indonesia
+ER  - 
+
+TY  - CONF
+TI  - Short Message Service (SMS) spam filtering using machine learning in Bahasa Indonesia
+AU  - Theodorus, Agustinus
+AU  - Prasetyo, Tio Kristian
+AU  - Hartono, Reynaldi
+AU  - Suhartono, Derwin
+PY  - 2021
+T2  - Proc. 3rd East Indonesia Conference on Computer and Information Technology (EIConCIT)
+SP  - 199
+EP  - 203
+DO  - 10.1109/EIConCIT50028.2021.9431859
+N1  - IEEE [07]
+KW  - sms spam
+KW  - machine learning
+KW  - bahasa indonesia
+ER  - 
+
+TY  - JOUR
+TI  - Perbandingan klassifikasi SMS berbasis Support Vector Machine, Naive Bayes Classifier, Random Forest dan Bagging Classifier
+AU  - Irawan, D.
+AU  - Hamidah
+AU  - Perkasa, E. B.
+AU  - Yurindra
+AU  - Wahyuningsih, D.
+AU  - Helmud, E.
+PY  - 2021
+JO  - Jurnal Sisfokom (Sistem Informasi dan Komputer)
+VL  - 10
+IS  - 3
+SP  - 432
+EP  - 437
+DO  - 10.32736/sisfokom.v10i3.1302
+N1  - IEEE [08]
+KW  - svm
+KW  - random forest
+KW  - sms spam
+ER  - 
+
+TY  - CONF
+TI  - Indonesian SMS spam detection using TF-RF feature weighting method and Support Vector Machine classifier
+AU  - Al Ghofany, M. S.
+AU  - Dwiyansaputra, R.
+AU  - Bimantoro, F.
+AU  - Khairunnas
+PY  - 2022
+T2  - Proc. First Mandalika International Multi-Conference on Science and Engineering (MIMSE-I-C)
+SP  - 117
+EP  - 129
+DO  - 10.2991/978-94-6463-084-8_12
+N1  - IEEE [09]
+KW  - indonesian sms
+KW  - svm
+KW  - stemming
+ER  - 
+
+TY  - JOUR
+TI  - Comparative study of machine learning algorithms for performing ham or spam classification in SMS
+AU  - Astuti, E. Z.
+AU  - Sari, C. A.
+AU  - Rachmawanto, E. H.
+AU  - Ali, R. R.
+PY  - 2024
+JO  - Scientific Journal of Informatics
+VL  - 11
+IS  - 1
+SP  - 177
+EP  - 186
+DO  - 10.15294/sji.v11i1.47364
+N1  - IEEE [10]
+KW  - sms spam
+KW  - svm
+KW  - random forest
+ER  - 
+
+TY  - JOUR
+TI  - Implementation of Random Forest classification and Support Vector Machine algorithms for phishing link detection
+AU  - Tampinongkol, F. F.
+AU  - Kamila, A. R.
+AU  - Wardhana, A. C.
+AU  - Kusuma, A. W. C.
+AU  - Revaldo, D.
+PY  - 2024
+JO  - Journal of Informatics Information System Software Engineering and Applications (INISTA)
+VL  - 7
+IS  - 1
+SP  - 127
+EP  - 137
+DO  - 10.20895/inista.v7i1.1588
+N1  - IEEE [11]
+KW  - phishing url
+KW  - random forest
+KW  - svm
+ER  - 
+
+TY  - JOUR
+TI  - Comparative analysis of machine learning algorithms for email phishing detection using TF-IDF, Word2Vec, and BERT
+AU  - Al Tawil, A.
+AU  - Almazaydeh, L. H.
+AU  - Qawasmeh, D.
+AU  - Qawasmeh, B.
+AU  - Alshinwan, M.
+AU  - Elleithy, K.
+PY  - 2024
+JO  - Computers, Materials & Continua
+VL  - 81
+IS  - 2
+SP  - 3395
+EP  - 3412
+DO  - 10.32604/cmc.2024.057279
+N1  - IEEE [12]
+KW  - email phishing
+KW  - tf-idf
+KW  - random forest
+ER  - 
+
+TY  - JOUR
+TI  - Komparasi kinerja Support Vector Machine dan Random Forest untuk deteksi spam email berbasis TF-IDF teks
+AU  - Ningtias, A. A.
+AU  - Anwar, N.
+AU  - Ichwani, A.
+AU  - Iswahyudi, R. T.
+PY  - 2026
+JO  - IKRA-ITH Informatika: Jurnal Komputer dan Informatika
+VL  - 10
+IS  - 3
+SP  - 45
+EP  - 51
+N1  - IEEE [13]
+KW  - svm
+KW  - random forest
+KW  - tf-idf
+ER  - 
+
+TY  - JOUR
+TI  - Pengembangan sistem deteksi phishing pada WhatsApp berbasis AI dengan integrasi bahasa lokal Surabaya
+AU  - Efendi, F. M.
+AU  - Adisusilo, A. K.
+AU  - Budiprayitno, S.
+PY  - 2025
+JO  - Melek IT Information Technology Journal
+VL  - 11
+IS  - 1
+SP  - 101
+EP  - 112
+DO  - 10.30742/melekitjournal.v11i1.417
+N1  - IEEE [14]
+KW  - whatsapp phishing
+KW  - fuzzy
+ER  - 
+
+TY  - JOUR
+TI  - Implementasi algoritma SVM pada bot WhatsApp untuk deteksi pesan spam
+AU  - Saputra, R. B.
+AU  - Azwar, M.
+AU  - Widyawati, L.
+AU  - Husain
+AU  - Latif, K. A.
+PY  - 2026
+JO  - Jurnal Manajemen Informatika dan Sistem Informasi
+VL  - 9
+IS  - 1
+SP  - 39
+EP  - 51
+DO  - 10.36595/misi.v9i1.1803
+N1  - IEEE [15]
+KW  - whatsapp spam
+KW  - svm
+KW  - sastrawi
+ER  - 
+
+TY  - JOUR
+TI  - Optimasi model klasifikasi pesan penipuan digital berbahasa Indonesia menggunakan XGBoost dengan Bayesian Optimization dan SMOTE
+AU  - Sembiring, M. A.
+AU  - Sibuea, M. F. L.
+AU  - Anjani
+PY  - 2026
+JO  - Journal of Science and Social Research
+VL  - 9
+IS  - 3
+SP  - 5329
+EP  - 5336
+DO  - 10.54314/jssr.v9i3.7212
+N1  - IEEE [16]
+KW  - penipuan digital
+KW  - tf-idf
+KW  - token entitas
+ER  - 
+
+TY  - RPRT
+TI  - Pedoman Teknis Penulisan Tugas Akhir Mahasiswa Universitas Siber Asia (SK Rektor Nomor 01 Tahun 2024)
+AU  - Hassolthine, Cian Ramadhona
+AU  - Darusalam, Ucuk
+AU  - Ikhwani, Muhammad
+PY  - 2024
+CY  - Jakarta
+PB  - Universitas Siber Asia
+N1  - IEEE [17]
+KW  - pedoman tugas akhir
+KW  - unsia
+ER  - 
+
+TY  - BOOK
 TI  - Metode Penelitian Kuantitatif, Kualitatif, dan R&D
 AU  - Sugiyono
 PY  - 2023
 ET  - 2
 CY  - Bandung
 PB  - Alfabeta
+N1  - IEEE [18]
 KW  - metodologi penelitian
-KW  - research and development
-KW  - kuantitatif
-ER  - 
-
-TY  - BOOK
-TI  - Statistika untuk Penelitian
-AU  - Sugiyono
-PY  - 2019
-CY  - Bandung
-PB  - Alfabeta
-KW  - statistika
-KW  - uji komparatif
+KW  - r&d
 ER  - 
 
 TY  - BOOK
@@ -29,8 +301,20 @@ AU  - Nurhayati, Yuliana
 PY  - 2021
 CY  - Bandung
 PB  - Media Sains Indonesia
+N1  - IEEE [19]
 KW  - metodologi kuantitatif
 KW  - variabel penelitian
+ER  - 
+
+TY  - BOOK
+TI  - Statistika untuk Penelitian
+AU  - Sugiyono
+PY  - 2019
+CY  - Bandung
+PB  - Alfabeta
+N1  - IEEE [20]
+KW  - statistika
+KW  - uji komparatif
 ER  - 
 
 TY  - BOOK
@@ -39,17 +323,196 @@ AU  - Sinambela, Lijan Poltak
 PY  - 2021
 CY  - Depok
 PB  - Rajawali Pers
+N1  - IEEE [21]
 KW  - metodologi penelitian
 ER  - 
 
-TY  - RPRT
-TI  - Pedoman Teknis Penulisan Tugas Akhir Mahasiswa Universitas Siber Asia (SK Rektor Nomor 01 Tahun 2024)
-AU  - Hassolthine, Cian Ramadhona
-AU  - Darusalam, Ucuk
-AU  - Ikhwani, Muhammad
-PY  - 2024
+TY  - JOUR
+TI  - Support-vector networks
+AU  - Cortes, Corinna
+AU  - Vapnik, Vladimir
+PY  - 1995
+JO  - Machine Learning
+VL  - 20
+IS  - 3
+SP  - 273
+EP  - 297
+DO  - 10.1007/BF00994018
+N1  - IEEE [22]
+KW  - support vector machine
+KW  - soft margin
+ER  - 
+
+TY  - JOUR
+TI  - LIBLINEAR: A library for large linear classification
+AU  - Fan, Rong-En
+AU  - Chang, Kai-Wei
+AU  - Hsieh, Cho-Jui
+AU  - Wang, Xiang-Rui
+AU  - Lin, Chih-Jen
+PY  - 2008
+JO  - Journal of Machine Learning Research
+VL  - 9
+SP  - 1871
+EP  - 1874
+UR  - https://jmlr.org/papers/v9/fan08a.html
+N1  - IEEE [23]
+KW  - liblinear
+KW  - linear svm
+ER  - 
+
+TY  - CHAP
+TI  - Probabilistic outputs for support vector machines and comparisons to regularized likelihood methods
+AU  - Platt, John C.
+PY  - 2000
+BT  - Advances in Large Margin Classifiers
+ED  - Smola, Alexander J.
+ED  - Bartlett, Peter
+ED  - Schölkopf, Bernhard
+ED  - Schuurmans, Dale
+CY  - Cambridge, MA
+PB  - MIT Press
+SP  - 61
+EP  - 74
+N1  - IEEE [24]
+KW  - platt scaling
+KW  - probability calibration
+ER  - 
+
+TY  - JOUR
+TI  - Random forests
+AU  - Breiman, Leo
+PY  - 2001
+JO  - Machine Learning
+VL  - 45
+IS  - 1
+SP  - 5
+EP  - 32
+DO  - 10.1023/A:1010933404324
+N1  - IEEE [25]
+KW  - random forest
+KW  - ensemble
+ER  - 
+
+TY  - JOUR
+TI  - Term-weighting approaches in automatic text retrieval
+AU  - Salton, Gerard
+AU  - Buckley, Christopher
+PY  - 1988
+JO  - Information Processing & Management
+VL  - 24
+IS  - 5
+SP  - 513
+EP  - 523
+DO  - 10.1016/0306-4573(88)90021-0
+N1  - IEEE [26]
+KW  - tf-idf
+KW  - term weighting
+ER  - 
+
+TY  - JOUR
+TI  - Stemming Indonesian: A confix-stripping approach
+AU  - Adriani, Mirna
+AU  - Asian, Jelita
+AU  - Nazief, Bobby A. A.
+AU  - Tahaghoghi, Seyed M. M.
+AU  - Williams, Hugh E.
+PY  - 2007
+JO  - ACM Transactions on Asian Language Information Processing
+VL  - 6
+IS  - 4
+SP  - 1
+EP  - 33
+DO  - 10.1145/1316457.1316459
+N1  - IEEE [27]
+KW  - stemming indonesian
+KW  - confix-stripping
+ER  - 
+
+TY  - CONF
+TI  - A study of cross-validation and bootstrap for accuracy estimation and model selection
+AU  - Kohavi, Ron
+PY  - 1995
+T2  - Proc. 14th International Joint Conference on Artificial Intelligence (IJCAI)
+CY  - Montreal, QC, Canada
+VL  - 2
+SP  - 1137
+EP  - 1143
+UR  - https://www.ijcai.org/Proceedings/95-2/Papers/016.pdf
+N1  - IEEE [28]
+KW  - cross-validation
+KW  - model selection
+ER  - 
+
+TY  - JOUR
+TI  - A systematic analysis of performance measures for classification tasks
+AU  - Sokolova, Marina
+AU  - Lapalme, Guy
+PY  - 2009
+JO  - Information Processing & Management
+VL  - 45
+IS  - 4
+SP  - 427
+EP  - 437
+DO  - 10.1016/j.ipm.2009.03.002
+N1  - IEEE [29]
+KW  - confusion matrix
+KW  - evaluation metrics
+ER  - 
+
+TY  - JOUR
+TI  - Scikit-learn: Machine Learning in Python
+AU  - Pedregosa, Fabian
+AU  - Varoquaux, Gaël
+AU  - Gramfort, Alexandre
+AU  - Michel, Vincent
+AU  - Thirion, Bertrand
+AU  - Grisel, Olivier
+AU  - Blondel, Mathieu
+AU  - Prettenhofer, Peter
+AU  - Weiss, Ron
+AU  - Dubourg, Vincent
+AU  - Vanderplas, Jake
+AU  - Passos, Alexandre
+AU  - Cournapeau, David
+AU  - Brucher, Matthieu
+AU  - Perrot, Matthieu
+AU  - Duchesnay, Édouard
+PY  - 2011
+JO  - Journal of Machine Learning Research
+VL  - 12
+SP  - 2825
+EP  - 2830
+UR  - https://jmlr.org/papers/v12/pedregosa11a.html
+N1  - IEEE [30]
+KW  - scikit-learn
+KW  - python machine learning
+ER  - 
+
+TY  - STAT
+TI  - Peraturan Menteri Riset, Teknologi, dan Pendidikan Tinggi Republik Indonesia Nomor 42 Tahun 2016 tentang Pengukuran dan Penetapan Tingkat Kesiapterapan Teknologi
+AU  - Kementerian Riset, Teknologi, dan Pendidikan Tinggi Republik Indonesia
+PY  - 2016
 CY  - Jakarta
-PB  - Universitas Siber Asia
-KW  - pedoman tugas akhir
-KW  - unsia
+PB  - Berita Negara Republik Indonesia Tahun 2016 Nomor 1010
+N1  - IEEE [31]
+KW  - tkt
+KW  - tingkat kesiapterapan teknologi
+ER  - 
+
+TY  - JOUR
+TI  - A note on Platt's probabilistic outputs for support vector machines
+AU  - Lin, Hsuan-Tien
+AU  - Lin, Chih-Jen
+AU  - Weng, Ruby C.
+PY  - 2007
+JO  - Machine Learning
+VL  - 68
+IS  - 3
+SP  - 267
+EP  - 276
+DO  - 10.1007/s10994-007-5018-6
+N1  - IEEE [32]
+KW  - platt scaling
+KW  - calibratedclassifiercv
 ER  - 

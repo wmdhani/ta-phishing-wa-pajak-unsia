@@ -1,0 +1,76 @@
+model_kelompok,rank,fitur,skor
+SVM_Positif_Phishing,1,no,2.3381845846273315
+SVM_Positif_Phishing,2,sms,1.8761694778649458
+SVM_Positif_Phishing,3,hub,1.7742476256176727
+SVM_Positif_Phishing,4,token_apk,1.7641891594999015
+SVM_Positif_Phishing,5,info,1.604408551640648
+SVM_Positif_Phishing,6,rekening,1.5748856697728102
+SVM_Positif_Phishing,7,klik,1.562067422981972
+SVM_Positif_Phishing,8,hp,1.5072900728592227
+SVM_Positif_Phishing,9,rek,1.4973392122498559
+SVM_Positif_Phishing,10,pin,1.4693938629285141
+SVM_Positif_Phishing,11,segera,1.4323352195757033
+SVM_Positif_Phishing,12,mandiri aja,1.4253045485967948
+SVM_Positif_Phishing,13,sy,1.3115271912569464
+SVM_Positif_Phishing,14,sila,1.2501324711698996
+SVM_Positif_Phishing,15,yth,1.2341031007788419
+SVM_Positif_Phishing,16,pemberitahuan,1.187403527122921
+SVM_Positif_Phishing,17,bpk,1.1327267363313176
+SVM_Positif_Phishing,18,token_url,1.1043736569774198
+SVM_Positif_Phishing,19,klik token_url,1.1012626487586483
+SVM_Positif_Phishing,20,byr,1.0892158427950926
+SVM_Positif_Phishing,21,rekening mandiri,1.0848477918306803
+SVM_Positif_Phishing,22,lampir,1.0610483092907579
+SVM_Positif_Phishing,23,hadiah,1.0556595446570167
+SVM_Positif_Phishing,24,ketik,1.033077407298842
+SVM_Positif_Phishing,25,norek,1.0233649533120863
+SVM_Negatif_Resmi,1,nama1,-1.4306408752973119
+SVM_Negatif_Resmi,2,aku,-1.1665860671471482
+SVM_Negatif_Resmi,3,terimakasih,-1.0925422851918656
+SVM_Negatif_Resmi,4,maupun,-1.0845562839954939
+SVM_Negatif_Resmi,5,resmi,-1.0668077332556423
+SVM_Negatif_Resmi,6,guna,-0.9990567154059622
+SVM_Negatif_Resmi,7,kalau,-0.9711349381725618
+SVM_Negatif_Resmi,8,lanjut,-0.9616248804131274
+SVM_Negatif_Resmi,9,minta,-0.9521103805323381
+SVM_Negatif_Resmi,10,nya,-0.9499649414715344
+SVM_Negatif_Resmi,11,yg,-0.9385444923189386
+SVM_Negatif_Resmi,12,pernah,-0.9108497459758931
+SVM_Negatif_Resmi,13,pratama,-0.8088490305902527
+SVM_Negatif_Resmi,14,laman,-0.8033342604967361
+SVM_Negatif_Resmi,15,ruang,-0.7829608605980694
+SVM_Negatif_Resmi,16,kp2kp,-0.7728988416592311
+SVM_Negatif_Resmi,17,mandiri,-0.7586467156237415
+SVM_Negatif_Resmi,18,2016,-0.7583591912016935
+SVM_Negatif_Resmi,19,resmi pajak,-0.7432943335182581
+SVM_Negatif_Resmi,20,cukup,-0.7374166703505298
+SVM_Negatif_Resmi,21,otp,-0.725672931876414
+SVM_Negatif_Resmi,22,mana,-0.7248668471124626
+SVM_Negatif_Resmi,23,atm,-0.7037500636619024
+SVM_Negatif_Resmi,24,via,-0.6853779474107566
+SVM_Negatif_Resmi,25,edukasi,-0.6808150439510301
+RF_Importance,1,info,0.03622001655138054
+RF_Importance,2,no,0.0349683826280917
+RF_Importance,3,token_url,0.03183249199193334
+RF_Importance,4,hadiah,0.02479144081031932
+RF_Importance,5,sms,0.024103640238455615
+RF_Importance,6,pin,0.023169592949626176
+RF_Importance,7,hub,0.02284994423641221
+RF_Importance,8,klik,0.01934073660042201
+RF_Importance,9,token_apk,0.015084731734322157
+RF_Importance,10,klik token_url,0.015051474919619884
+RF_Importance,11,rekening,0.014865608789246781
+RF_Importance,12,pulsa,0.01319940039112385
+RF_Importance,13,rp,0.012068167279070698
+RF_Importance,14,yth,0.011797145426998354
+RF_Importance,15,segera,0.011465768656112043
+RF_Importance,16,rek,0.011076725087390202
+RF_Importance,17,kirim,0.008988716007523859
+RF_Importance,18,sila,0.007852043495119624
+RF_Importance,19,pt,0.0073165302045268815
+RF_Importance,20,wajib,0.006546816166515531
+RF_Importance,21,menang,0.006489715467101809
+RF_Importance,22,uang,0.0061863990355076
+RF_Importance,23,wajib pajak,0.006008317516587069
+RF_Importance,24,bpk,0.005912052437497956
+RF_Importance,25,sy,0.00587814927499174

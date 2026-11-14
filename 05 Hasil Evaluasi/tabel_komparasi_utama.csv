@@ -1,0 +1,20 @@
+tahap_evaluasi,model,n_sampel,accuracy,precision,recall,f1,f1_macro,roc_auc,pr_auc,brier_score,log_loss,tn,fp,fn,tp
+Tahap 1: Baseline Holdout 80:20,SVM Linear (Default),233,0.9828,0.9785,0.9785,0.9785,0.9821,0.998,0.9973,,,138.0,2.0,2.0,91.0
+Tahap 1: Baseline Holdout 80:20,Random Forest (Default n=200),233,0.9528,0.9362,0.9462,0.9412,0.9509,0.9959,0.9938,0.03765,0.14754,134.0,6.0,5.0,88.0
+Tahap 1: 10-Fold CV Default (Latih),SVM Linear (Default),931,0.9731,0.9715,0.9625,0.9664,0.972,0.9956,,,,,,,
+Tahap 1: 10-Fold CV Default (Latih),Random Forest (Default n=200),931,0.9506,0.9374,0.941,0.9381,0.9484,0.9907,,,,,,,
+Tahap 2: 10-Fold CV Tuned (Latih),SVM Linear (Tuned),931,0.9774,0.9769,0.9679,0.9718,0.9765,0.9951,,,,,,,
+Tahap 2: 10-Fold CV Tuned (Latih),Random Forest (Tuned),931,0.9527,0.9296,0.9572,0.9419,0.951,0.9914,,,,,,,
+Tahap 3: Holdout Tuned & Kalibrasi,SVM Linear (Tuned),233,0.9785,0.9681,0.9785,0.9733,0.9777,0.9979,0.9972,,,137.0,3.0,2.0,91.0
+Tahap 3: Holdout Tuned & Kalibrasi,SVM Linear (Platt Sigmoid),233,0.9742,0.9579,0.9785,0.9681,0.9733,0.9982,0.9975,0.019,0.06883,136.0,4.0,2.0,91.0
+Tahap 3: Holdout Tuned & Kalibrasi,Random Forest (Tuned),233,0.9657,0.9381,0.9785,0.9579,0.9645,0.9973,0.9961,0.03555,0.14426,134.0,6.0,2.0,91.0
+Tahap 4A: Subset Pajak Holdout,SVM Linear (Platt Sigmoid),44,0.9773,0.9583,1.0,0.9787,0.9772,1.0,1.0,0.02712,0.09487,20.0,1.0,0.0,23.0
+Tahap 4A: Subset Pajak Holdout,Random Forest (Tuned),44,0.8864,0.8214,1.0,0.902,0.8834,0.9896,0.9922,0.09289,0.34,16.0,5.0,0.0,23.0
+Tahap 4A: 10-Fold CV Korpus Pajak 260,SVM Linear (Tuned),260,0.9808,0.9652,1.0,0.9817,0.9807,0.9935,,,,,,,
+Tahap 4A: 10-Fold CV Korpus Pajak 260,Random Forest (Tuned),260,0.9269,0.909,0.9538,0.9292,0.9267,0.987,,,,,,,
+Tahap 4B: Zero-Shot Eksternal (Unseen),SVM Linear (Platt Sigmoid),1362,0.6417,0.4114,0.825,0.549,0.6259,0.793,0.5772,0.25059,0.80338,577.0,425.0,63.0,297.0
+Tahap 4B: Zero-Shot Eksternal (Unseen),Random Forest (Tuned),1362,0.6087,0.3625,0.6333,0.4611,0.5769,0.697,0.5491,0.23928,0.7123,601.0,401.0,132.0,228.0
+Tahap 4C: Holdout Korpus 2.521 (80:20),SVM Linear (Platt Sigmoid),505,0.9465,0.9207,0.9152,0.9179,0.9391,0.9818,0.9427,0.04352,0.16641,327.0,13.0,14.0,151.0
+Tahap 4C: Holdout Korpus 2.521 (80:20),Random Forest (Tuned),505,0.9287,0.9108,0.8667,0.8882,0.9179,0.9763,0.9238,0.06033,0.21885,326.0,14.0,22.0,143.0
+Tahap 4C: 10-Fold CV Korpus 2.521,SVM Linear (Tuned),2521,0.9472,0.9282,0.9089,0.9181,0.9396,0.9821,,,,,,,
+Tahap 4C: 10-Fold CV Korpus 2.521,Random Forest (Tuned),2521,0.9457,0.9292,0.9027,0.9153,0.9377,0.9806,,,,,,,

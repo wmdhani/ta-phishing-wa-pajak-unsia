@@ -20,6 +20,7 @@
   - `korpus_pajak.py`: Metadata sumber otoritatif DJP dan 260 rekaman teks terkurasi.
   - `kurasi_dataset.py`: Pipeline pembuatan dataset olahan dan katalog provenans SHA-256.
   - `eksperimen_baseline.py`: Praproses Sastrawi, tokenisasi khusus, TF-IDF, dan komparasi baseline SVM vs Random Forest.
+  - `eksperimen_komparasi.py`: Pipeline lengkap Stratified 10-Fold CV, GridSearchCV, kalibrasi Platt, studi ablatif, uji lintas-korpus, grafik evaluasi, dan ekspor model `.joblib`.
   - `buat_dokumen_proposal.py`: Pembangun dokumen ringkasan usulan judul `.pdf` dan `.docx`.
 - `tests/`: Pengujian otomatis (`pytest`) untuk integritas korpus dan pipeline eksperimen.
 
@@ -36,8 +37,9 @@ uv sync
 # 2. Jalankan pengujian integritas dataset & eksperimen
 & "$env:LOCALAPPDATA\venvs\ta-phishing-pajak-unsia\Scripts\pytest.exe" -q
 
-# 3. Jalankan baseline komparasi SVM vs Random Forest
+# 3. Jalankan baseline dan eksperimen komparasi lengkap SVM vs Random Forest
 & "$env:LOCALAPPDATA\venvs\ta-phishing-pajak-unsia\Scripts\python.exe" src\eksperimen_baseline.py
+& "$env:LOCALAPPDATA\venvs\ta-phishing-pajak-unsia\Scripts\python.exe" -m src.eksperimen_komparasi
 
 # 4. Reproduksi seluruh dataset olahan dan katalog SHA-256
 & "$env:LOCALAPPDATA\venvs\ta-phishing-pajak-unsia\Scripts\python.exe" -m src.kurasi_dataset
