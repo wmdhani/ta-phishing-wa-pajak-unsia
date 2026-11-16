@@ -22,21 +22,21 @@ Berkas pada folder ini merupakan salinan dokumen sumber resmi, artikel *open-acc
 | `[14]` | Efendi et al. (2025), *Melek IT*, DOI `10.30742/melekitjournal.v11i1.417` | Diunduh | `03 Referensi/Daftar Pustaka/14 Efendi 2025 Deteksi Phishing WhatsApp Bahasa Surabaya MelekIT.pdf` |
 | `[15]` | Saputra et al. (2026), *MISI*, DOI `10.36595/misi.v9i1.1803` | Diunduh | `03 Referensi/Daftar Pustaka/15 Saputra 2026 Implementasi SVM Bot WhatsApp Spam MISI.pdf` |
 | `[16]` | Sembiring et al. (2026), *JSSR*, DOI `10.54314/jssr.v9i3.7212` | Diunduh | `03 Referensi/Daftar Pustaka/16 Sembiring 2026 Optimasi XGBoost Penipuan Digital JSSR.pdf` |
-| `[17]` | Hassolthine, Darusalam & Ikhwani (2024), *Pedoman Teknis TA UNSIA* | Sudah tersedia | `01 Administrasi/Pedoman Penulisan TA UNSIA 2024.pdf` |
-| `[18]` | Sugiyono (2023), *Metode Penelitian Kuantitatif, Kualitatif, dan R&D* | Sudah tersedia | `03 Referensi/Ebook Metodologi/Sugiyono 2023 Metode Penelitian Kuantitatif Kualitatif dan RnD.pdf` |
-| `[19]` | Darwin et al. (2021), *Metode Penelitian Pendekatan Kuantitatif* | Sudah tersedia | `03 Referensi/Ebook Metodologi/Darwin 2021 Metode Penelitian Pendekatan Kuantitatif.pdf` |
-| `[20]` | Sugiyono (2019), *Statistika untuk Penelitian* | Sudah tersedia | `03 Referensi/Ebook Metodologi/Sugiyono 2019 Statistika untuk Penelitian.pdf` |
-| `[21]` | Sinambela (2021), *Metodologi Penelitian Kuantitatif* | Sudah tersedia | `03 Referensi/Ebook Metodologi/Sinambela 2021 Metodologi Penelitian Kuantitatif Teoretik dan Praktik.pdf` |
-| `[22]` | Setiyono & Pardede (2019), *Jurnal Pilar Nusa Mandiri*, DOI `10.33480/pilar.v15i2.693` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.33480/pilar.v15i2.693` |
-| `[23]` | N. J. Saputra (2024), *Jurnal Sosial Teknologi*, DOI `10.59188/jurnalsostech.v4i4.1214` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.59188/jurnalsostech.v4i4.1214` |
-| `[24]` | Ahammad et al. (2025), *Proc. IEEE FMLDS*, DOI `10.1109/fmlds67896.2025.00123` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.1109/fmlds67896.2025.00123` |
-| `[25]` | Birthriya, Ahlawat & Jain (2026), *Franklin Open*, DOI `10.1016/j.fraope.2026.100506` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.1016/j.fraope.2026.100506` |
-| `[26]` | Fauzan et al. (2025), *MALCOM*, DOI `10.57152/malcom.v5i2.1968` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.57152/malcom.v5i2.1968` |
-| `[27]` | Sari et al. (2025), *AICOMS*, DOI `10.58466/aicoms.v4i2.1806` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.58466/aicoms.v4i2.1806` |
-| `[28]` | Izzah, Riadi & Fadlil (2026), *Rabit*, DOI `10.36341/rabit.v11i1.7124` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.36341/rabit.v11i1.7124` |
-| `[29]` | Mishra & Yadav (2026), *IJASCA*, DOI `10.47679/ijasca.v5i2.269` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.47679/ijasca.v5i2.269` |
-| `[30]` | Ismail, Nasution & Gea (2026), *IDEALIS*, DOI `10.36080/idealis.v9i2.3810` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.36080/idealis.v9i2.3810` |
-| `[31]` | Suwarno, Capricornness & Christian (2026), *Komputa*, DOI `10.34010/komputa.v15i1.18882` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.34010/komputa.v15i1.18882` |
+| `[17]` | Setiyono & Pardede (2019), *Jurnal Pilar Nusa Mandiri*, DOI `10.33480/pilar.v15i2.693` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.33480/pilar.v15i2.693` |
+| `[18]` | N. J. Saputra (2024), *Jurnal Sosial Teknologi*, DOI `10.59188/jurnalsostech.v4i4.1214` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.59188/jurnalsostech.v4i4.1214` |
+| `[19]` | Ahammad et al. (2025), *Proc. IEEE FMLDS*, DOI `10.1109/fmlds67896.2025.00123` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.1109/fmlds67896.2025.00123` |
+| `[20]` | Birthriya, Ahlawat & Jain (2026), *Franklin Open*, DOI `10.1016/j.fraope.2026.100506` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.1016/j.fraope.2026.100506` |
+| `[21]` | Fauzan et al. (2025), *MALCOM*, DOI `10.57152/malcom.v5i2.1968` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.57152/malcom.v5i2.1968` |
+| `[22]` | Sari et al. (2025), *AICOMS*, DOI `10.58466/aicoms.v4i2.1806` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.58466/aicoms.v4i2.1806` |
+| `[23]` | Izzah, Riadi & Fadlil (2026), *Rabit*, DOI `10.36341/rabit.v11i1.7124` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.36341/rabit.v11i1.7124` |
+| `[24]` | Mishra & Yadav (2026), *IJASCA*, DOI `10.47679/ijasca.v5i2.269` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.47679/ijasca.v5i2.269` |
+| `[25]` | Ismail, Nasution & Gea (2026), *IDEALIS*, DOI `10.36080/idealis.v9i2.3810` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.36080/idealis.v9i2.3810` |
+| `[26]` | Suwarno, Capricornness & Christian (2026), *Komputa*, DOI `10.34010/komputa.v15i1.18882` | Terverifikasi Crossref | Akses daring via DOI: `https://doi.org/10.34010/komputa.v15i1.18882` |
+| `[27]` | Hassolthine, Darusalam & Ikhwani (2024), *Pedoman Teknis TA UNSIA* | Sudah tersedia | `01 Administrasi/Pedoman Penulisan TA UNSIA 2024.pdf` |
+| `[28]` | Sugiyono (2023), *Metode Penelitian Kuantitatif, Kualitatif, dan R&D* | Sudah tersedia | `03 Referensi/Ebook Metodologi/Sugiyono 2023 Metode Penelitian Kuantitatif Kualitatif dan RnD.pdf` |
+| `[29]` | Darwin et al. (2021), *Metode Penelitian Pendekatan Kuantitatif* | Sudah tersedia | `03 Referensi/Ebook Metodologi/Darwin 2021 Metode Penelitian Pendekatan Kuantitatif.pdf` |
+| `[30]` | Sugiyono (2019), *Statistika untuk Penelitian* | Sudah tersedia | `03 Referensi/Ebook Metodologi/Sugiyono 2019 Statistika untuk Penelitian.pdf` |
+| `[31]` | Sinambela (2021), *Metodologi Penelitian Kuantitatif* | Sudah tersedia | `03 Referensi/Ebook Metodologi/Sinambela 2021 Metodologi Penelitian Kuantitatif Teoretik dan Praktik.pdf` |
 
 ## B. Referensi Primer Landasan Metode & Evaluasi untuk Bab II (`[32]`-`[42]`)
 

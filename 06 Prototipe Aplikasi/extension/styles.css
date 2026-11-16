@@ -1,0 +1,42 @@
+.wa-pajak-btn {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1e293b;
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.wa-pajak-btn:hover {
+  background: #cbd5e1;
+}
+
+.wa-pajak-badge {
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.wa-pajak-tinggi {
+  background: #fef2f2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
+}
+
+.wa-pajak-sedang {
+  background: #fffbeb;
+  border: 1px solid #f59e0b;
+  color: #92400e;
+}
+
+.wa-pajak-rendah {
+  background: #f0fdf4;
+  border: 1px solid #22c55e;
+  color: #166534;
+}

@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Detektor Phishing Pajak WhatsApp Web",
+  "version": "1.0.0",
+  "description": "Ekstensi Manifest V3 untuk mendeteksi pesan phishing WhatsApp mengatasnamakan otoritas perpajakan melalui REST API FastAPI.",
+  "permissions": ["activeTab"],
+  "host_permissions": [
+    "https://web.whatsapp.com/*",
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Detektor Phishing Pajak"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

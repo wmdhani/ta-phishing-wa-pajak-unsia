@@ -117,16 +117,28 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat
 | Halaman Abstrak dan *Abstract* | iv |
 | Kata Pengantar | v |
 | Daftar Isi | vii |
-| Daftar Gambar | viii |
-| Daftar Tabel | ix |
+| Daftar Gambar | ix |
+| Daftar Tabel | x |
 | Bab I Pendahuluan | 1 |
 | 1.1 Latar Belakang Masalah | 1 |
-| 1.2 Rumusan Masalah | 2 |
+| 1.2 Rumusan Masalah | 3 |
 | 1.3 Batasan Masalah | 3 |
-| 1.4 Tujuan Penelitian | 4 |
+| 1.4 Tujuan Penelitian | 5 |
 | 1.5 Manfaat Penelitian | 5 |
 | 1.6 Metode Penelitian | 6 |
-| Daftar Pustaka | 8 |
+| Bab II Landasan Metode | 9 |
+| 2.1 Penelitian Terdahulu dan Matriks Komparasi | 9 |
+| 2.2 Landasan Teori dan Metode Khusus | 12 |
+| 2.2.1 Algoritma *Support Vector Machine*, *LinearSVC*, dan Kalibrasi Platt | 12 |
+| 2.2.2 Algoritma *Random Forest* | 13 |
+| 2.2.3 Praproses Teks Bahasa Indonesia dan Pembobotan Fitur TF-IDF | 13 |
+| 2.2.4 Validasi Silang Terstratifikasi, Metrik Evaluasi, dan Kesiapterapan Teknologi | 14 |
+| 2.3 Prosedur Operasional dan Bagan Alir Penelitian | 15 |
+| 2.4 Waktu dan Lokasi Penelitian | 16 |
+| 2.5 Alat dan Bahan Penelitian | 17 |
+| 2.6 Cara Pengumpulan dan Analisis Data | 19 |
+| 2.7 Definisi Operasional Variabel dan Parameter | 19 |
+| Daftar Pustaka | 22 |
 
 ---
 
@@ -134,7 +146,8 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat
 
 | Nomor Gambar | Judul Gambar | Halaman |
 | :--- | :--- | :---: |
-| Gambar 1.1 | Tahapan Metode Penelitian | 7 |
+| Gambar 1.1 | Tahapan Metode Penelitian | 8 |
+| Gambar 2.1 | Bagan Alir Prosedur Eksperimen | 16 |
 
 ---
 
@@ -142,6 +155,10 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat
 
 | Nomor Tabel | Judul Tabel | Halaman |
 | :--- | :--- | :---: |
-| Tabel 1.1 | Komposisi Korpus Dataset Penelitian | 6 |
+| Tabel 1.1 | Komposisi Korpus Dataset Penelitian | 7 |
+| Tabel 2.1 | Matriks Penelitian Terdahulu | 10 |
+| Tabel 2.2 | Jadwal Pelaksanaan Penelitian | 17 |
+| Tabel 2.3 | Spesifikasi Alat dan Bahan Penelitian | 18 |
+| Tabel 2.4 | Definisi Operasional Variabel dan Parameter Penelitian | 21 |
 
 ---

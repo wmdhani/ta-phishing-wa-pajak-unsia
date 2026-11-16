@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Detektor Phishing Pajak</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      width: 340px;
+      padding: 12px;
+      margin: 0;
+      color: #0f172a;
+    }
+    h1 { font-size: 14px; margin: 0 0 8px; }
+    .status { font-size: 12px; margin-bottom: 10px; color: #475569; }
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      height: 84px;
+      padding: 8px;
+      font-size: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      resize: vertical;
+    }
+    button {
+      margin-top: 8px;
+      width: 100%;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #0f172a;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Detektor Phishing Pajak WA</h1>
+  <div id="api-status" class="status">Memeriksa koneksi FastAPI...</div>
+  <textarea id="msg-input" placeholder="Tempelkan teks pesan WhatsApp di sini..."></textarea>
+  <button id="check-btn">Periksa Pesan</button>
+  <div id="output"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
