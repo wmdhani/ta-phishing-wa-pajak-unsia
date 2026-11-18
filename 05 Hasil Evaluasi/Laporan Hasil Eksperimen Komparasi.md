@@ -1,6 +1,6 @@
 # Laporan Hasil Eksperimen Komparasi SVM Linear dan Random Forest
 
-Seluruh rangkaian eksperimen dijalankan secara otomatis oleh `src/eksperimen_komparasi.py` dengan total waktu komputasi **228.37 detik**.
+Seluruh rangkaian eksperimen dijalankan secara otomatis oleh `src/eksperimen_komparasi.py` dengan total waktu komputasi **297.57 detik**.
 
 ## 1. Reproduksi Baseline (Holdout 80:20 Korpus Utama 1.164 Baris)
 
@@ -48,6 +48,8 @@ Seluruh rangkaian eksperimen dijalankan secara otomatis oleh `src/eksperimen_kom
 - **Indikator Phishing Terkuat SVM Linear (+):** `no` (2.338), `sms` (1.876), `hub` (1.774), `token_apk` (1.764), `info` (1.604), `rekening` (1.575), `klik` (1.562), `hp` (1.507)
 - **Indikator Resmi/Normal Terkuat SVM Linear (-):** `nama1` (-1.431), `aku` (-1.167), `terimakasih` (-1.093), `maupun` (-1.085), `resmi` (-1.067), `guna` (-0.999), `kalau` (-0.971), `lanjut` (-0.962)
 - **Fitur Terpenting Random Forest (Gini):** `info` (0.0362), `no` (0.0350), `token_url` (0.0318), `hadiah` (0.0248), `sms` (0.0241), `pin` (0.0232), `hub` (0.0228), `klik` (0.0193)
+- **Top-8 Fitur SHAP SVM Linear (Holdout):** `no` (0.0727, Phishing), `aku` (0.0551, Resmi/Normal), `info` (0.0512, Phishing), `nama1` (0.0474, Phishing), `yg` (0.0436, Resmi/Normal), `pin` (0.0433, Phishing), `token_url` (0.0404, Phishing), `klik` (0.0374, Phishing)
+- **Top-8 Fitur SHAP Random Forest (Holdout):** `token_url` (0.0363, Phishing), `no` (0.0318, Resmi/Normal), `sms` (0.0271, Resmi/Normal), `info` (0.0268, Phishing), `pin` (0.0208, Resmi/Normal), `hub` (0.0158, Resmi/Normal), `hadiah` (0.0155, Phishing), `klik` (0.0145, Phishing)
 - **Jumlah Sampel Salah Prediksi (gabungan SVM/RF pada holdout):** 13 baris (rincian lengkap tersedia di `analisis_kesalahan_prediksi.csv`).
 
 - `idx=334` | `Korpus_Umum_Rahmi2016` | `SMS_Penipuan_Umum` | Aktual=1, SVM=1 (p=0.718), RF=0 (p=0.425) | `Yuk Ikuti akun dakwah, caranya: ketik IKUT [spasi] AkuCintaIslam kirim ke 082110001021.`

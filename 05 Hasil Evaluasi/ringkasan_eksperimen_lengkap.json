@@ -7,7 +7,7 @@
     "test_rows": 233,
     "extended_rows": 2521,
     "tax_rows": 260,
-    "runtime_seconds": 228.37
+    "runtime_seconds": 297.57
   },
   "baseline": {
     "svm_linear": {
@@ -59,7 +59,7 @@
         "roc_auc_mean": 0.9955715301767933,
         "roc_auc_std": 0.005435438608594398,
         "mean_train_f1": 0.0,
-        "mean_fit_time_sec": 0.0027308800000355403
+        "mean_fit_time_sec": 0.003576990000328806
       },
       "random_forest": {
         "accuracy_mean": 0.9505833905284833,
@@ -75,7 +75,7 @@
         "roc_auc_mean": 0.9907233609207292,
         "roc_auc_std": 0.008031327096282636,
         "mean_train_f1": 0.0,
-        "mean_fit_time_sec": 0.7997362300000532
+        "mean_fit_time_sec": 0.6860348999998678
       }
     },
     "tuned": {
@@ -93,7 +93,7 @@
         "roc_auc_mean": 0.9950964558201401,
         "roc_auc_std": 0.005897637160512663,
         "mean_train_f1": 1.0,
-        "mean_fit_time_sec": 0.006418489999941812
+        "mean_fit_time_sec": 0.0064741900003355115
       },
       "random_forest": {
         "accuracy_mean": 0.9527453671928618,
@@ -109,7 +109,7 @@
         "roc_auc_mean": 0.9913916471153312,
         "roc_auc_std": 0.007120404771105061,
         "mean_train_f1": 1.0,
-        "mean_fit_time_sec": 0.5113361900002019
+        "mean_fit_time_sec": 0.6271555799999987
       }
     }
   },
@@ -1354,7 +1354,7 @@
       "roc_auc_mean": 0.9934911242603549,
       "roc_auc_std": 0.013507608416776274,
       "mean_train_f1": 0.0,
-      "mean_fit_time_sec": 0.0014191199998094817
+      "mean_fit_time_sec": 0.0013030199999775505
     },
     "cv_10fold_tax_260_rf": {
       "accuracy_mean": 0.926923076923077,
@@ -1370,7 +1370,7 @@
       "roc_auc_mean": 0.9869822485207098,
       "roc_auc_std": 0.013890979772512062,
       "mean_train_f1": 0.0,
-      "mean_fit_time_sec": 0.27772214999986317
+      "mean_fit_time_sec": 0.3256882899999255
     }
   },
   "external_cross_corpus": {
@@ -1529,7 +1529,7 @@
       "roc_auc_mean": 0.9820563733459726,
       "roc_auc_std": 0.009820717288749952,
       "mean_train_f1": 0.0,
-      "mean_fit_time_sec": 0.009627790000195091
+      "mean_fit_time_sec": 0.01116662999975233
     },
     "cv_10fold_rf": {
       "accuracy_mean": 0.9456568793525315,
@@ -1545,9 +1545,175 @@
       "roc_auc_mean": 0.9805637687472787,
       "roc_auc_std": 0.011116117810879322,
       "mean_train_f1": 0.0,
-      "mean_fit_time_sec": 1.3326442699995824
+      "mean_fit_time_sec": 1.381794920000175
     }
   },
+  "shap_top_features": {
+    "svm_linear": [
+      {
+        "model": "SVM_Linear_SHAP",
+        "rank": 1,
+        "fitur": "no",
+        "mean_abs_shap": 0.0726539963811744,
+        "mean_shap_signed": 0.007399082893363533,
+        "arah_dominan": "Phishing"
+      },
+      {
+        "model": "SVM_Linear_SHAP",
+        "rank": 2,
+        "fitur": "aku",
+        "mean_abs_shap": 0.05510047668697361,
+        "mean_shap_signed": -0.009459952436013472,
+        "arah_dominan": "Resmi/Normal"
+      },
+      {
+        "model": "SVM_Linear_SHAP",
+        "rank": 3,
+        "fitur": "info",
+        "mean_abs_shap": 0.05121481291142461,
+        "mean_shap_signed": 0.00957659595545082,
+        "arah_dominan": "Phishing"
+      },
+      {
+        "model": "SVM_Linear_SHAP",
+        "rank": 4,
+        "fitur": "nama1",
+        "mean_abs_shap": 0.04743438157229318,
+        "mean_shap_signed": 0.003182588139500184,
+        "arah_dominan": "Phishing"
+      },
+      {
+        "model": "SVM_Linear_SHAP",
+        "rank": 5,
+        "fitur": "yg",
+        "mean_abs_shap": 0.04362567205105492,
+        "mean_shap_signed": -0.01576872759220541,
+        "arah_dominan": "Resmi/Normal"
+      },
+      {
+        "model": "SVM_Linear_SHAP",
+        "rank": 6,
+        "fitur": "pin",
+        "mean_abs_shap": 0.04325620722842411,
+        "mean_shap_signed": 0.006349818368357968,
+        "arah_dominan": "Phishing"
+      },
+      {
+        "model": "SVM_Linear_SHAP",
+        "rank": 7,
+        "fitur": "token_url",
+        "mean_abs_shap": 0.04037169339779308,
+        "mean_shap_signed": 0.004331321204478778,
+        "arah_dominan": "Phishing"
+      },
+      {
+        "model": "SVM_Linear_SHAP",
+        "rank": 8,
+        "fitur": "klik",
+        "mean_abs_shap": 0.03743857372721523,
+        "mean_shap_signed": 0.006413666721910629,
+        "arah_dominan": "Phishing"
+      },
+      {
+        "model": "SVM_Linear_SHAP",
+        "rank": 9,
+        "fitur": "sms",
+        "mean_abs_shap": 0.03651054809404733,
+        "mean_shap_signed": 0.0075077242446010915,
+        "arah_dominan": "Phishing"
+      },
+      {
+        "model": "SVM_Linear_SHAP",
+        "rank": 10,
+        "fitur": "resmi",
+        "mean_abs_shap": 0.03407518140654373,
+        "mean_shap_signed": -0.001433646523536475,
+        "arah_dominan": "Resmi/Normal"
+      }
+    ],
+    "random_forest": [
+      {
+        "model": "Random_Forest_SHAP",
+        "rank": 1,
+        "fitur": "token_url",
+        "mean_abs_shap": 0.03625078325816362,
+        "mean_shap_signed": 0.00435004855946892,
+        "arah_dominan": "Phishing"
+      },
+      {
+        "model": "Random_Forest_SHAP",
+        "rank": 2,
+        "fitur": "no",
+        "mean_abs_shap": 0.03184468113328023,
+        "mean_shap_signed": -0.0018498828490754286,
+        "arah_dominan": "Resmi/Normal"
+      },
+      {
+        "model": "Random_Forest_SHAP",
+        "rank": 3,
+        "fitur": "sms",
+        "mean_abs_shap": 0.027143867923776925,
+        "mean_shap_signed": -0.001589663694639235,
+        "arah_dominan": "Resmi/Normal"
+      },
+      {
+        "model": "Random_Forest_SHAP",
+        "rank": 4,
+        "fitur": "info",
+        "mean_abs_shap": 0.026823723866339487,
+        "mean_shap_signed": 0.0014872301472441834,
+        "arah_dominan": "Phishing"
+      },
+      {
+        "model": "Random_Forest_SHAP",
+        "rank": 5,
+        "fitur": "pin",
+        "mean_abs_shap": 0.020824221445856023,
+        "mean_shap_signed": -0.0013438958849235842,
+        "arah_dominan": "Resmi/Normal"
+      },
+      {
+        "model": "Random_Forest_SHAP",
+        "rank": 6,
+        "fitur": "hub",
+        "mean_abs_shap": 0.01583352644481117,
+        "mean_shap_signed": -0.0019087636563477155,
+        "arah_dominan": "Resmi/Normal"
+      },
+      {
+        "model": "Random_Forest_SHAP",
+        "rank": 7,
+        "fitur": "hadiah",
+        "mean_abs_shap": 0.015531661870887016,
+        "mean_shap_signed": 0.0023135021548518994,
+        "arah_dominan": "Phishing"
+      },
+      {
+        "model": "Random_Forest_SHAP",
+        "rank": 8,
+        "fitur": "klik",
+        "mean_abs_shap": 0.014480835747545467,
+        "mean_shap_signed": 0.0005070659193262259,
+        "arah_dominan": "Phishing"
+      },
+      {
+        "model": "Random_Forest_SHAP",
+        "rank": 9,
+        "fitur": "rp",
+        "mean_abs_shap": 0.011611376925739086,
+        "mean_shap_signed": -0.0004544006861704843,
+        "arah_dominan": "Resmi/Normal"
+      },
+      {
+        "model": "Random_Forest_SHAP",
+        "rank": 10,
+        "fitur": "token_apk",
+        "mean_abs_shap": 0.01142492870309489,
+        "mean_shap_signed": 0.0033073838499235314,
+        "arah_dominan": "Phishing"
+      }
+    ]
+  },
   "error_analysis_count": 13,
-  "runtime_seconds": 228.37
+  "runtime_seconds": 297.57
 }

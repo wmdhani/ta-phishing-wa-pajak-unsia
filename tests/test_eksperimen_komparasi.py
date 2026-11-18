@@ -16,6 +16,7 @@ EXPECTED_EVAL_FILES = (
     "hasil_gridsearch_10fold.csv",
     "studi_ablatif_fitur.csv",
     "fitur_teratas_svm_vs_rf.csv",
+    "shap_fitur_teratas_svm_vs_rf.csv",
     "analisis_kesalahan_prediksi.csv",
     "Laporan Hasil Eksperimen Komparasi.md",
 )
@@ -26,6 +27,7 @@ EXPECTED_PLOT_FILES = (
     "Gambar_Evaluasi_3_Kalibrasi_Probabilitas_Platt.png",
     "Gambar_Evaluasi_4_Bobot_Fitur_Teratas.png",
     "Gambar_Evaluasi_5_Komparasi_Lintas_Korpus.png",
+    "Gambar_Evaluasi_6_SHAP_Komparasi.png",
 )
 
 
@@ -51,7 +53,7 @@ def test_baseline_reproduction_matches_locked_metrics(experiment_results: dict) 
 
 
 def test_multistage_sections_and_calibration_validity(experiment_results: dict) -> None:
-    for key in ("cv_10fold", "tuning", "calibration", "ablation", "tax_subset", "external_cross_corpus", "extended_2521"):
+    for key in ("cv_10fold", "tuning", "calibration", "ablation", "tax_subset", "external_cross_corpus", "extended_2521", "shap_top_features"):
         assert key in experiment_results
         assert experiment_results[key]
 

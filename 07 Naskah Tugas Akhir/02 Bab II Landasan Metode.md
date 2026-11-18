@@ -4,11 +4,11 @@
 
 Transformasi administrasi perpajakan elektronik mendorong Direktorat Jenderal Pajak memperluas kanal komunikasi digital dengan masyarakat [1]. Pemanfaatan siaran resmi *WhatsApp Blast* untuk sosialisasi sistem inti administrasi perpajakan Coretax mempercepat penyebaran informasi layanan kepada wajib pajak [2]. Namun, celah penyalahgunaan data dan keterbatasan literasi keamanan digital kerap dimanfaatkan pelaku kejahatan siber melalui pesan penipuan [3]. Serangan rekayasa sosial berbasis pesan singkat atau *smishing* memicu kepanikan penerima lewat peniruan identitas resmi [4]. Pelaku umumnya menyebarkan berkas berbahaya berekstensi `.apk` atau tautan tiruan yang menyerupai pengumuman otoritas perpajakan [5].
 
-Sejumlah studi terdahulu telah menguji pembelajaran mesin untuk penyaringan pesan berbahaya di Indonesia maupun internasional. Penelitian rintisan merilis korpus SMS berbahasa Indonesia memakai algoritma *Multinomial Naïve Bayes* dan *Term Frequency* [6], yang kemudian diperluas oleh kajian multi-algoritma berbasis *Bag of Words* [7] serta komparasi *Bagging*, *Random Forest*, dan *Support Vector Machine* [8]. Penerapan *stemming* morfologi bahasa Indonesia bersama TF-IDF meningkatkan ketepatan *Support Vector Machine* pada teks pendek [9], sementara kajian lain membandingkan kinerja *Support Vector Machine*, *Random Forest*, XGBoost, dan *Logistic Regression* [10].
+Sejumlah studi terdahulu telah menguji pembelajaran mesin untuk penyaringan pesan berbahaya di Indonesia maupun internasional. Penelitian rintisan merilis korpus SMS berbahasa Indonesia memakai *Multinomial Naïve Bayes* dan *Term Frequency* [6]. Kajian selanjutnya menguji beberapa algoritma berbasis *Bag of Words* [7], serta membandingkan *Bagging*, *Random Forest*, dan *Support Vector Machine* [8]. Penerapan *stemming* morfologi Indonesia bersama TF-IDF meningkatkan ketepatan *Support Vector Machine* pada teks pendek [9]. Kajian lain membandingkan *Support Vector Machine*, *Random Forest*, XGBoost, dan *Logistic Regression* [10].
 
-Kajian komparatif *Random Forest* dan *Support Vector Machine* turut dilakukan pada deteksi tautan *phishing* [11], surel berbahasa Inggris dengan perbandingan TF-IDF, *Word2Vec*, dan BERT [12], serta penyetelan parameter *GridSearchCV* pada data SMS [13]. Pada ekosistem pesan instan Indonesia, penelitian terkini mengembangkan bot WhatsApp berbasis logika *fuzzy* [14], peladen bot *Support Vector Machine* dengan *stemming* Sastrawi [15], serta penyandian token entitas untuk pesan penipuan digital [16].
+Kajian komparatif *Random Forest* dan *Support Vector Machine* turut dilakukan pada deteksi tautan *phishing* [11]. Studi lain membandingkan TF-IDF, *Word2Vec*, dan BERT pada surel berbahasa Inggris [12], serta penyetelan `GridSearchCV` pada data SMS [13]. Pada ekosistem pesan instan Indonesia, peneliti mengembangkan bot WhatsApp berbasis logika *fuzzy* [14]. Peneliti lain merancang peladen bot *Support Vector Machine* berimbuhan Sastrawi [15], serta menyandikan token entitas pada pesan penipuan digital [16].
 
-Kajian pendukung juga menelaah klasifikasi SMS berbahasa Indonesia memakai *Support Vector Machine* [17], pembobotan TF-IDF pada teks pendek [18], [19], serta rekayasa fitur *smishing* [20]. Peneliti lain membandingkan algoritma deteksi *phishing* pada surel [21], [22], menyaring penipuan berbahasa Indonesia di media sosial [23], merancang kerangka *LinearSVC* ringan yang dapat dijelaskan [24], menerapkan *Explainable AI* [25], dan membangun ekstensi peramban [26].
+Kajian pendukung menelaah klasifikasi SMS berbahasa Indonesia memakai *Support Vector Machine* [17], pembobotan TF-IDF pada teks pendek [18], [19], serta rekayasa fitur *smishing* [20]. Peneliti lain membandingkan deteksi *phishing* pada surel [21], [22] dan menyaring penipuan berbahasa Indonesia di media sosial [23]. Kajian mutakhir lainnya merancang kerangka *LinearSVC* ringan yang dapat dijelaskan [24], menerapkan *Explainable AI* [25], serta membangun ekstensi peramban [26].
 
 Tabel 2.1 Matriks Penelitian Terdahulu
 
@@ -30,7 +30,7 @@ Tabel 2.1 Matriks Penelitian Terdahulu
 
 Sumber: Hasil Kajian Pustaka (2026).
 
-Pemetaan terhadap literatur di atas menyingkap empat celah riset utama, yaitu ketiadaan korpus *phishing* WhatsApp perpajakan yang seimbang, hilangnya sinyal `.apk` atau URL saat pembersihan teks, belum terkalibrasinya probabilitas `LinearSVC` dalam komparasi melawan *Random Forest*, serta minimnya purwarupa ekstensi peramban yang dapat menjelaskan kata pemicu. Rancangan penelitian ini disusun mengikuti pedoman Tugas Akhir *Prototype* Universitas Siber Asia [27] melalui pendekatan eksperimen kuantitatif dan *Research and Development* [28], penataan sumber data publik [29], pengujian statistik komparatif [30], serta pengawasan validitas eksperimen [31].
+Pemetaan literatur tersebut menyingkap empat celah riset utama. Pertama, belum tersedia korpus *phishing* WhatsApp perpajakan yang seimbang. Kedua, sinyal `.apk` atau URL kerap terbuang saat pembersihan teks, sementara kalibrasi `LinearSVC` melawan *Random Forest* dan ekstensi penjelas kata pemicu masih minim. Rancangan penelitian ini mengikuti pedoman Tugas Akhir *Prototype* Universitas Siber Asia lewat eksperimen kuantitatif dan *Research and Development* [27], [28]. Penelitian juga menerapkan penataan sumber publik [29], uji statistik komparatif [30], serta pengawasan validitas eksperimen [31].
 
 ## 2.2 Landasan Teori dan Metode Khusus
 
@@ -40,17 +40,17 @@ Algoritma *Support Vector Machine* mencari bidang pemisah (*hyperplane*) optimal
 
 **Persamaan (2.1)** *LinearSVC*: min (1/2)||w||² + C ∑ᵢ max(0, 1-yᵢ(wᵀxᵢ+b))²
 
-Keluaran mentah fungsi keputusan `LinearSVC` berupa nilai jarak bertanda *f*(*x*) = *w*ᵀ*x* + *b* terhadap *hyperplane*, bukan probabilitas risiko dalam rentang nol hingga satu. Nilai bobot koefisien *w*ⱼ pada setiap token sekaligus menyediakan transparansi kontribusi kata pemicu penipuan maupun kata penanda pesan resmi. Agar keluaran skor risiko setara dengan model berbasis pohon, skor jarak tersebut dipetakan menjadi probabilitas posterior melalui fungsi logistik sigmoid parametrik *Platt scaling* dengan parameter skalar *A* dan *B* [34].
+Keluaran mentah fungsi keputusan `LinearSVC` berupa jarak bertanda *f*(*x*) = *w*ᵀ*x* + *b* terhadap *hyperplane*, bukan peluang nol hingga satu. Nilai bobot koefisien *w*ⱼ setiap token menyediakan transparansi kontribusi kata pemicu penipuan maupun pesan resmi. Agar setara dengan model berbasis pohon, skor jarak itu dipetakan menjadi probabilitas posterior memakai fungsi sigmoid *Platt scaling* berparameter *A* dan *B* [34].
 
 **Persamaan (2.2)** *Platt Scaling*: P(y=1|f(x)) = 1 / (1 + exp(A·f(x)+B))
 
 ### 2.2.2 Algoritma Random Forest
 
-Algoritma *Random Forest* merupakan metode pembelajaran ansambel yang menggabungkan banyak pohon keputusan (*decision tree*) independen untuk meningkatkan stabilitas prediksi dan menekan varians model tunggal [35]. Setiap pohon di dalam hutan dibentuk menggunakan mekanisme *bootstrap aggregating* (*bagging*), yaitu pengambilan sampel acak berulang dengan pengembalian dari himpunan data latih. Pada setiap titik pemecahan simpul, algoritma hanya mengevaluasi subset acak dari keseluruhan fitur guna mengurangi korelasi antar-pohon di dalam ansambel.
+Algoritma *Random Forest* merupakan ansambel banyak pohon keputusan independen untuk meningkatkan stabilitas prediksi dan menekan varians model tunggal [35]. Setiap pohon di dalam hutan dibentuk menggunakan mekanisme *bootstrap aggregating* (*bagging*), yaitu pengambilan sampel acak berulang dengan pengembalian dari himpunan data latih. Pada setiap titik pemecahan simpul, algoritma hanya mengevaluasi subset acak dari keseluruhan fitur guna mengurangi korelasi antar-pohon di dalam ansambel.
 
 **Persamaan (2.3)** Impuritas Gini: Gini(t) = 1 - ∑ₖ p(k|t)²
 
-Pembangunan tiap pohon keputusan mengacu pada penurunan nilai impuritas Gini untuk memilih fitur dan ambang pembatas terbaik di setiap cabang simpul [35]. Pada matriks teks TF-IDF yang berdimensi tiga ribu kolom dan bernilai sangat jarang (*sparse*), pemecahan berbasis ambang batas fitur tunggal sering kurang optimal menangkap kombinasi istilah yang tersebar. Penentuan kelas akhir memakai pemungutan suara mayoritas atau rata-rata peluang seluruh *B* pohon keputusan penyusun hutan secara agregat.
+Pembangunan tiap pohon keputusan mengacu pada penurunan impuritas Gini untuk memilih fitur dan ambang pemecah terbaik pada tiap cabang simpul [35]. Pada matriks teks TF-IDF berdimensi tiga ribu kolom yang bernilai jarang (*sparse*), pemecahan fitur tunggal sering kurang optimal menangkap kombinasi istilah tersebar. Kelas akhir ditentukan melalui suara mayoritas atau rata-rata peluang seluruh *B* pohon penyusun hutan secara agregat.
 
 **Persamaan (2.4)** *Random Forest*: P(y=1|x) = (1/B) ∑ᵦ Pᵦ(y=1|x)
 
@@ -74,7 +74,7 @@ Evaluasi keandalan model klasifikasi pada komposisi kelas yang tidak persis seim
 
 **Persamaan (2.7b)** *F1-Score*: F1 = 2·(Prec·Rec) / (Prec + Rec)
 
-Seluruh alur komputasi eksperimen dari ekstraksi fitur, penalaan parameter `GridSearchCV`, hingga pelatihan model dijalankan memakai pustaka Scikit-learn berbasis estimator terpadu [40]. Purwarupa sistem ditargetkan mencapai Tingkat Kesiapan Teknologi (TKT) Level 6 yang mensyaratkan demonstrasi model dan subsistem terintegrasi pada lingkungan operasional yang relevan [41]. Selain akurasi batas keputusan, ketajaman peringkat probabilitas dinilai melalui metrik *ROC-AUC*, *PR-AUC*, *Brier Score*, dan *Log Loss* dengan perbaikan optimasi Newton pada *Platt scaling* untuk mencegah ketidakstabilan numerik [42].
+Seluruh alur komputasi dari ekstraksi fitur hingga pelatihan dijalankan memakai pustaka Scikit-learn berbasis estimator terpadu [40]. Purwarupa sistem ditargetkan mencapai Tingkat Kesiapan Teknologi (TKT) Level 6 yang mensyaratkan demonstrasi subsistem terintegrasi pada lingkungan relevan [41]. Ketajaman peringkat probabilitas dinilai lewat *ROC-AUC*, *PR-AUC*, *Brier Score*, dan *Log Loss*. Optimasi *Platt scaling* juga menerapkan metode Newton untuk mencegah ketidakstabilan numerik [42].
 
 **Persamaan (2.8a)** *Brier Score*: BS = (1/N) ∑ᵢ (pᵢ - yᵢ)²
 
@@ -82,21 +82,21 @@ Seluruh alur komputasi eksperimen dari ekstraksi fitur, penalaan parameter `Grid
 
 ## 2.3 Prosedur Operasional dan Bagan Alir Penelitian
 
-Penelitian ini menggunakan desain eksperimen kuantitatif komparatif yang dipadukan dengan pengembangan purwarupa perangkat lunak berbasis *Research and Development* [27], [28]. Desain eksperimen dibangun di atas asumsi bahwa setiap pesan berdiri sebagai pengamatan independen dalam pembagian data terstratifikasi, informasi klasifikasi direpresentasikan oleh bobot *unigram* dan *bigram* TF-IDF tanpa pemrosesan gambar atau berkas `.apk` secara biner, serta nilai pengacak tetap (`random_state=42`) menjamin replikabilitas hasil [40]. Rangkaian prosedur operasionalnya terbagi menjadi enam tahapan berikut:
+Penelitian ini memadukan eksperimen kuantitatif komparatif dengan pengembangan purwarupa perangkat lunak berbasis *Research and Development* [27], [28]. Setiap pesan diperlakukan sebagai pengamatan independen dalam pembagian data terstratifikasi. Informasi klasifikasi direpresentasikan oleh bobot *unigram* dan *bigram* TF-IDF tanpa pemrosesan gambar atau biner `.apk`. Nilai pengacak tetap (`random_state=42`) mengunci replikabilitas eksperimen [40]. Prosedur operasionalnya terbagi menjadi enam tahap berikut:
 
-a) Tahap kurasi korpus mengumpulkan teks perpajakan publik dari enam puluh lima sumber otoritatif berimbang (masing-masing seratus tiga puluh pesan *phishing* dan resmi), lalu menggabungkannya dengan korpus SMS publik Indonesia menjadi himpunan induk 1.164 baris beserta korpus diperluas 2.521 baris berverifikasi *checksum* SHA-256 [2], [5], [6].
+a) Tahap kurasi korpus menghimpun teks pajak publik dari enam puluh lima sumber otoritatif berimbang, masing-masing seratus tiga puluh pesan *phishing* dan resmi. Data lalu digabung dengan korpus SMS publik Indonesia menjadi himpunan induk 1.164 baris serta korpus perluasan 2.521 baris berverifikasi SHA-256 [2], [5], [6].
 
-b) Tahap praproses mengubah teks menjadi huruf kecil, menyandikan ekstensi `.apk` ke `token_apk` dan tautan web ke `token_url`, membuang karakter nonalfanumerik, menghapus kata henti, serta menerapkan *stemming* Sastrawi pada kata berimbuhan [37].
+b) Tahap praproses menyeragamkan huruf kecil, menyandikan ekstensi `.apk` ke `token_apk`, serta mengubah tautan web ke `token_url`. Teks kemudian dibersihkan dari karakter nonalfanumerik, kata henti, lalu dipotong imbuhannya memakai Sastrawi [37].
 
-c) Tahap ekstraksi fitur membagi data induk secara terstratifikasi dengan rasio 80:20 menjadi 931 data latih dan 233 data uji, kemudian membangun vektor bobot TF-IDF *unigram* dan *bigram* maksimal tiga ribu fitur di atas data latih [36].
+c) Tahap ekstraksi fitur membagi data induk secara terstratifikasi dengan rasio 80:20 menjadi 931 data latih dan 233 data uji. Vektor bobot TF-IDF *unigram* dan *bigram* maksimal tiga ribu fitur kemudian dihitung hanya di atas data latih [36].
 
-d) Tahap penalaan dan kalibrasi menjalankan *GridSearchCV* dengan *Stratified 10-Fold Cross-Validation* terisolasi di tiap lipatan untuk mencari parameter optimal `LinearSVC` dan *Random Forest*, lalu mengkalibrasi skor `LinearSVC` dengan *Platt scaling* lima lipatan [33], [38], [42].
+d) Tahap penalaan dan kalibrasi menjalankan *GridSearchCV* dengan *Stratified 10-Fold Cross-Validation* terisolasi guna mencari parameter optimal `LinearSVC` serta *Random Forest*. Skor `LinearSVC` selanjutnya dikalibrasi memakai *Platt scaling* lima lipatan [33], [38], [42].
 
-e) Tahap evaluasi lanjutan membandingkan kedua model memakai *Confusion Matrix*, kurva ROC-PR, *Brier Score*, *Log Loss*, enam skenario studi ablatif, uji ketahanan bias kata kunci pada 44 pesan pajak, serta uji generalisasi lintas-korpus pada 1.362 pesan eksternal [39].
+e) Tahap evaluasi lanjutan membandingkan kedua model memakai *Confusion Matrix*, kurva ROC-PR, *Brier Score*, dan *Log Loss*. Analisis turut mencakup enam studi ablatif, uji bias kata kunci pada 44 pesan pajak, serta uji lintas-korpus 1.362 pesan eksternal [39].
 
-f) Tahap pengemasan menyimpan bundel *vectorizer* TF-IDF beserta model terkalibrasi ke format `.joblib` untuk diintegrasikan pada rancangan layanan REST API FastAPI, *dashboard* Streamlit, dan ekstensi *WhatsApp Web* berfitur *Explainable AI* guna memenuhi capaian TKT 6 [24], [26], [41].
+f) Tahap pengemasan menyimpan bundel *vectorizer* TF-IDF dan model terkalibrasi ke format `.joblib`. Bundel itu diintegrasikan ke REST API FastAPI, antarmuka web *Cek Pesan Pajak*, serta ekstensi *WhatsApp Web* berfitur *Explainable AI* guna mencapai TKT 6 [24], [26], [41].
 
-Kriteria desain purwarupa menuntut respons klasifikasi waktu nyata, penyajian probabilitas terkalibrasi, sorotan kata pemicu berbasis bobot `LinearSVC`, deteksi pola `.apk`, serta pemeriksaan domain resmi `pajak.go.id` tanpa penyalinan manual [24], [26]. Kesiapan fungsionalitas rancangan sistem tersebut nantinya diuji melalui skenario *black-box* terhadap pesan resmi DJP, pesan penipuan pendek, dan tautan tiruan pada lingkungan relevan [41]. Urutan keterkaitan enam tahapan prosedur eksperimen disajikan pada Gambar 2.1.
+Kriteria desain purwarupa menuntut respons klasifikasi waktu nyata dan penyajian probabilitas terkalibrasi. Sistem wajib menyorot kata pemicu berbasis bobot `LinearSVC`, mendeteksi pola `.apk`, dan memeriksa domain resmi `pajak.go.id` tanpa salin-tempel manual [24], [26]. Kesiapan rancangan tersebut diuji memakai skenario *black-box* terhadap pesan resmi DJP, penipuan pendek, dan tautan tiruan [41]. Keterkaitan enam tahapannya terlihat pada Gambar 2.1.
 
 ![Gambar 2.1 Bagan Alir Prosedur Eksperimen.](Aset Gambar/Gambar 2.1 Bagan Alir Prosedur Eksperimen.png)
 
@@ -123,9 +123,9 @@ Sumber: Rencana Kerja Penelitian (2026).
 
 ## 2.5 Alat dan Bahan Penelitian
 
-Eksperimen pemodelan bahasa alami dan evaluasi komparatif dijalankan pada satu unit komputer jinjing lokal dengan sistem operasi Microsoft Windows 11 Pro 64-bit, prosesor Intel Core i5-12450H generasi kedua belas, serta memori utama sebesar 16 GB. Konfigurasi perangkat keras tersebut memadai untuk mengeksekusi tiga puluh enam kombinasi pencarian *grid*, validasi silang sepuluh lipatan, studi ablatif enam skenario, serta pengujian lintas-korpus hingga tuntas dalam waktu komputasi terukur sebesar 228,37 detik.
+Eksperimen pemodelan dan evaluasi komparatif dijalankan pada komputer jinjing lokal bersistem operasi Microsoft Windows 11 Pro 64-bit. Perangkat tersebut memakai prosesor Intel Core i5-12450H dan memori utama 16 GB. Spesifikasi itu memadai untuk mengeksekusi tiga puluh enam kombinasi pencarian *grid*, validasi silang sepuluh lipatan, studi ablatif, serta uji lintas-korpus. Seluruh alur komputasi tuntas dalam waktu terukur 297,57 detik.
 
-Lingkungan perangkat lunak dibangun di atas bahasa pemrograman Python versi 3.11.9 yang terisolasi dalam pengelola paket terpisah agar pustaka komputasi berjalan konsisten [40]. Pustaka utama mencakup Scikit-learn 1.9.1 untuk algoritma klasifikasi dan metrik, Sastrawi 1.0.1 untuk *stemming* bahasa Indonesia [37], serta Pandas, NumPy, Matplotlib, Joblib, dan Pytest. Bahan penelitian berupa kumpulan korpus teks publik terkurasi beserta rincian spesifikasi seluruh perangkat disajikan pada Tabel 2.3.
+Lingkungan perangkat lunak dibangun di atas bahasa pemrograman Python versi 3.11.9 dalam pengelola paket terpisah agar pustaka komputasi konsisten [40]. Pustaka inti mencakup Scikit-learn 1.9.1 untuk algoritma klasifikasi serta Sastrawi 1.0.1 untuk *stemming* bahasa Indonesia [37]. Pengolahan data, analisis SHAP (*LinearExplainer* serta *TreeExplainer*), dan pengujian memakai Pandas, NumPy, Matplotlib, Joblib, serta Pytest. Rincian spesifikasi perangkat tercantum pada Tabel 2.3.
 
 Tabel 2.3 Spesifikasi Alat dan Bahan Penelitian
 
@@ -133,8 +133,8 @@ Tabel 2.3 Spesifikasi Alat dan Bahan Penelitian
 | :--- | :--- | :--- |
 | Perangkat Keras | Komputer Jinjing Komputasi | Prosesor Intel Core i5-12450H, RAM 16 GB, sistem operasi Microsoft Windows 11 Pro 64-bit untuk eksperimen lokal |
 | Perangkat Lunak Inti | Python, Scikit-learn, Sastrawi | Python 3.11.9, Scikit-learn 1.9.1 (`LinearSVC`, `RandomForestClassifier`, `TfidfVectorizer`, `CalibratedClassifierCV`), Sastrawi 1.0.1 [37], [40] |
-| Perangkat Lunak Pendukung | Pandas, NumPy, Matplotlib, Joblib, Pytest | Pandas 3.1.1, NumPy 2.4.6, Matplotlib 3.11.2, Joblib 1.6.0 untuk serialisasi model, serta Pytest 9.2.0 untuk uji integritas |
-| Rancangan Purwarupa | FastAPI, Streamlit, Ekstensi Manifest V3 | Rancangan REST API FastAPI, *dashboard* Streamlit 1.67.0, serta ekstensi *WhatsApp Web* TKT 6 [26], [41] |
+| Perangkat Lunak Pendukung | Pandas, NumPy, Matplotlib, SHAP, Joblib, Pytest | Pandas 3.1.1, NumPy 2.4.6, Matplotlib 3.11.2, SHAP (`LinearExplainer` dan `TreeExplainer`), Joblib 1.6.0 untuk serialisasi model, serta Pytest 9.2.0 untuk uji integritas |
+| Rancangan Purwarupa | FastAPI, Web Kustom, Ekstensi Manifest V3 | Rancangan REST API dan antarmuka web *Cek Pesan Pajak* berbasis FastAPI (`HTML`/`CSS`/`JS`), serta ekstensi *WhatsApp Web* TKT 6 [26], [41] |
 | Bahan Korpus SMS Publik | `Rahmi 2016 Korpus SMS Spam Utama v1.csv` | Berisi 904 SMS Indonesia (335 penipuan, 569 normal); 239 promo dieksklusi dari 1.143 baris [6] |
 | Bahan Korpus Pajak | `Dataset Pajak Terkurasi 260 Baris.csv` | Berisi 260 teks pajak seimbang (130 *phishing*, 130 resmi) dari 65/68 sumber publik [2], [5] |
 | Bahan Gabungan Induk | `Dataset Gabungan Utama Biner 1164 Baris.csv` | Gabungan 904 SMS umum dan 260 teks pajak (465 kelas `1`, 699 kelas `0`) berverifikasi SHA-256 |
@@ -144,17 +144,17 @@ Sumber: Dokumentasi Lingkungan Penelitian (2026).
 
 ## 2.6 Cara Pengumpulan dan Analisis Data
 
-Pengumpulan bahan penelitian menerapkan studi dokumentasi dan seleksi data publik terverifikasi dari lembaga otoritatif tanpa melibatkan data rahasia wajib pajak [29]. Sebanyak enam puluh lima dari enam puluh delapan arsip resmi DJP, media pajak, dan pemeriksa fakta dipilih menjadi 130 contoh *phishing* dari dua belas modus serta 130 teks resmi dari sepuluh layanan [2], [5]. Tiga sumber berulang dieksklusi untuk menjaga keseimbangan distribusi, lalu 239 pesan promo Rahmi (2016) turut disisihkan agar korpus induk 1.164 baris tetap fokus pada klasifikasi biner [6].
+Pengumpulan bahan penelitian menerapkan studi dokumentasi dan seleksi data publik terverifikasi tanpa melibatkan data rahasia wajib pajak [29]. Sebanyak enam puluh lima dari enam puluh delapan arsip resmi DJP, media pajak, dan pemeriksa fakta dipilih. Seleksi itu menghasilkan 130 contoh *phishing* dari dua belas modus serta 130 teks resmi dari sepuluh layanan [2], [5]. Tiga sumber berulang dan 239 promo Rahmi disisihkan demi fokus biner pada 1.164 baris [6].
 
-Analisis data komparatif dijalankan secara bertahap dimulai dari pembagian data induk terstratifikasi 80:20 (`random_state=42`) menjadi 931 data latih dan 233 data uji untuk mencegah kebocoran informasi evaluasi [30], [31]. Matriks TF-IDF dibangun ulang secara terisolasi di setiap lipatan *Stratified 10-Fold Cross-Validation* (`shuffle=True`, `random_state=42`) sebelum pencarian *grid* (`GridSearchCV`) mengevaluasi 12 konfigurasi `LinearSVC` (`C` dari 0,1 sampai 5,0; `class_weight`) dan 24 konfigurasi `RandomForestClassifier` (`n_estimators`, `max_depth`, `min_samples_split`, `class_weight`) [38], [40].
+Analisis data komparatif dimulai dari pembagian data induk terstratifikasi 80:20 (`random_state=42`) menjadi 931 data latih dan 233 data uji [30], [31]. Matriks TF-IDF dibangun ulang secara terisolasi di tiap lipatan *Stratified 10-Fold Cross-Validation* (`shuffle=True`, `random_state=42`) [38]. Pencarian *grid* (`GridSearchCV`) selanjutnya mengevaluasi 12 konfigurasi `LinearSVC` (`C` 0,1 sampai 5,0; `class_weight`) serta 24 konfigurasi `RandomForestClassifier` [40].
 
-Tahap analisis lanjutan menguji kalibrasi *Platt scaling* lima lipatan, enam skenario studi ablatif, serta uji ketahanan bias kata kunci pada 44 sampel pajak di himpunan uji. Generalisasi eksternal diukur memakai uji *zero-shot* pada 1.362 pesan lintas-korpus dari Theodorus dkk. dan Saragih serta uji korpus diperluas 2.521 baris hasil deduplikasi kolom `clean_text` yang menyisihkan lima duplikat internal dan kelas promo [7]. Kualitas keterjelasan model turut dievaluasi melalui bobot fitur teratas `LinearSVC` dan analisis kesalahan prediksi [24], [39].
+Tahap lanjutan menguji kalibrasi *Platt scaling* lima lipatan, enam skenario studi ablatif, dan ketahanan bias kata kunci pada 44 sampel pajak. Uji *zero-shot* dijalankan pada 1.362 pesan eksternal Theodorus dkk. serta Saragih, sedangkan uji korpus diperluas memakai 2.521 baris unik. Angka tersebut merupakan hasil penyaringan duplikat `clean_text` atas 4.255 baris biner awal yang menyisihkan 1.734 duplikat, meliputi 5 duplikat internal Rahmi dan 1.729 duplikat internal maupun lintas sumber [7]. Keterjelasan model turut dievaluasi melalui bobot `LinearSVC`, nilai *SHapley Additive exPlanations* (SHAP), dan analisis kesalahan prediksi [24], [25], [39].
 
 ## 2.7 Definisi Operasional Variabel dan Parameter
 
-Operasionalisasi variabel dan parameter penelitian ditetapkan agar setiap komponen masukan teks, kategori target biner, penyetelan *hyperparameter* algoritma, dan tolok ukur evaluasi memiliki batasan yang dapat diukur secara objektif [29], [30]. Variabel bebas berupa string pesan instan berbahasa Indonesia yang ditransformasikan menjadi fitur TF-IDF berdimensi hingga tiga ribu kolom, sedangkan variabel terikat berupa label biner kelas `1` untuk indikasi *phishing* dan kelas `0` untuk pesan aman atau resmi.
+Operasionalisasi variabel dan parameter penelitian menetapkan batasan terukur bagi masukan teks, target biner, penyetelan algoritma, dan tolok ukur evaluasi [29], [30]. Variabel bebas berupa string pesan instan berbahasa Indonesia yang dipetakan ke fitur TF-IDF hingga tiga ribu kolom. Sementara itu, variabel terikat berupa label biner kelas `1` untuk indikasi *phishing* dan kelas `0` untuk pesan aman atau resmi.
 
-Parameter algoritma meliputi besaran penalti margin `C` dan pembobotan kelas pada `LinearSVC`, jumlah pohon, kedalaman maksimum, serta batas pemecahan simpul pada *Random Forest*, serta metode kalibrasi sigmoid lima lipatan pada *Platt scaling* [33], [35], [42]. Tolok ukur capaian sistem mencakup metrik klasifikasi diskrit, ketajaman peringkat probabilitas, galat kalibrasi, serta demonstrasi purwarupa fungsional pada lingkungan relevan TKT Level 6 [39], [41]. Ringkasan lengkap definisi operasional variabel dan parameter tersebut disajikan pada Tabel 2.4.
+Parameter algoritma meliputi besaran penalti `C` dan pembobotan kelas pada `LinearSVC`. Parameter *Random Forest* mencakup jumlah pohon, kedalaman maksimum, serta batas pemecahan simpul, ditambah metode kalibrasi sigmoid lima lipatan pada *Platt scaling* [33], [35], [42]. Tolok ukur capaian sistem menilai metrik diskrit, peringkat probabilitas, galat kalibrasi, serta demonstrasi purwarupa TKT Level 6 [39], [41]. Ringkasan lengkap definisi operasionalnya tersaji pada Tabel 2.4.
 
 Tabel 2.4 Definisi Operasional Variabel dan Parameter Penelitian
 
@@ -167,7 +167,7 @@ Tabel 2.4 Definisi Operasional Variabel dan Parameter Penelitian
 | Parameter *Random Forest* | *Hyperparameter* Ansambel Pohon | Ruang pencarian `n_estimators` dalam `{100, 200, 300}`, `max_depth` dalam `{None, 30}`, `min_samples_split` dalam `{2, 5}`, dan `class_weight` [35] |
 | Parameter Kalibrasi *Platt* | Parameter Kalibrasi Probabilitas | Wrapper `CalibratedClassifierCV` memakai `method="sigmoid"` dengan `cv=5` untuk mengonversi skor keputusan `LinearSVC` ke probabilitas [34], [42] |
 | Metrik Evaluasi Klasifikasi | Variabel Kinerja Utama | Pengukuran *Accuracy*, *Precision*, *Recall*, *F1-Score*, *ROC-AUC*, *PR-AUC*, *Brier Score*, dan *Log Loss* [38], [39] |
-| Indikator Kesiapan Teknologi (TKT) | Variabel Kelayakan Purwarupa | Capaian TKT 6 melalui bundel `.joblib` pada REST API, Streamlit, dan ekstensi *WhatsApp Web* [41] |
+| Indikator Kesiapan Teknologi (TKT) | Variabel Kelayakan Purwarupa | Capaian TKT 6 melalui bundel `.joblib` pada REST API, antarmuka web *Cek Pesan Pajak*, dan ekstensi *WhatsApp Web* [41] |
 
 Sumber: Sintesis Metodologi Penelitian (2026).
 

@@ -8,6 +8,7 @@ __pycache__/
 
 # Model artifacts & large local binary assets
 *.joblib
+!06 Prototipe Aplikasi/model_phishing_pajak.joblib
 *.pkl
 *.mp4
 03 Referensi/Ebook Metodologi/

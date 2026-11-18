@@ -67,13 +67,13 @@ Telah berhasil dipertahankan di hadapan Dewan Penguji dan diterima sebagai bagia
 
 # ABSTRAK
 
-Pelaku *phishing* di WhatsApp yang mengaku sebagai Direktorat Jenderal Pajak biasanya mengirim berkas `.apk` atau tautan *Coretax* palsu kepada korbannya. Penelitian ini menguji dua algoritma, yaitu *Support Vector Machine* dan *Random Forest*, dengan fitur berbobot *Term Frequency-Inverse Document Frequency* (TF-IDF), lalu menanamkan model terbaik ke *prototype* layanan web dan ekstensi peramban *WhatsApp Web* agar pengguna dapat memeriksa pesan secara langsung. Data yang dipakai berjumlah 1.164 teks, terdiri atas 904 pesan umum dan 260 pesan bertema pajak dengan komposisi seimbang, yang diproses melalui *stopword removal* dan *stemming* Sastrawi. *Support Vector Machine* mencatat akurasi 98,28%, *recall* 0,98, dan *F1-Score* 0,98, sedangkan *Random Forest* memperoleh akurasi 95,28% dengan *recall* 0,95 dan *F1-Score* 0,94. Integrasi model terbaik pada *backend* FastAPI, *dashboard* Streamlit, dan ekstensi peramban berfitur penjelasan kata pemicu memudahkan verifikasi pesan tanpa salin-tempel manual.
+Pelaku *phishing* di WhatsApp yang mengaku sebagai Direktorat Jenderal Pajak kerap mengirim berkas `.apk` atau tautan *Coretax* palsu kepada korban. Penelitian ini membandingkan algoritma *Support Vector Machine* (`LinearSVC`) dan *Random Forest* menggunakan fitur *Term Frequency-Inverse Document Frequency* (TF-IDF), lalu menanamkan model terbaik ke aplikasi web *Cek Pesan Pajak* serta ekstensi peramban *WhatsApp Web*. Dataset berjumlah 1.164 teks, terdiri atas 904 pesan umum dan 260 pesan bertema pajak berimbang yang diproses melalui *stopword removal* dan *stemming* Sastrawi. Pada uji dasar (*baseline*), `LinearSVC` mencatat akurasi 98,28% (*recall* 0,98; *F1-Score* 0,98) mengungguli *Random Forest* sebesar 95,28% (*recall* 0,95; *F1-Score* 0,94). Setelah penalaan parameter dan kalibrasi *Platt scaling*, `LinearSVC` mempertahankan akurasi uji 97,42% (*Brier Score* 0,019) serta mencapai akurasi 97,73% pada subset pesan pajak, jauh melampaui *Random Forest* sebesar 88,64%. Integrasi model terbaik ke peladen FastAPI dan ekstensi peramban berfitur alasan berbahasa awam memampukan verifikasi langsung tanpa salin-tempel manual.
 
 Kata Kunci: Deteksi Phishing, Otoritas Perpajakan, Random Forest, Support Vector Machine, TF-IDF.
 
 # ABSTRACT
 
-Scammers who pose as the Directorate General of Taxes on WhatsApp often send malicious `.apk` files or fake *Coretax* links. This study evaluates *Support Vector Machine* and *Random Forest* classifiers using *Term Frequency-Inverse Document Frequency* (TF-IDF) weighting, and embeds the better model into a web service and *WhatsApp Web* browser extension prototype for direct message verification. The dataset contains 1,164 texts, made up of 904 general messages and 260 balanced tax-related messages, processed with Sastrawi stopword removal and stemming. *Support Vector Machine* reached 98.28% accuracy, 0.98 recall, and 0.98 *F1-Score*, while *Random Forest* scored 95.28% accuracy with 0.95 recall and 0.94 *F1-Score*. Integrating the best model into a FastAPI backend, Streamlit dashboard, and explainable browser extension enables rapid message inspection without manual copy-pasting.
+Scammers impersonating Indonesia's Directorate General of Taxes on WhatsApp frequently send malicious `.apk` files or fake *Coretax* links. This study compares *Support Vector Machine* (`LinearSVC`) and *Random Forest* classifiers using *Term Frequency-Inverse Document Frequency* (TF-IDF) features, then embeds the superior model into the *Cek Pesan Pajak* web application and a *WhatsApp Web* browser extension. The balanced dataset contains 1,164 Indonesian texts, comprising 904 general messages and 260 tax-related messages preprocessed with Sastrawi stopword removal and stemming. On the baseline test split, `LinearSVC` achieved 98.28% accuracy (0.98 recall, 0.98 *F1-Score*), outperforming *Random Forest* at 95.28% accuracy (0.95 recall, 0.94 *F1-Score*). After hyperparameter tuning and Platt scaling calibration, `LinearSVC` maintained 97.42% holdout accuracy (0.019 *Brier Score*) and reached 97.73% accuracy on tax-specific messages, substantially exceeding *Random Forest* at 88.64%. Integrating the calibrated model into a FastAPI service and a plain-language browser extension enables immediate message verification without manual copy-pasting.
 
 Keywords: Phishing Detection, Random Forest, Support Vector Machine, Tax Authority, TF-IDF.
 
@@ -121,30 +121,36 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat
 | Daftar Tabel | x |
 | Bab I Pendahuluan | 1 |
 | 1.1 Latar Belakang Masalah | 1 |
-| 1.2 Rumusan Masalah | 3 |
+| 1.2 Rumusan Masalah | 2 |
 | 1.3 Batasan Masalah | 3 |
-| 1.4 Tujuan Penelitian | 5 |
+| 1.4 Tujuan Penelitian | 4 |
 | 1.5 Manfaat Penelitian | 5 |
 | 1.6 Metode Penelitian | 6 |
-| Bab II Landasan Metode | 9 |
-| 2.1 Penelitian Terdahulu dan Matriks Komparasi | 9 |
-| 2.2 Landasan Teori dan Metode Khusus | 12 |
-| 2.2.1 Algoritma *Support Vector Machine*, *LinearSVC*, dan Kalibrasi Platt | 12 |
-| 2.2.2 Algoritma *Random Forest* | 13 |
-| 2.2.3 Praproses Teks Bahasa Indonesia dan Pembobotan Fitur TF-IDF | 13 |
-| 2.2.4 Validasi Silang Terstratifikasi, Metrik Evaluasi, dan Kesiapterapan Teknologi | 14 |
-| 2.3 Prosedur Operasional dan Bagan Alir Penelitian | 15 |
-| 2.4 Waktu dan Lokasi Penelitian | 16 |
-| 2.5 Alat dan Bahan Penelitian | 17 |
-| 2.6 Cara Pengumpulan dan Analisis Data | 19 |
-| 2.7 Definisi Operasional Variabel dan Parameter | 19 |
-| Bab III Implementasi Metode Usulan | 22 |
-| 3.1 Arsitektur Implementasi Metode Usulan | 22 |
-| 3.2 Implementasi Kurasi Korpus dan Praproses Teks | 23 |
+| Bab II Landasan Metode | 8 |
+| 2.1 Penelitian Terdahulu dan Matriks Komparasi | 8 |
+| 2.2 Landasan Teori dan Metode Khusus | 11 |
+| 2.2.1 Algoritma *Support Vector Machine*, *LinearSVC*, dan Kalibrasi Platt | 11 |
+| 2.2.2 Algoritma *Random Forest* | 11 |
+| 2.2.3 Praproses Teks Bahasa Indonesia dan Pembobotan Fitur TF-IDF | 12 |
+| 2.2.4 Validasi Silang Terstratifikasi, Metrik Evaluasi, dan Kesiapterapan Teknologi | 13 |
+| 2.3 Prosedur Operasional dan Bagan Alir Penelitian | 13 |
+| 2.4 Waktu dan Lokasi Penelitian | 15 |
+| 2.5 Alat dan Bahan Penelitian | 16 |
+| 2.6 Cara Pengumpulan dan Analisis Data | 17 |
+| 2.7 Definisi Operasional Variabel dan Parameter | 18 |
+| Bab III Implementasi Metode Usulan | 20 |
+| 3.1 Arsitektur Implementasi Metode Usulan | 20 |
+| 3.2 Implementasi Kurasi Korpus dan Praproses Teks | 22 |
 | 3.3 Implementasi Pelatihan Model, Penyetelan Hiperparameter, dan Kalibrasi | 24 |
-| 3.4 Implementasi Purwarupa Sistem Terpadu Tingkat Kesiapan Teknologi 6 | 25 |
-| 3.5 Skenario Pengujian Sistem dan Kesiapan Evaluasi | 27 |
-| Daftar Pustaka | 29 |
+| 3.4 Implementasi Purwarupa Sistem Terpadu Tingkat Kesiapan Teknologi 6 | 26 |
+| 3.5 Skenario Pengujian Sistem dan Kesiapan Evaluasi | 29 |
+| Bab IV Hasil dan Analisa | 31 |
+| 4.1 Hasil Eksperimen Komparasi Klasifikasi dan Penyetelan Hiperparameter | 31 |
+| 4.2 Analisis Kalibrasi Probabilitas dan Studi Ablatif Fitur | 34 |
+| 4.3 Analisis Ketahanan Bias Kata Kunci Pajak dan Generalisasi Lintas Korpus | 36 |
+| 4.4 Analisis Interpretabilitas Fitur dan Kesalahan Prediksi | 37 |
+| 4.5 Hasil Pengujian Purwarupa Sistem Terpadu dan Evaluasi Kesiapterapan Teknologi | 42 |
+| Daftar Pustaka | 47 |
 
 ---
 
@@ -152,10 +158,18 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat
 
 | Nomor Gambar | Judul Gambar | Halaman |
 | :--- | :--- | :---: |
-| Gambar 1.1 | Tahapan Metode Penelitian | 8 |
-| Gambar 2.1 | Bagan Alir Prosedur Eksperimen | 16 |
-| Gambar 3.1 | Arsitektur Sistem Terpadu Deteksi *Phishing* WhatsApp Perpajakan | 22 |
-| Gambar 3.2 | Rancangan Antarmuka *Dashboard* Streamlit dan Ekstensi *WhatsApp Web* | 26 |
+| Gambar 1.1 | Tahapan Metode Penelitian | 7 |
+| Gambar 2.1 | Bagan Alir Prosedur Eksperimen | 15 |
+| Gambar 3.1 | Arsitektur Sistem Terpadu Deteksi *Phishing* WhatsApp Perpajakan | 20 |
+| Gambar 3.2 | Rancangan Antarmuka Web *Cek Pesan Pajak* dan Ekstensi *WhatsApp Web* | 28 |
+| Gambar 4.1 | Perbandingan *Confusion Matrix* Uji *Holdout* | 33 |
+| Gambar 4.2 | Evaluasi Diskriminatif Kurva ROC dan *Precision-Recall* | 33 |
+| Gambar 4.3 | Evaluasi Kalibrasi Probabilitas Model | 34 |
+| Gambar 4.4 | Analisis Interpretabilitas Fitur TF-IDF Terbaik | 38 |
+| Gambar 4.5 | Komparasi Generalisasi Lintas Korpus dan Subset Pajak | 37 |
+| Gambar 4.6 | Tangkapan Layar Antarmuka Web *Cek Pesan Pajak* dan Respons API | 44 |
+| Gambar 4.7 | Tangkapan Layar Ekstensi Chrome pada Simulasi *WhatsApp Web* | 45 |
+| Gambar 4.8 | Analisis Interpretabilitas Model Berbasis SHAP | 40 |
 
 ---
 
@@ -163,16 +177,21 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat
 
 | Nomor Tabel | Judul Tabel | Halaman |
 | :--- | :--- | :---: |
-| Tabel 1.1 | Komposisi Korpus Dataset Penelitian | 7 |
-| Tabel 2.1 | Matriks Penelitian Terdahulu | 10 |
-| Tabel 2.2 | Jadwal Pelaksanaan Penelitian | 17 |
-| Tabel 2.3 | Spesifikasi Alat dan Bahan Penelitian | 18 |
-| Tabel 2.4 | Definisi Operasional Variabel dan Parameter Penelitian | 21 |
-| Tabel 3.1 | Konfigurasi Ruang Pencarian Hiperparameter dan Parameter Terpilih | 24 |
-| Tabel 3.2 | Spesifikasi Titik Akhir Layanan REST API FastAPI (`api.py`) | 25 |
-| Tabel 3.3 | Matriks Skenario Pengujian Fungsional Purwarupa (`test_prototipe_api.py`) | 27 |
-
----
+| Tabel 1.1 | Komposisi Korpus Dataset Penelitian | 6 |
+| Tabel 2.1 | Matriks Penelitian Terdahulu | 9 |
+| Tabel 2.2 | Jadwal Pelaksanaan Penelitian | 15 |
+| Tabel 2.3 | Spesifikasi Alat dan Bahan Penelitian | 16 |
+| Tabel 2.4 | Definisi Operasional Variabel dan Parameter Penelitian | 19 |
+| Tabel 3.1 | Pemetaan Modul Kode Sumber terhadap Tahapan Metodologi Penelitian | 21 |
+| Tabel 3.2 | Konfigurasi Ruang Pencarian Hiperparameter dan Parameter Terpilih | 25 |
+| Tabel 3.3 | Spesifikasi Titik Akhir Layanan Web dan REST API FastAPI (`api.py`) | 27 |
+| Tabel 3.4 | Matriks Skenario Pengujian Otomatis Purwarupa dan Integritas Sistem | 29 |
+| Tabel 4.1 | Hasil Komparasi Kinerja Klasifikasi pada Berbagai Tahap Evaluasi | 32 |
+| Tabel 4.2 | Hasil Studi Ablatif Praproses dan Representasi Fitur TF-IDF | 35 |
+| Tabel 4.3 | Perbandingan Fitur Teratas `LinearSVC` dan *Random Forest* | 38 |
+| Tabel 4.4 | Ringkasan Analisis Kesalahan Prediksi pada Himpunan Uji *Holdout* | 41 |
+| Tabel 4.5 | Hasil Pengujian Fungsional Otomatis dan Latensi Inferensi Purwarupa | 42 |
+| Tabel 4.6 | Komparasi Hasil Penelitian terhadap Studi Terdahulu | 45 |
 
 ---
 
@@ -180,71 +199,71 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat
 
 ## 1.1 Latar Belakang Masalah
 
-Seiring modernisasi layanan publik, Direktorat Jenderal Pajak (DJP) semakin memperluas komunikasi elektronik dengan pembayar pajak [1]. Langkah ini terlihat dari penerapan Coretax melalui portal daring terpadu `coretaxdjp` dan aplikasi seluler *M-Pajak*. Selain menjadikan NIK berfungsi sebagai NPWP, DJP juga memakai siaran *WhatsApp* resmi untuk menyampaikan pemberitahuan [2]. Kanal ini mempercepat penyebaran imbauan pelaporan pajak tahunan karena informasi langsung sampai kepada masyarakat. Namun, kemudahan tersebut ikut dimanfaatkan pihak yang tidak bertanggung jawab untuk menipu korban.
+Seiring modernisasi layanan publik, Direktorat Jenderal Pajak (DJP) semakin memperluas komunikasi elektronik dengan pembayar pajak [1]. Langkah ini terlihat dari penerapan Coretax melalui portal daring terpadu `coretaxdjp` dan aplikasi seluler *M-Pajak*. Selain menjadikan NIK berfungsi sebagai NPWP, DJP memakai siaran *WhatsApp* resmi untuk menyampaikan pemberitahuan [2]. Kanal ini mempercepat penyebaran imbauan pelaporan pajak tahunan kepada masyarakat. Namun, kemudahan itu ikut disalahgunakan penipu.
 
-Kepercayaan masyarakat kepada institusi negara kerap dimanfaatkan untuk penipuan melalui aplikasi pesan singkat [3], [4]. Penelitian ini menelaah 68 arsip publik terverifikasi yang sebagian besar terbit pada 2024 sampai 2026, meliputi pengumuman resmi otoritas pajak, pemberitaan kasus di Kantor Pelayanan Pajak (KPP) dan KP2KP, media perpajakan, serta situs pemeriksa fakta. Dari arsip tersebut, penulis memetakan dua belas modus penipuan pajak [5]. Pelaku umumnya mengirim berkas `.apk` berkedok pembaruan aplikasi resmi, tautan palsu seperti `coretax-online`, serta tagihan fiktif agar penerima panik.
+Kepercayaan masyarakat kepada institusi negara kerap dimanfaatkan untuk penipuan melalui aplikasi pesan singkat [3], [4]. Penelitian ini menelaah 68 arsip publik terverifikasi yang mayoritas terbit pada 2024 sampai 2026. Sumber arsip mencakup pengumuman resmi otoritas pajak, berita kasus KPP serta KP2KP, media perpajakan, dan situs pemeriksa fakta. Dari arsip tersebut, penulis memetakan dua belas modus penipuan pajak [5]. Pelaku mengirim berkas `.apk` pembaruan palsu, tautan tiruan seperti `coretax-online`, atau tagihan fiktif.
 
-Masyarakat umum dan pegawai administrasi keuangan di perusahaan sering kesulitan membedakan siaran asli otoritas pajak dari pesan penipuan [1], [5]. Penipu meniru format surat dinas lengkap dengan nomor regulasinya sehingga pesan tampak meyakinkan. Mereka juga menyisipkan istilah teknis yang biasa dipakai petugas, misalnya kode *billing* pembayaran atau nomor EFIN. Jika filter spam hanya dilatih dengan korpus pesan umum yang tidak diseimbangkan, kata kunci perpajakan tersebut dapat menimbulkan salah prediksi, dan pengumuman sah dari instansi pun ikut terblokir.
+Masyarakat umum dan pegawai administrasi keuangan di perusahaan sering kesulitan membedakan siaran asli otoritas pajak dari pesan penipuan [1], [5]. Penipu meniru format surat dinas lengkap dengan nomor regulasinya sehingga pesan tampak meyakinkan. Mereka menyisipkan istilah teknis petugas, seperti kode *billing* atau nomor EFIN. Jika filter spam hanya dilatih memakai korpus pesan umum, kata kunci perpajakan itu rentan memicu salah prediksi. Pengumuman sah instansi pun ikut terblokir.
 
-Beberapa penelitian terdahulu telah membandingkan algoritma pembelajaran mesin untuk mendeteksi pesan teks berbahaya. Untuk bahasa Indonesia, tersedia korpus SMS berlabel normal, penipuan, dan promo [6]. Pengujian pada kumpulan SMS tersebut memperlihatkan bahwa *Support Vector Machine* dan *Random Forest* meraih akurasi tinggi saat dipadukan dengan *bag of words*, TF-IDF, maupun pembobotan TF-RF [7], [8], [9], [10]. Penelitian lain mengkaji deteksi tautan palsu berbasis ciri URL [11], surel *phishing* [12], serta klasifikasi spam berbasis TF-IDF [13].
+Beberapa penelitian terdahulu telah membandingkan algoritma pembelajaran mesin untuk mendeteksi pesan teks berbahaya. Untuk bahasa Indonesia, tersedia korpus SMS berlabel normal, penipuan, dan promo [6]. Pengujian pada kumpulan SMS tersebut membuktikan bahwa *Support Vector Machine* dan *Random Forest* meraih akurasi tinggi saat dipadukan dengan *bag of words*, TF-IDF, maupun pembobotan TF-RF [7], [8], [9], [10]. Penelitian lain mengkaji deteksi tautan palsu berbasis ciri URL [11], surel *phishing* [12], serta klasifikasi spam berbasis TF-IDF [13].
 
 Studi penipuan berbahasa Indonesia pada platform digital baru menyoroti dialek Surabaya di WhatsApp [14], peladen *bot* [15], serta pesan penipuan lintas topik menggunakan XGBoost [16]. Sejumlah kajian lain turut menguji klasifikasi *SMS* dan *smishing* berbasis TF-IDF [17], [18], [19], [20], perbandingan *Support Vector Machine* dengan *Random Forest* untuk deteksi *phishing* [21], [22], serta penyaringan konten penipuan berbahasa Indonesia di media sosial X [23].
 
-Kajian empiris yang secara khusus menyaring penipuan berkedok lembaga pajak masih sangat jarang. Literatur yang tersedia lebih banyak membahas aspek hukum kebocoran data pembayar pajak tanpa membangun sistem klasifikasi otomatis [3]. Celah inilah yang mendasari perbandingan ketepatan *LinearSVC* dan *Random Forest* pada teks penipuan WhatsApp bertema pajak. Selain menyusun 260 pesan perpajakan berimbang yang dipadukan dengan 904 pesan umum beserta penyandian `token_apk` dan `token_url` untuk menghilangkan bias kata kunci (*keyword bias*), penelitian ini menghadirkan keterjelasan prediksi (*explainable detection*) berbasis bobot fitur `LinearSVC` serta pemeriksaan domain resmi `pajak.go.id` agar pengguna mengetahui alasan suatu pesan ditandai berbahaya [24], [25].
+Kajian empiris yang secara khusus menyaring penipuan berkedok lembaga pajak masih sangat jarang. Literatur yang tersedia lebih banyak membahas aspek hukum kebocoran data pembayar pajak tanpa membangun sistem klasifikasi otomatis [3]. Celah inilah yang mendasari perbandingan ketepatan *LinearSVC* dan *Random Forest* pada teks penipuan WhatsApp bertema pajak. Penelitian ini menyusun 260 pesan pajak berimbang yang dipadukan dengan 904 pesan umum beserta penyandian `token_apk` dan `token_url` untuk meredam bias kata kunci (*keyword bias*). Sistem juga menyajikan keterjelasan prediksi berbasis bobot `LinearSVC` serta pemeriksaan domain resmi `pajak.go.id` agar pengguna mengetahui alasan suatu pesan ditandai berbahaya [24], [25].
 
-Untuk mengatasi kerepotan pengguna apabila harus menyalin dan menempelkan pesan ke situs terpisah, hasil penelitian ini diwujudkan dalam purwarupa TKT 6 yang memadukan layanan *backend* REST API berbasis FastAPI, *dashboard* analitik Streamlit, dan ekstensi peramban (*browser extension*) pada *WhatsApp Web* [26], [27]. Ekstensi tersebut menyuntikkan tombol *Cek Phishing* langsung pada gelembung percakapan serta menyediakan menu klik kanan yang menampilkan kelas prediksi, skor risiko, dan sorotan kata pemicu secara instan. Arsitektur mesin klasifikasinya juga dirancang modular sehingga mudah diintegrasikan untuk melindungi publik secara lebih luas.
+Menyalin pesan secara manual ke situs terpisah kerap merepotkan pengguna. Karena itu, penelitian ini mewujudkan purwarupa TKT 6 yang memadukan layanan *backend* REST API berbasis FastAPI, antarmuka web *Cek Pesan Pajak* ramah awam, dan ekstensi peramban *WhatsApp Web* [26], [27]. Ekstensi tersebut menyuntikkan tombol *Cek Pesan Pajak* langsung pada gelembung percakapan untuk menampilkan status risiko, alasan dalam bahasa sehari-hari, serta saran tindakan aman secara instan. Arsitektur mesin klasifikasinya dirancang modular agar mudah diterapkan lebih luas.
 
 ## 1.2 Rumusan Masalah
 
 Modus penipuan digital bertema perpajakan terus berubah, sementara masyarakat memerlukan cara verifikasi awal yang cepat dan dapat diandalkan. Latar belakang di atas memperlihatkan adanya jarak antara kemiripan taktik penipuan dan keterbatasan alat saring konvensional yang tersedia bagi pengguna. Agar perancangan dan pengujian model nantinya terarah, masalah utama penelitian ini dirumuskan menjadi tiga poin berikut:
 
-a) Pesan *phishing* meniru struktur kalimat kedinasan dan menyisipkan istilah perpajakan resmi, sehingga warga sulit memeriksanya secara manual. Akibatnya, jika penerima telanjur memasang berkas berbahaya berekstensi `.apk`, akun dapat dicuri atau korban mengalami kerugian materi.
+a) Pesan *phishing* meniru gaya surat dinas dan memakai istilah perpajakan resmi, sehingga warga sulit memverifikasinya secara manual. Jika penerima telanjur memasang berkas berbahaya berekstensi `.apk`, akun dapat dicuri atau korban menderita kerugian finansial.
 
-b) Penyaring spam konvensional yang hanya bertumpu pada korpus SMS umum, tanpa teks resmi pajak, mudah mengalami penyimpangan bobot kata. Ketimpangan data latih itu dapat membuat pengumuman sah dari otoritas terblokir (*false positive*) atau membuat pesan penipuan baru lolos (*false negative*).
+b) Penyaring spam konvensional yang hanya bertumpu pada korpus SMS umum mudah mengalami bias bobot kata. Ketimpangan data latih itu dapat menyebabkan pengumuman sah otoritas terblokir (*false positive*) atau membuat pesan penipuan baru lolos (*false negative*).
 
-c) *Support Vector Machine* memisahkan kelas pada ruang fitur berdimensi tinggi secara linear, sedangkan *Random Forest* bekerja dengan gabungan banyak pohon keputusan. Kedua algoritma perlu diuji langsung pada fitur TF-IDF unigram-bigram agar pemilihan model terbaik memiliki dasar yang terukur, sekaligus menjadi landasan perancangan mekanisme verifikasi langsung berbasis REST API, *dashboard* web, dan ekstensi *WhatsApp Web* yang dilengkapi penjelasan indikator pemicu.
+c) *Support Vector Machine* memisahkan kelas pada ruang fitur berdimensi tinggi secara linear, sedangkan *Random Forest* menggabungkan banyak pohon keputusan. Kedua algoritma perlu diuji langsung pada fitur TF-IDF unigram-bigram agar pemilihan model terbaik memiliki dasar yang terukur. Hasilnya menjadi landasan perancangan REST API, antarmuka web *Cek Pesan Pajak*, dan ekstensi *WhatsApp Web* berpenjelasan indikator pemicu.
 
 ## 1.3 Batasan Masalah
 
 Ruang lingkup penelitian perlu dibatasi dengan jelas agar eksperimen klasifikasi tetap terarah dan tidak melebar ke luar pemrosesan teks. Batasan ini mengatur jenis masukan, sumber korpus, alur praproses, algoritma yang dibandingkan, dan bentuk produk perangkat lunaknya. Enam batasan yang menjadi koridor penelitian Tugas Akhir *Prototype* ini adalah sebagai berikut:
 
-a) Analisis difokuskan pada klasifikasi biner untuk teks pesan instan berbahasa Indonesia, tanpa memproses lampiran gambar atau rekaman suara. Kelas `1` menandai pesan yang terindikasi penipuan, sedangkan kelas `0` menandai pesan normal atau informasi resmi layanan pajak.
+a) Analisis difokuskan pada klasifikasi biner teks pesan instan berbahasa Indonesia, tanpa lampiran gambar atau suara. Kelas `1` menandai pesan terindikasi penipuan, sedangkan kelas `0` menandai pesan normal atau informasi resmi layanan pajak.
 
-b) Bahan penelitian hanya berupa data terbuka yang tersedia untuk umum, tanpa informasi rahasia milik instansi mana pun. Dataset induk berisi 1.164 teks, yaitu 904 pesan SMS publik berbahasa Indonesia berlabel normal dan penipuan [6] serta 260 kutipan teks bertema pajak. Sebanyak 239 pesan promo pada korpus asli (1.143 pesan) tidak diikutsertakan karena penelitian ini berfokus pada klasifikasi biner. Teks bertema pajak dikurasi dari 65 di antara 68 sumber publik yang dihimpun, yang sebagian besar terbit pada 2024 sampai 2026 [2], [5].
+b) Bahan penelitian hanya berupa data terbuka tanpa informasi rahasia instansi mana pun. Dataset induk berisi 1.164 teks, yaitu 904 SMS publik berbahasa Indonesia [6] dan 260 kutipan bertema pajak. Sebanyak 239 pesan promo pada korpus asli (1.143 pesan) disisihkan demi fokus klasifikasi biner. Teks pajak dikurasi dari 65 di antara 68 sumber publik yang dihimpun pada periode 2024 sampai 2026 [2], [5].
 
-c) Pembersihan awal meliputi penghapusan simbol nonalfanumerik, pengubahan teks menjadi huruf kecil, konversi pola `.apk` menjadi `token_apk`, dan penggantian alamat web menjadi `token_url`. Setelah itu, teks melalui penyaringan kata henti, pemotongan imbuhan dengan Sastrawi, dan ekstraksi fitur TF-IDF hingga 3.000 token unigram dan bigram.
+c) Pembersihan awal meliputi penghapusan simbol nonalfanumerik, pengubahan huruf kecil, konversi pola `.apk` menjadi `token_apk`, dan penggantian tautan menjadi `token_url`. Teks lalu melewati penyaringan kata henti, pemotongan imbuhan Sastrawi, serta ekstraksi TF-IDF hingga 3.000 token unigram dan bigram.
 
-d) Eksperimen hanya membandingkan *LinearSVC* dari keluarga *Support Vector Machine* dengan *Random Forest Classifier*. Data dibagi secara acak dengan mempertahankan proporsi kelas (*stratified split*) pada rasio 80:20, sehingga diperoleh 931 data latih dan 233 data uji.
+d) Eksperimen hanya membandingkan *LinearSVC* dengan *Random Forest Classifier*. Data dibagi secara terstratifikasi (*stratified split*) pada rasio 80:20, sehingga diperoleh 931 data latih dan 233 data uji.
 
 e) Kualitas prediksi dinilai dengan empat indikator dari tabel *Confusion Matrix*, yaitu *Accuracy*, *Precision*, *Recall*, dan *F1-Score*. Pengamatan difokuskan pada algoritma yang lebih konsisten menekan salah prediksi negatif maupun salah blokir terhadap pesan sah.
 
-f) Produk akhir dikemas sebagai purwarupa TKT 6 menggunakan bahasa Python yang terdiri atas *backend* REST API berbasis FastAPI, antarmuka *dashboard* Streamlit, dan ekstensi peramban *WhatsApp Web* (Manifest V3). Sistem tersebut dilengkapi fitur penjelasan kata pemicu (*explainable AI*) dari bobot fitur `LinearSVC`, deteksi berkas `.apk`, serta pemeriksaan domain resmi `pajak.go.id` tanpa perlu salin-tempel manual ke situs terpisah.
+f) Produk akhir dikemas sebagai purwarupa TKT 6 berbahasa Python. Sistemnya memadukan *backend* REST API FastAPI, antarmuka web *Cek Pesan Pajak* ramah pengguna awam, serta ekstensi peramban *WhatsApp Web* (Manifest V3). Sistem juga menyajikan penjelasan indikator risiko berbasis bobot `LinearSVC` dalam bahasa awam, deteksi berkas `.apk`, serta pemeriksaan domain resmi `pajak.go.id` tanpa salin-tempel manual.
 
 ## 1.4 Tujuan Penelitian
 
-Tujuan penelitian ini disusun untuk menjawab ketiga rumusan masalah secara terarah sehingga eksperimen menghasilkan purwarupa sistem yang teruji secara empiris. Setiap sasaran dirumuskan sebagai tahapan teknis yang capaian kinerjanya dapat diukur menggunakan parameter evaluasi kuantitatif pada himpunan data uji maupun pengujian fungsional sistem. Adapun tiga tujuan utama yang hendak dicapai dalam penelitian ini adalah sebagai berikut:
+Tujuan penelitian ini disusun untuk menjawab ketiga rumusan masalah secara terarah sehingga eksperimen menghasilkan purwarupa sistem yang teruji secara empiris. Setiap sasaran dirumuskan sebagai tahapan teknis yang capaian kinerjanya dapat diukur menggunakan parameter evaluasi kuantitatif pada himpunan data uji maupun pengujian fungsional sistem. Adapun tiga tujuan utama penelitian ini adalah sebagai berikut:
 
-a) Menyusun dataset teks perpajakan berbahasa Indonesia dengan porsi seimbang antara contoh pesan penipuan dan pengumuman layanan resmi. Dataset itu kemudian diproses dengan tahap praproses khusus dan ekstraksi bobot fitur TF-IDF untuk menangkap pola bahasa yang dipakai penipu.
+a) Menyusun dataset teks perpajakan berbahasa Indonesia berimbang antara contoh pesan penipuan dan pengumuman resmi. Dataset itu lalu diproses melalui tahapan praproses khusus serta ekstraksi bobot fitur TF-IDF untuk menangkap pola bahasa penipu.
 
-b) Menguji dan membandingkan kinerja klasifikasi *LinearSVC* dan *Random Forest* berdasarkan akurasi, presisi, *recall*, dan *F1-Score*. Eksperimen ini bertujuan membuktikan kemampuan model mengenali modus penipuan pajak tanpa mengorbankan keandalannya dalam membaca pesan resmi.
+b) Menguji dan membandingkan kinerja klasifikasi *LinearSVC* dan *Random Forest* berdasarkan akurasi, presisi, *recall*, dan *F1-Score*. Eksperimen ini membuktikan keandalan model mengenali penipuan pajak tanpa salah memblokir pesan resmi.
 
-c) Merancang purwarupa sistem pendeteksi pesan penipuan terpadu berbasis REST API FastAPI, *dashboard* Streamlit, dan ekstensi peramban *WhatsApp Web* berfitur penjelasan indikator risiko yang memuat model klasifikasi terbaik hasil pengujian. Layanan ini disiapkan agar masyarakat dapat memeriksa pesan mencurigakan secara langsung saat berinteraksi di *WhatsApp Web* maupun melalui *dashboard* web.
+c) Merancang purwarupa deteksi penipuan terpadu berbasis REST API FastAPI, web *Cek Pesan Pajak*, dan ekstensi *WhatsApp Web*. Sistem ini memuat model terbaik berfitur penjelasan indikator risiko agar masyarakat dapat memeriksa pesan langsung tanpa menyalin manual.
 
 ## 1.5 Manfaat Penelitian
 
 Model klasifikasi dan purwarupa sistem deteksi pesan ini diharapkan memberi manfaat nyata bagi dunia akademik dan Universitas Siber Asia (UNSIA), institusi publik terkait, serta masyarakat pembayar pajak. Dataset yang seimbang, arsitektur layanan API terpadu, dan antarmuka uji langsung dirancang untuk menjawab kebutuhan literasi keamanan digital pada tingkat pengguna akhir. Manfaat penelitian ini dibagi ke dalam tiga aspek berikut:
 
-a) Kontribusi Akademik dan Manfaat bagi Universitas Siber Asia: Menyajikan referensi hasil uji empiris yang terdokumentasi dengan baik tentang kelebihan dan kekurangan *Support Vector Machine* dibandingkan *Random Forest* beserta pembuktian mitigasi *keyword bias* pada teks pendek. Bagi Universitas Siber Asia, korpus perpajakan terbuka dan modul purwarupa ini dapat menjadi aset pembelajaran serta referensi praktikum *Natural Language Processing* pada Program Studi PJJ Sistem Informasi, sekaligus mendukung literasi keamanan siber bagi sivitas akademika di lingkungan perkuliahan daring.
+a) Kontribusi Akademik dan Manfaat bagi Universitas Siber Asia: Menyajikan bukti empiris kelebihan dan kelemahan *Support Vector Machine* dibanding *Random Forest* beserta pembuktian mitigasi *keyword bias* pada teks pendek. Bagi Universitas Siber Asia, korpus perpajakan terbuka dan modul purwarupa ini dapat menjadi bahan praktikum *Natural Language Processing* di Program Studi PJJ Sistem Informasi, sekaligus memperkuat literasi keamanan siber bagi sivitas akademika.
 
 b) Dukungan Teknis bagi Institusi Publik: Menghasilkan temuan pola kalimat dan purwarupa perangkat lunak yang dapat dipertimbangkan DJP maupun pengelola keamanan informasi sebagai pelengkap. Pemetaan dua belas modus penipuan perpajakan ini juga berguna untuk menyusun materi penyuluhan kepada masyarakat yang berbasis bukti lapangan.
 
-c) Kemudahan Proteksi bagi Pembayar Pajak: Menyediakan sarana verifikasi daring melalui *dashboard* web maupun tombol pemeriksaan langsung pada ekstensi *WhatsApp Web* tanpa perlu menyalin pesan secara manual. Sebelum telanjur mengeklik pranala palsu atau mengunduh berkas `.apk`, masyarakat dapat menilai risiko suatu pesan beserta alasan indikator pemicunya secara instan.
+c) Kemudahan Proteksi bagi Pembayar Pajak: Menyediakan sarana verifikasi daring lewat aplikasi web *Cek Pesan Pajak* dan tombol periksa pada ekstensi *WhatsApp Web*. Sebelum mengeklik pranala palsu atau mengunduh berkas `.apk`, masyarakat dapat menilai risiko pesan beserta alasan indikator pemicunya secara instan.
 
 ## 1.6 Metode Penelitian
 
-Penelitian ini menggabungkan metode eksperimen kuantitatif dengan alur *Research and Development* (R&D) sesuai ketentuan Tugas Akhir *Prototype* di Universitas Siber Asia [27], [28]. Bahan teks dikumpulkan melalui studi kepustakaan dan pengambilan data terstruktur dari 68 laman otoritatif [29]. Laman-laman tersebut memuat siaran resmi otoritas pajak Indonesia, keterangan pers unit layanan, situs pemeriksa fakta, portal berita perpajakan, dan media nasional [2], [5]. Seluruh sumber berasal dari domain publik tanpa akses ke sistem internal.
+Penelitian ini menggabungkan metode eksperimen kuantitatif dengan alur *Research and Development* (R&D) sesuai ketentuan Tugas Akhir *Prototype* di Universitas Siber Asia [27], [28]. Bahan teks dikumpulkan melalui studi kepustakaan dan pengambilan data terstruktur dari 68 laman otoritatif [29]. Laman-laman tersebut memuat siaran resmi otoritas pajak Indonesia, keterangan pers unit layanan, situs pemeriksa fakta, portal berita perpajakan, dan media nasional [2], [5]. Seluruh sumber berasal dari domain publik.
 
-Sebanyak 260 catatan teks perpajakan yang diambil dari 65 sumber tersebut dibagi rata menjadi 130 contoh penipuan dari dua belas kategori modus dan 130 contoh pesan sah dari sepuluh kategori, yaitu pengumuman layanan resmi dan percakapan perpajakan yang wajar. Proporsi yang setara ini penting agar model tidak bias terhadap istilah pajak saat berlatih. Korpus pajak tersebut kemudian digabung dengan 904 pesan SMS publik Indonesia sehingga terbentuk dataset gabungan berisi 1.164 baris teks [6]. Rincian komposisinya disajikan pada Tabel 1.1.
+Sebanyak 260 catatan teks perpajakan dikurasi dari 65 sumber publik tersebut. Jumlahnya dibagi rata menjadi 130 contoh penipuan dari dua belas modus dan 130 pesan sah dari sepuluh kategori layanan maupun percakapan wajar. Proporsi setara ini menjaga agar model tidak bias terhadap istilah pajak. Korpus pajak itu digabung dengan 904 pesan SMS publik Indonesia menjadi dataset induk berisi 1.164 baris teks [6]. Rinciannya disajikan pada Tabel 1.1.
 
 Tabel 1.1 Komposisi Korpus Dataset Penelitian
 
@@ -256,17 +275,15 @@ Tabel 1.1 Komposisi Korpus Dataset Penelitian
 
 Sumber: Olahan Data Penelitian (2026).
 
-Praproses teks bahasa Indonesia mencakup penghapusan karakter asing, pengecilan huruf, penyandian `token_apk`, dan penyandian `token_url`. Teks lalu melewati pembuangan kata henti, pengembalian ke kata dasar dengan Sastrawi, dan transformasi menjadi matriks TF-IDF unigram-bigram sebanyak 3.000 kolom [9], [10], [13], [18], [19], sebelum dibagi 80:20 secara terstratifikasi [11], [22]. Pelatihan dan penyetelan parameter dilakukan pada *LinearSVC* dan *Random Forest*. Model yang unggul berdasarkan *Confusion Matrix* kemudian diintegrasikan ke layanan REST API FastAPI, *dashboard* Streamlit, dan ekstensi peramban *WhatsApp Web* berfitur penjelasan kata pemicu untuk mencapai TKT 6 [24], [26]. Urutan tahapannya ditunjukkan pada Gambar 1.1.
+Praproses teks bahasa Indonesia mencakup penghapusan karakter asing, pengecilan huruf, penyandian `token_apk`, dan penyandian `token_url`. Teks lalu melewati pembuangan kata henti, pengembalian ke kata dasar dengan Sastrawi, dan transformasi menjadi matriks TF-IDF unigram-bigram sebanyak 3.000 kolom [9], [10], [13], [18], [19], sebelum dibagi 80:20 secara terstratifikasi [11], [22]. Pelatihan dan penalaan parameter dijalankan pada *LinearSVC* serta *Random Forest*. Model terbaik diintegrasikan ke layanan REST API FastAPI, web *Cek Pesan Pajak*, dan ekstensi *WhatsApp Web* untuk mencapai TKT 6 [24], [26]. Urutannya ditunjukkan pada Gambar 1.1.
 
 ![Gambar 1.1 Tahapan Metode Penelitian.](Aset Gambar/Gambar 1.1 Tahapan Metode Penelitian.png)
 
 Gambar 1.1 Tahapan Metode Penelitian.
 
-Matriks bobot TF-IDF memiliki ribuan dimensi dengan sebagian besar nilainya nol (*sparse*), sedangkan SVM dikenal mampu menangani data berdimensi tinggi dengan baik [11], [24]. Berdasarkan hal itu, disusun hipotesis kerja [30], [31] bahwa *LinearSVC* sebagai pemisah linear menghasilkan *Recall* dan *F1-Score* yang lebih baik daripada *Random Forest*. Uji *ablation* pada 44 pesan pajak di himpunan uji turut membuktikan pentingnya penyeimbangan korpus dalam mencegah penyimpangan bobot kata.
+Matriks bobot TF-IDF memiliki ribuan dimensi dengan sebagian besar nilainya nol (*sparse*), sedangkan SVM dikenal mampu menangani data berdimensi tinggi dengan baik [11], [24]. Berdasarkan hal itu, disusun hipotesis kerja [30], [31] bahwa *LinearSVC* menghasilkan *Recall* dan *F1-Score* lebih baik daripada *Random Forest*. Uji *ablation* pada 44 pesan pajak membuktikan pentingnya penyeimbangan korpus.
 
-Pelatihan menggunakan korpus SMS umum saja hanya menghasilkan akurasi 40,91% pada pesan pajak, sedangkan pelatihan tanpa penyeimbangan pesan resmi pajak hanya mencapai 52,27% karena seluruh 21 pesan resmi DJP terkena *false positive*. Dengan penyeimbangan korpus pajak (1.164 baris), akurasi khusus pesan pajak melonjak menjadi 97,73% dan akurasi keseluruhan *LinearSVC* mencapai 98,28% (*Recall* 0,98; *F1-Score* 0,98; hanya dua negatif palsu dan dua positif palsu), mengungguli *Random Forest* yang mencatat akurasi 95,28%, *Recall* 0,95, dan *F1-Score* 0,94.
-
----
+Pelatihan memakai korpus SMS umum saja hanya meraih akurasi 40,91% pada subset pajak. Tanpa penyeimbangan pesan resmi, akurasinya mencapai 52,27% karena seluruh 21 pengumuman sah terkena *false positive*. Setelah penyeimbangan 1.164 baris, `LinearSVC` mencatat akurasi *baseline* 98,28% (*F1-Score* 0,98) mengungguli *Random Forest* sebesar 95,28% (*F1-Score* 0,94). Pascapenalaan serta kalibrasi *Platt scaling*, `LinearSVC` mempertahankan akurasi uji 97,42% (*Brier Score* 0,019) dan melonjak ke 97,73% pada pesan pajak, melampaui *Random Forest* sebesar 88,64%.
 
 ---
 
@@ -276,11 +293,11 @@ Pelatihan menggunakan korpus SMS umum saja hanya menghasilkan akurasi 40,91% pad
 
 Transformasi administrasi perpajakan elektronik mendorong Direktorat Jenderal Pajak memperluas kanal komunikasi digital dengan masyarakat [1]. Pemanfaatan siaran resmi *WhatsApp Blast* untuk sosialisasi sistem inti administrasi perpajakan Coretax mempercepat penyebaran informasi layanan kepada wajib pajak [2]. Namun, celah penyalahgunaan data dan keterbatasan literasi keamanan digital kerap dimanfaatkan pelaku kejahatan siber melalui pesan penipuan [3]. Serangan rekayasa sosial berbasis pesan singkat atau *smishing* memicu kepanikan penerima lewat peniruan identitas resmi [4]. Pelaku umumnya menyebarkan berkas berbahaya berekstensi `.apk` atau tautan tiruan yang menyerupai pengumuman otoritas perpajakan [5].
 
-Sejumlah studi terdahulu telah menguji pembelajaran mesin untuk penyaringan pesan berbahaya di Indonesia maupun internasional. Penelitian rintisan merilis korpus SMS berbahasa Indonesia memakai algoritma *Multinomial Naïve Bayes* dan *Term Frequency* [6], yang kemudian diperluas oleh kajian multi-algoritma berbasis *Bag of Words* [7] serta komparasi *Bagging*, *Random Forest*, dan *Support Vector Machine* [8]. Penerapan *stemming* morfologi bahasa Indonesia bersama TF-IDF meningkatkan ketepatan *Support Vector Machine* pada teks pendek [9], sementara kajian lain membandingkan kinerja *Support Vector Machine*, *Random Forest*, XGBoost, dan *Logistic Regression* [10].
+Sejumlah studi terdahulu telah menguji pembelajaran mesin untuk penyaringan pesan berbahaya di Indonesia maupun internasional. Penelitian rintisan merilis korpus SMS berbahasa Indonesia memakai *Multinomial Naïve Bayes* dan *Term Frequency* [6]. Kajian selanjutnya menguji beberapa algoritma berbasis *Bag of Words* [7], serta membandingkan *Bagging*, *Random Forest*, dan *Support Vector Machine* [8]. Penerapan *stemming* morfologi Indonesia bersama TF-IDF meningkatkan ketepatan *Support Vector Machine* pada teks pendek [9]. Kajian lain membandingkan *Support Vector Machine*, *Random Forest*, XGBoost, dan *Logistic Regression* [10].
 
-Kajian komparatif *Random Forest* dan *Support Vector Machine* turut dilakukan pada deteksi tautan *phishing* [11], surel berbahasa Inggris dengan perbandingan TF-IDF, *Word2Vec*, dan BERT [12], serta penyetelan parameter *GridSearchCV* pada data SMS [13]. Pada ekosistem pesan instan Indonesia, penelitian terkini mengembangkan bot WhatsApp berbasis logika *fuzzy* [14], peladen bot *Support Vector Machine* dengan *stemming* Sastrawi [15], serta penyandian token entitas untuk pesan penipuan digital [16].
+Kajian komparatif *Random Forest* dan *Support Vector Machine* turut dilakukan pada deteksi tautan *phishing* [11]. Studi lain membandingkan TF-IDF, *Word2Vec*, dan BERT pada surel berbahasa Inggris [12], serta penyetelan `GridSearchCV` pada data SMS [13]. Pada ekosistem pesan instan Indonesia, peneliti mengembangkan bot WhatsApp berbasis logika *fuzzy* [14]. Peneliti lain merancang peladen bot *Support Vector Machine* berimbuhan Sastrawi [15], serta menyandikan token entitas pada pesan penipuan digital [16].
 
-Kajian pendukung juga menelaah klasifikasi SMS berbahasa Indonesia memakai *Support Vector Machine* [17], pembobotan TF-IDF pada teks pendek [18], [19], serta rekayasa fitur *smishing* [20]. Peneliti lain membandingkan algoritma deteksi *phishing* pada surel [21], [22], menyaring penipuan berbahasa Indonesia di media sosial [23], merancang kerangka *LinearSVC* ringan yang dapat dijelaskan [24], menerapkan *Explainable AI* [25], dan membangun ekstensi peramban [26].
+Kajian pendukung menelaah klasifikasi SMS berbahasa Indonesia memakai *Support Vector Machine* [17], pembobotan TF-IDF pada teks pendek [18], [19], serta rekayasa fitur *smishing* [20]. Peneliti lain membandingkan deteksi *phishing* pada surel [21], [22] dan menyaring penipuan berbahasa Indonesia di media sosial [23]. Kajian mutakhir lainnya merancang kerangka *LinearSVC* ringan yang dapat dijelaskan [24], menerapkan *Explainable AI* [25], serta membangun ekstensi peramban [26].
 
 Tabel 2.1 Matriks Penelitian Terdahulu
 
@@ -302,7 +319,7 @@ Tabel 2.1 Matriks Penelitian Terdahulu
 
 Sumber: Hasil Kajian Pustaka (2026).
 
-Pemetaan terhadap literatur di atas menyingkap empat celah riset utama, yaitu ketiadaan korpus *phishing* WhatsApp perpajakan yang seimbang, hilangnya sinyal `.apk` atau URL saat pembersihan teks, belum terkalibrasinya probabilitas `LinearSVC` dalam komparasi melawan *Random Forest*, serta minimnya purwarupa ekstensi peramban yang dapat menjelaskan kata pemicu. Rancangan penelitian ini disusun mengikuti pedoman Tugas Akhir *Prototype* Universitas Siber Asia [27] melalui pendekatan eksperimen kuantitatif dan *Research and Development* [28], penataan sumber data publik [29], pengujian statistik komparatif [30], serta pengawasan validitas eksperimen [31].
+Pemetaan literatur tersebut menyingkap empat celah riset utama. Pertama, belum tersedia korpus *phishing* WhatsApp perpajakan yang seimbang. Kedua, sinyal `.apk` atau URL kerap terbuang saat pembersihan teks, sementara kalibrasi `LinearSVC` melawan *Random Forest* dan ekstensi penjelas kata pemicu masih minim. Rancangan penelitian ini mengikuti pedoman Tugas Akhir *Prototype* Universitas Siber Asia lewat eksperimen kuantitatif dan *Research and Development* [27], [28]. Penelitian juga menerapkan penataan sumber publik [29], uji statistik komparatif [30], serta pengawasan validitas eksperimen [31].
 
 ## 2.2 Landasan Teori dan Metode Khusus
 
@@ -312,17 +329,17 @@ Algoritma *Support Vector Machine* mencari bidang pemisah (*hyperplane*) optimal
 
 **Persamaan (2.1)** *LinearSVC*: min (1/2)||w||² + C ∑ᵢ max(0, 1-yᵢ(wᵀxᵢ+b))²
 
-Keluaran mentah fungsi keputusan `LinearSVC` berupa nilai jarak bertanda *f*(*x*) = *w*ᵀ*x* + *b* terhadap *hyperplane*, bukan probabilitas risiko dalam rentang nol hingga satu. Nilai bobot koefisien *w*ⱼ pada setiap token sekaligus menyediakan transparansi kontribusi kata pemicu penipuan maupun kata penanda pesan resmi. Agar keluaran skor risiko setara dengan model berbasis pohon, skor jarak tersebut dipetakan menjadi probabilitas posterior melalui fungsi logistik sigmoid parametrik *Platt scaling* dengan parameter skalar *A* dan *B* [34].
+Keluaran mentah fungsi keputusan `LinearSVC` berupa jarak bertanda *f*(*x*) = *w*ᵀ*x* + *b* terhadap *hyperplane*, bukan peluang nol hingga satu. Nilai bobot koefisien *w*ⱼ setiap token menyediakan transparansi kontribusi kata pemicu penipuan maupun pesan resmi. Agar setara dengan model berbasis pohon, skor jarak itu dipetakan menjadi probabilitas posterior memakai fungsi sigmoid *Platt scaling* berparameter *A* dan *B* [34].
 
 **Persamaan (2.2)** *Platt Scaling*: P(y=1|f(x)) = 1 / (1 + exp(A·f(x)+B))
 
 ### 2.2.2 Algoritma Random Forest
 
-Algoritma *Random Forest* merupakan metode pembelajaran ansambel yang menggabungkan banyak pohon keputusan (*decision tree*) independen untuk meningkatkan stabilitas prediksi dan menekan varians model tunggal [35]. Setiap pohon di dalam hutan dibentuk menggunakan mekanisme *bootstrap aggregating* (*bagging*), yaitu pengambilan sampel acak berulang dengan pengembalian dari himpunan data latih. Pada setiap titik pemecahan simpul, algoritma hanya mengevaluasi subset acak dari keseluruhan fitur guna mengurangi korelasi antar-pohon di dalam ansambel.
+Algoritma *Random Forest* merupakan ansambel banyak pohon keputusan independen untuk meningkatkan stabilitas prediksi dan menekan varians model tunggal [35]. Setiap pohon di dalam hutan dibentuk menggunakan mekanisme *bootstrap aggregating* (*bagging*), yaitu pengambilan sampel acak berulang dengan pengembalian dari himpunan data latih. Pada setiap titik pemecahan simpul, algoritma hanya mengevaluasi subset acak dari keseluruhan fitur guna mengurangi korelasi antar-pohon di dalam ansambel.
 
 **Persamaan (2.3)** Impuritas Gini: Gini(t) = 1 - ∑ₖ p(k|t)²
 
-Pembangunan tiap pohon keputusan mengacu pada penurunan nilai impuritas Gini untuk memilih fitur dan ambang pembatas terbaik di setiap cabang simpul [35]. Pada matriks teks TF-IDF yang berdimensi tiga ribu kolom dan bernilai sangat jarang (*sparse*), pemecahan berbasis ambang batas fitur tunggal sering kurang optimal menangkap kombinasi istilah yang tersebar. Penentuan kelas akhir memakai pemungutan suara mayoritas atau rata-rata peluang seluruh *B* pohon keputusan penyusun hutan secara agregat.
+Pembangunan tiap pohon keputusan mengacu pada penurunan impuritas Gini untuk memilih fitur dan ambang pemecah terbaik pada tiap cabang simpul [35]. Pada matriks teks TF-IDF berdimensi tiga ribu kolom yang bernilai jarang (*sparse*), pemecahan fitur tunggal sering kurang optimal menangkap kombinasi istilah tersebar. Kelas akhir ditentukan melalui suara mayoritas atau rata-rata peluang seluruh *B* pohon penyusun hutan secara agregat.
 
 **Persamaan (2.4)** *Random Forest*: P(y=1|x) = (1/B) ∑ᵦ Pᵦ(y=1|x)
 
@@ -346,7 +363,7 @@ Evaluasi keandalan model klasifikasi pada komposisi kelas yang tidak persis seim
 
 **Persamaan (2.7b)** *F1-Score*: F1 = 2·(Prec·Rec) / (Prec + Rec)
 
-Seluruh alur komputasi eksperimen dari ekstraksi fitur, penalaan parameter `GridSearchCV`, hingga pelatihan model dijalankan memakai pustaka Scikit-learn berbasis estimator terpadu [40]. Purwarupa sistem ditargetkan mencapai Tingkat Kesiapan Teknologi (TKT) Level 6 yang mensyaratkan demonstrasi model dan subsistem terintegrasi pada lingkungan operasional yang relevan [41]. Selain akurasi batas keputusan, ketajaman peringkat probabilitas dinilai melalui metrik *ROC-AUC*, *PR-AUC*, *Brier Score*, dan *Log Loss* dengan perbaikan optimasi Newton pada *Platt scaling* untuk mencegah ketidakstabilan numerik [42].
+Seluruh alur komputasi dari ekstraksi fitur hingga pelatihan dijalankan memakai pustaka Scikit-learn berbasis estimator terpadu [40]. Purwarupa sistem ditargetkan mencapai Tingkat Kesiapan Teknologi (TKT) Level 6 yang mensyaratkan demonstrasi subsistem terintegrasi pada lingkungan relevan [41]. Ketajaman peringkat probabilitas dinilai lewat *ROC-AUC*, *PR-AUC*, *Brier Score*, dan *Log Loss*. Optimasi *Platt scaling* juga menerapkan metode Newton untuk mencegah ketidakstabilan numerik [42].
 
 **Persamaan (2.8a)** *Brier Score*: BS = (1/N) ∑ᵢ (pᵢ - yᵢ)²
 
@@ -354,21 +371,21 @@ Seluruh alur komputasi eksperimen dari ekstraksi fitur, penalaan parameter `Grid
 
 ## 2.3 Prosedur Operasional dan Bagan Alir Penelitian
 
-Penelitian ini menggunakan desain eksperimen kuantitatif komparatif yang dipadukan dengan pengembangan purwarupa perangkat lunak berbasis *Research and Development* [27], [28]. Desain eksperimen dibangun di atas asumsi bahwa setiap pesan berdiri sebagai pengamatan independen dalam pembagian data terstratifikasi, informasi klasifikasi direpresentasikan oleh bobot *unigram* dan *bigram* TF-IDF tanpa pemrosesan gambar atau berkas `.apk` secara biner, serta nilai pengacak tetap (`random_state=42`) menjamin replikabilitas hasil [40]. Rangkaian prosedur operasionalnya terbagi menjadi enam tahapan berikut:
+Penelitian ini memadukan eksperimen kuantitatif komparatif dengan pengembangan purwarupa perangkat lunak berbasis *Research and Development* [27], [28]. Setiap pesan diperlakukan sebagai pengamatan independen dalam pembagian data terstratifikasi. Informasi klasifikasi direpresentasikan oleh bobot *unigram* dan *bigram* TF-IDF tanpa pemrosesan gambar atau biner `.apk`. Nilai pengacak tetap (`random_state=42`) mengunci replikabilitas eksperimen [40]. Prosedur operasionalnya terbagi menjadi enam tahap berikut:
 
-a) Tahap kurasi korpus mengumpulkan teks perpajakan publik dari enam puluh lima sumber otoritatif berimbang (masing-masing seratus tiga puluh pesan *phishing* dan resmi), lalu menggabungkannya dengan korpus SMS publik Indonesia menjadi himpunan induk 1.164 baris beserta korpus diperluas 2.521 baris berverifikasi *checksum* SHA-256 [2], [5], [6].
+a) Tahap kurasi korpus menghimpun teks pajak publik dari enam puluh lima sumber otoritatif berimbang, masing-masing seratus tiga puluh pesan *phishing* dan resmi. Data lalu digabung dengan korpus SMS publik Indonesia menjadi himpunan induk 1.164 baris serta korpus perluasan 2.521 baris berverifikasi SHA-256 [2], [5], [6].
 
-b) Tahap praproses mengubah teks menjadi huruf kecil, menyandikan ekstensi `.apk` ke `token_apk` dan tautan web ke `token_url`, membuang karakter nonalfanumerik, menghapus kata henti, serta menerapkan *stemming* Sastrawi pada kata berimbuhan [37].
+b) Tahap praproses menyeragamkan huruf kecil, menyandikan ekstensi `.apk` ke `token_apk`, serta mengubah tautan web ke `token_url`. Teks kemudian dibersihkan dari karakter nonalfanumerik, kata henti, lalu dipotong imbuhannya memakai Sastrawi [37].
 
-c) Tahap ekstraksi fitur membagi data induk secara terstratifikasi dengan rasio 80:20 menjadi 931 data latih dan 233 data uji, kemudian membangun vektor bobot TF-IDF *unigram* dan *bigram* maksimal tiga ribu fitur di atas data latih [36].
+c) Tahap ekstraksi fitur membagi data induk secara terstratifikasi dengan rasio 80:20 menjadi 931 data latih dan 233 data uji. Vektor bobot TF-IDF *unigram* dan *bigram* maksimal tiga ribu fitur kemudian dihitung hanya di atas data latih [36].
 
-d) Tahap penalaan dan kalibrasi menjalankan *GridSearchCV* dengan *Stratified 10-Fold Cross-Validation* terisolasi di tiap lipatan untuk mencari parameter optimal `LinearSVC` dan *Random Forest*, lalu mengkalibrasi skor `LinearSVC` dengan *Platt scaling* lima lipatan [33], [38], [42].
+d) Tahap penalaan dan kalibrasi menjalankan *GridSearchCV* dengan *Stratified 10-Fold Cross-Validation* terisolasi guna mencari parameter optimal `LinearSVC` serta *Random Forest*. Skor `LinearSVC` selanjutnya dikalibrasi memakai *Platt scaling* lima lipatan [33], [38], [42].
 
-e) Tahap evaluasi lanjutan membandingkan kedua model memakai *Confusion Matrix*, kurva ROC-PR, *Brier Score*, *Log Loss*, enam skenario studi ablatif, uji ketahanan bias kata kunci pada 44 pesan pajak, serta uji generalisasi lintas-korpus pada 1.362 pesan eksternal [39].
+e) Tahap evaluasi lanjutan membandingkan kedua model memakai *Confusion Matrix*, kurva ROC-PR, *Brier Score*, dan *Log Loss*. Analisis turut mencakup enam studi ablatif, uji bias kata kunci pada 44 pesan pajak, serta uji lintas-korpus 1.362 pesan eksternal [39].
 
-f) Tahap pengemasan menyimpan bundel *vectorizer* TF-IDF beserta model terkalibrasi ke format `.joblib` untuk diintegrasikan pada rancangan layanan REST API FastAPI, *dashboard* Streamlit, dan ekstensi *WhatsApp Web* berfitur *Explainable AI* guna memenuhi capaian TKT 6 [24], [26], [41].
+f) Tahap pengemasan menyimpan bundel *vectorizer* TF-IDF dan model terkalibrasi ke format `.joblib`. Bundel itu diintegrasikan ke REST API FastAPI, antarmuka web *Cek Pesan Pajak*, serta ekstensi *WhatsApp Web* berfitur *Explainable AI* guna mencapai TKT 6 [24], [26], [41].
 
-Kriteria desain purwarupa menuntut respons klasifikasi waktu nyata, penyajian probabilitas terkalibrasi, sorotan kata pemicu berbasis bobot `LinearSVC`, deteksi pola `.apk`, serta pemeriksaan domain resmi `pajak.go.id` tanpa penyalinan manual [24], [26]. Kesiapan fungsionalitas rancangan sistem tersebut nantinya diuji melalui skenario *black-box* terhadap pesan resmi DJP, pesan penipuan pendek, dan tautan tiruan pada lingkungan relevan [41]. Urutan keterkaitan enam tahapan prosedur eksperimen disajikan pada Gambar 2.1.
+Kriteria desain purwarupa menuntut respons klasifikasi waktu nyata dan penyajian probabilitas terkalibrasi. Sistem wajib menyorot kata pemicu berbasis bobot `LinearSVC`, mendeteksi pola `.apk`, dan memeriksa domain resmi `pajak.go.id` tanpa salin-tempel manual [24], [26]. Kesiapan rancangan tersebut diuji memakai skenario *black-box* terhadap pesan resmi DJP, penipuan pendek, dan tautan tiruan [41]. Keterkaitan enam tahapannya terlihat pada Gambar 2.1.
 
 ![Gambar 2.1 Bagan Alir Prosedur Eksperimen.](Aset Gambar/Gambar 2.1 Bagan Alir Prosedur Eksperimen.png)
 
@@ -395,9 +412,9 @@ Sumber: Rencana Kerja Penelitian (2026).
 
 ## 2.5 Alat dan Bahan Penelitian
 
-Eksperimen pemodelan bahasa alami dan evaluasi komparatif dijalankan pada satu unit komputer jinjing lokal dengan sistem operasi Microsoft Windows 11 Pro 64-bit, prosesor Intel Core i5-12450H generasi kedua belas, serta memori utama sebesar 16 GB. Konfigurasi perangkat keras tersebut memadai untuk mengeksekusi tiga puluh enam kombinasi pencarian *grid*, validasi silang sepuluh lipatan, studi ablatif enam skenario, serta pengujian lintas-korpus hingga tuntas dalam waktu komputasi terukur sebesar 228,37 detik.
+Eksperimen pemodelan dan evaluasi komparatif dijalankan pada komputer jinjing lokal bersistem operasi Microsoft Windows 11 Pro 64-bit. Perangkat tersebut memakai prosesor Intel Core i5-12450H dan memori utama 16 GB. Spesifikasi itu memadai untuk mengeksekusi tiga puluh enam kombinasi pencarian *grid*, validasi silang sepuluh lipatan, studi ablatif, serta uji lintas-korpus. Seluruh alur komputasi tuntas dalam waktu terukur 297,57 detik.
 
-Lingkungan perangkat lunak dibangun di atas bahasa pemrograman Python versi 3.11.9 yang terisolasi dalam pengelola paket terpisah agar pustaka komputasi berjalan konsisten [40]. Pustaka utama mencakup Scikit-learn 1.9.1 untuk algoritma klasifikasi dan metrik, Sastrawi 1.0.1 untuk *stemming* bahasa Indonesia [37], serta Pandas, NumPy, Matplotlib, Joblib, dan Pytest. Bahan penelitian berupa kumpulan korpus teks publik terkurasi beserta rincian spesifikasi seluruh perangkat disajikan pada Tabel 2.3.
+Lingkungan perangkat lunak dibangun di atas bahasa pemrograman Python versi 3.11.9 dalam pengelola paket terpisah agar pustaka komputasi konsisten [40]. Pustaka inti mencakup Scikit-learn 1.9.1 untuk algoritma klasifikasi serta Sastrawi 1.0.1 untuk *stemming* bahasa Indonesia [37]. Pengolahan data, analisis SHAP (*LinearExplainer* serta *TreeExplainer*), dan pengujian memakai Pandas, NumPy, Matplotlib, Joblib, serta Pytest. Rincian spesifikasi perangkat tercantum pada Tabel 2.3.
 
 Tabel 2.3 Spesifikasi Alat dan Bahan Penelitian
 
@@ -405,8 +422,8 @@ Tabel 2.3 Spesifikasi Alat dan Bahan Penelitian
 | :--- | :--- | :--- |
 | Perangkat Keras | Komputer Jinjing Komputasi | Prosesor Intel Core i5-12450H, RAM 16 GB, sistem operasi Microsoft Windows 11 Pro 64-bit untuk eksperimen lokal |
 | Perangkat Lunak Inti | Python, Scikit-learn, Sastrawi | Python 3.11.9, Scikit-learn 1.9.1 (`LinearSVC`, `RandomForestClassifier`, `TfidfVectorizer`, `CalibratedClassifierCV`), Sastrawi 1.0.1 [37], [40] |
-| Perangkat Lunak Pendukung | Pandas, NumPy, Matplotlib, Joblib, Pytest | Pandas 3.1.1, NumPy 2.4.6, Matplotlib 3.11.2, Joblib 1.6.0 untuk serialisasi model, serta Pytest 9.2.0 untuk uji integritas |
-| Rancangan Purwarupa | FastAPI, Streamlit, Ekstensi Manifest V3 | Rancangan REST API FastAPI, *dashboard* Streamlit 1.67.0, serta ekstensi *WhatsApp Web* TKT 6 [26], [41] |
+| Perangkat Lunak Pendukung | Pandas, NumPy, Matplotlib, SHAP, Joblib, Pytest | Pandas 3.1.1, NumPy 2.4.6, Matplotlib 3.11.2, SHAP (`LinearExplainer` dan `TreeExplainer`), Joblib 1.6.0 untuk serialisasi model, serta Pytest 9.2.0 untuk uji integritas |
+| Rancangan Purwarupa | FastAPI, Web Kustom, Ekstensi Manifest V3 | Rancangan REST API dan antarmuka web *Cek Pesan Pajak* berbasis FastAPI (`HTML`/`CSS`/`JS`), serta ekstensi *WhatsApp Web* TKT 6 [26], [41] |
 | Bahan Korpus SMS Publik | `Rahmi 2016 Korpus SMS Spam Utama v1.csv` | Berisi 904 SMS Indonesia (335 penipuan, 569 normal); 239 promo dieksklusi dari 1.143 baris [6] |
 | Bahan Korpus Pajak | `Dataset Pajak Terkurasi 260 Baris.csv` | Berisi 260 teks pajak seimbang (130 *phishing*, 130 resmi) dari 65/68 sumber publik [2], [5] |
 | Bahan Gabungan Induk | `Dataset Gabungan Utama Biner 1164 Baris.csv` | Gabungan 904 SMS umum dan 260 teks pajak (465 kelas `1`, 699 kelas `0`) berverifikasi SHA-256 |
@@ -416,17 +433,17 @@ Sumber: Dokumentasi Lingkungan Penelitian (2026).
 
 ## 2.6 Cara Pengumpulan dan Analisis Data
 
-Pengumpulan bahan penelitian menerapkan studi dokumentasi dan seleksi data publik terverifikasi dari lembaga otoritatif tanpa melibatkan data rahasia wajib pajak [29]. Sebanyak enam puluh lima dari enam puluh delapan arsip resmi DJP, media pajak, dan pemeriksa fakta dipilih menjadi 130 contoh *phishing* dari dua belas modus serta 130 teks resmi dari sepuluh layanan [2], [5]. Tiga sumber berulang dieksklusi untuk menjaga keseimbangan distribusi, lalu 239 pesan promo Rahmi (2016) turut disisihkan agar korpus induk 1.164 baris tetap fokus pada klasifikasi biner [6].
+Pengumpulan bahan penelitian menerapkan studi dokumentasi dan seleksi data publik terverifikasi tanpa melibatkan data rahasia wajib pajak [29]. Sebanyak enam puluh lima dari enam puluh delapan arsip resmi DJP, media pajak, dan pemeriksa fakta dipilih. Seleksi itu menghasilkan 130 contoh *phishing* dari dua belas modus serta 130 teks resmi dari sepuluh layanan [2], [5]. Tiga sumber berulang dan 239 promo Rahmi disisihkan demi fokus biner pada 1.164 baris [6].
 
-Analisis data komparatif dijalankan secara bertahap dimulai dari pembagian data induk terstratifikasi 80:20 (`random_state=42`) menjadi 931 data latih dan 233 data uji untuk mencegah kebocoran informasi evaluasi [30], [31]. Matriks TF-IDF dibangun ulang secara terisolasi di setiap lipatan *Stratified 10-Fold Cross-Validation* (`shuffle=True`, `random_state=42`) sebelum pencarian *grid* (`GridSearchCV`) mengevaluasi 12 konfigurasi `LinearSVC` (`C` dari 0,1 sampai 5,0; `class_weight`) dan 24 konfigurasi `RandomForestClassifier` (`n_estimators`, `max_depth`, `min_samples_split`, `class_weight`) [38], [40].
+Analisis data komparatif dimulai dari pembagian data induk terstratifikasi 80:20 (`random_state=42`) menjadi 931 data latih dan 233 data uji [30], [31]. Matriks TF-IDF dibangun ulang secara terisolasi di tiap lipatan *Stratified 10-Fold Cross-Validation* (`shuffle=True`, `random_state=42`) [38]. Pencarian *grid* (`GridSearchCV`) selanjutnya mengevaluasi 12 konfigurasi `LinearSVC` (`C` 0,1 sampai 5,0; `class_weight`) serta 24 konfigurasi `RandomForestClassifier` [40].
 
-Tahap analisis lanjutan menguji kalibrasi *Platt scaling* lima lipatan, enam skenario studi ablatif, serta uji ketahanan bias kata kunci pada 44 sampel pajak di himpunan uji. Generalisasi eksternal diukur memakai uji *zero-shot* pada 1.362 pesan lintas-korpus dari Theodorus dkk. dan Saragih serta uji korpus diperluas 2.521 baris hasil deduplikasi kolom `clean_text` yang menyisihkan lima duplikat internal dan kelas promo [7]. Kualitas keterjelasan model turut dievaluasi melalui bobot fitur teratas `LinearSVC` dan analisis kesalahan prediksi [24], [39].
+Tahap lanjutan menguji kalibrasi *Platt scaling* lima lipatan, enam skenario studi ablatif, dan ketahanan bias kata kunci pada 44 sampel pajak. Uji *zero-shot* dijalankan pada 1.362 pesan eksternal Theodorus dkk. serta Saragih, sedangkan uji korpus diperluas memakai 2.521 baris unik. Angka tersebut merupakan hasil penyaringan duplikat `clean_text` atas 4.255 baris biner awal yang menyisihkan 1.734 duplikat, meliputi 5 duplikat internal Rahmi dan 1.729 duplikat internal maupun lintas sumber [7]. Keterjelasan model turut dievaluasi melalui bobot `LinearSVC`, nilai *SHapley Additive exPlanations* (SHAP), dan analisis kesalahan prediksi [24], [25], [39].
 
 ## 2.7 Definisi Operasional Variabel dan Parameter
 
-Operasionalisasi variabel dan parameter penelitian ditetapkan agar setiap komponen masukan teks, kategori target biner, penyetelan *hyperparameter* algoritma, dan tolok ukur evaluasi memiliki batasan yang dapat diukur secara objektif [29], [30]. Variabel bebas berupa string pesan instan berbahasa Indonesia yang ditransformasikan menjadi fitur TF-IDF berdimensi hingga tiga ribu kolom, sedangkan variabel terikat berupa label biner kelas `1` untuk indikasi *phishing* dan kelas `0` untuk pesan aman atau resmi.
+Operasionalisasi variabel dan parameter penelitian menetapkan batasan terukur bagi masukan teks, target biner, penyetelan algoritma, dan tolok ukur evaluasi [29], [30]. Variabel bebas berupa string pesan instan berbahasa Indonesia yang dipetakan ke fitur TF-IDF hingga tiga ribu kolom. Sementara itu, variabel terikat berupa label biner kelas `1` untuk indikasi *phishing* dan kelas `0` untuk pesan aman atau resmi.
 
-Parameter algoritma meliputi besaran penalti margin `C` dan pembobotan kelas pada `LinearSVC`, jumlah pohon, kedalaman maksimum, serta batas pemecahan simpul pada *Random Forest*, serta metode kalibrasi sigmoid lima lipatan pada *Platt scaling* [33], [35], [42]. Tolok ukur capaian sistem mencakup metrik klasifikasi diskrit, ketajaman peringkat probabilitas, galat kalibrasi, serta demonstrasi purwarupa fungsional pada lingkungan relevan TKT Level 6 [39], [41]. Ringkasan lengkap definisi operasional variabel dan parameter tersebut disajikan pada Tabel 2.4.
+Parameter algoritma meliputi besaran penalti `C` dan pembobotan kelas pada `LinearSVC`. Parameter *Random Forest* mencakup jumlah pohon, kedalaman maksimum, serta batas pemecahan simpul, ditambah metode kalibrasi sigmoid lima lipatan pada *Platt scaling* [33], [35], [42]. Tolok ukur capaian sistem menilai metrik diskrit, peringkat probabilitas, galat kalibrasi, serta demonstrasi purwarupa TKT Level 6 [39], [41]. Ringkasan lengkap definisi operasionalnya tersaji pada Tabel 2.4.
 
 Tabel 2.4 Definisi Operasional Variabel dan Parameter Penelitian
 
@@ -439,7 +456,7 @@ Tabel 2.4 Definisi Operasional Variabel dan Parameter Penelitian
 | Parameter *Random Forest* | *Hyperparameter* Ansambel Pohon | Ruang pencarian `n_estimators` dalam `{100, 200, 300}`, `max_depth` dalam `{None, 30}`, `min_samples_split` dalam `{2, 5}`, dan `class_weight` [35] |
 | Parameter Kalibrasi *Platt* | Parameter Kalibrasi Probabilitas | Wrapper `CalibratedClassifierCV` memakai `method="sigmoid"` dengan `cv=5` untuk mengonversi skor keputusan `LinearSVC` ke probabilitas [34], [42] |
 | Metrik Evaluasi Klasifikasi | Variabel Kinerja Utama | Pengukuran *Accuracy*, *Precision*, *Recall*, *F1-Score*, *ROC-AUC*, *PR-AUC*, *Brier Score*, dan *Log Loss* [38], [39] |
-| Indikator Kesiapan Teknologi (TKT) | Variabel Kelayakan Purwarupa | Capaian TKT 6 melalui bundel `.joblib` pada REST API, Streamlit, dan ekstensi *WhatsApp Web* [41] |
+| Indikator Kesiapan Teknologi (TKT) | Variabel Kelayakan Purwarupa | Capaian TKT 6 melalui bundel `.joblib` pada REST API, antarmuka web *Cek Pesan Pajak*, dan ekstensi *WhatsApp Web* [41] |
 
 Sumber: Sintesis Metodologi Penelitian (2026).
 
@@ -449,101 +466,143 @@ Sumber: Sintesis Metodologi Penelitian (2026).
 
 ## 3.1 Arsitektur Implementasi Metode Usulan
 
-Implementasi metode usulan pada penelitian ini menerjemahkan kerangka teoretis dan prosedur operasional pada Bab II ke dalam sistem perangkat lunak yang dapat direplikasi secara penuh. Seluruh rangkaian pemrosesan dibangun menggunakan bahasa pemrograman Python 3.11.9 dengan pembagian modul yang terpisah antara kurasi korpus, pelatihan model, dan layanan inferensi purwarupa [40]. Pemisahan modul tersebut menjamin bahwa transformasi teks yang diterapkan saat pelatihan identik dengan transformasi saat pesan baru diperiksa oleh pengguna akhir.
+Implementasi metode usulan pada penelitian ini menerjemahkan kerangka teoretis serta enam tahapan prosedur operasional pada Bab II ke dalam ekosistem perangkat lunak yang terstruktur. Seluruh pemrosesan dibangun memakai Python versi 3.11.9 dengan memisahkan modul kurasi korpus, pelatihan komparatif, serta layanan antarmuka purwarupa [40]. Pemisahan itu menjaga konsistensi teks sejak pelatihan.
 
-Alur kerja sistem terbagi menjadi dua jalur utama, yakni jalur pelatihan luring untuk menghasilkan bundel model terkalibrasi dan jalur inferensi daring untuk melayani pemeriksaan pesan secara langsung. Pada jalur luring, data mentah dari korpus SMS publik dan korpus perpajakan dikurasi, dibersihkan, lalu diekstraksi menjadi vektor TF-IDF berdimensi tiga ribu fitur unigram dan bigram [6], [36]. Jalur daring kemudian memuat bundel model yang telah diserialisasi ke dalam layanan *REST API* berbasis FastAPI agar dapat diakses oleh *dashboard* web Streamlit maupun ekstensi peramban *WhatsApp Web* [26].
+Arsitektur sistem terbagi menjadi dua alur kerja utama yang terhubung melalui bundel model terserialisasi, yakni alur pelatihan luring dan alur layanan daring. Pada alur luring, seluruh bahan korpus dikurasi, dibersihkan dengan Sastrawi, diubah menjadi vektor TF-IDF tiga ribu fitur, lalu dilatih memakai `LinearSVC` dan `RandomForestClassifier` [6], [36], [37]. Alur daring memuat model terlatih ke peladen FastAPI untuk menyajikan antarmuka web *Cek Pesan Pajak* dan ekstensi *WhatsApp Web* [26].
 
 ![Arsitektur Sistem Terpadu Deteksi Phishing WhatsApp Perpajakan](Aset Gambar/Gambar 3.1 Arsitektur Sistem Terpadu.png)
 
-**Gambar 3.1 Arsitektur Sistem Terpadu Deteksi *Phishing* WhatsApp Perpajakan.**
+Gambar 3.1 Arsitektur Sistem Terpadu Deteksi *Phishing* WhatsApp Perpajakan.
 
-Seperti diperlihatkan pada Gambar 3.1, arsitektur terpadu memusatkan seluruh logika klasifikasi dan pemeriksaan heuristik pada satu modul inferensi bersama bernama `inference.py`. Pendekatan terpusat tersebut mencegah duplikasi aturan praproses antara antarmuka web Streamlit dan ekstensi peramban *Manifest V3*. Apabila layanan FastAPI sedang tidak aktif pada perangkat lokal, *dashboard* Streamlit tetap dapat beralih secara otomatis ke mode cadangan lokal melalui pemanggilan langsung modul `inference.py`.
+Rancangan pada Gambar 3.1 memperlihatkan bahwa seluruh logika klasifikasi, ekstraksi kata pemicu *explainable AI*, penerjemah alasan bahasa awam, serta pemeriksaan heuristik keamanan dipusatkan pada `inference.py`. Pendekatan terpusat tersebut menjaga konsistensi aturan praproses dan format respons antara web *Cek Pesan Pajak* (`web/`) dan ekstensi *Manifest V3*. Prasetel contoh pesan dan ringkasan evaluasi model turut disajikan langsung oleh peladen FastAPI yang sama.
+
+Untuk mempermudah penelusuran antara rancangan metodologi pada Bab II dan kode program yang dibangun, setiap tahapan penelitian dipetakan secara eksplisit ke berkas sumber spesifik di dalam repositori. Struktur modular tersebut memastikan proses pengumpulan data, pelatihan model, dan layanan purwarupa dapat diuji serta dipelihara secara terpisah tanpa saling mengganggu. Pemetaan lengkap antara modul kode program, peran fungsionalnya, serta kaitannya dengan tahapan penelitian disajikan pada Tabel 3.1.
+
+Tabel 3.1 Pemetaan Modul Kode Sumber terhadap Tahapan Metodologi Penelitian
+
+| Berkas / Direktori Modul | Tahapan Metodologi | Peran Teknis dalam Sistem |
+| :--- | :--- | :--- |
+| `src/korpus_pajak.py` | Kurasi Sumber Perpajakan | Menyimpan metadata enam puluh delapan sumber, tiga puluh satu indikator penipuan DJP, dan dua ratus enam puluh teks pajak |
+| `src/kurasi_dataset.py` | Konstruksi Korpus & Provenans | Membangun dataset induk 1.164 baris, korpus diperluas 2.521 baris, dan katalog provenans SHA-256 |
+| `src/eksperimen_baseline.py` | Praproses & Model Dasar | Menyediakan fungsi `clean_text` Sastrawi dan uji *baseline* 80:20 `LinearSVC` serta `RandomForestClassifier` |
+| `src/eksperimen_komparasi.py` | Penalaan, Kalibrasi, & Evaluasi | Menjalankan `StratifiedKFold` 10-lipatan, pencarian *grid* 36 konfigurasi, kalibrasi Platt, studi ablatif, dan ekspor `.joblib` |
+| `06 Prototipe Aplikasi/inference.py` | Mesin Inferensi Terpadu | Memuat `model_phishing_pajak.joblib`, menjalankan heuristik `.apk` serta domain `pajak.go.id`, dan menyusun alasan ramah awam serta sorotan teks |
+| `06 Prototipe Aplikasi/api.py` & `Jalankan Server.bat` | Layanan *Backend*, Web, & Peluncur | Menyajikan antarmuka web *Cek Pesan Pajak* (`/`) serta *endpoint* API `/health`, `/api/*`, `/predict`, dan `/predict/batch` |
+| `06 Prototipe Aplikasi/web/` | Antarmuka Web Pengguna Awam | Menyediakan halaman web responsif (`index.html`, `styles.css`, `app.js`) dengan pratinjau chat WA, sorotan bahaya, panduan darurat `.apk`, dan modal evaluasi TA |
+| `06 Prototipe Aplikasi/extension/` | Ekstensi Peramban *WhatsApp Web* | Memindai pesan di `web.whatsapp.com`, meneruskan lewat `background.js`, dan menampilkan lencana risiko berbahasa awam (*Manifest V3*) |
+| `tests/` | Verifikasi Otomatis Sistem | Menjalankan dua puluh pengujian `pytest` untuk integritas korpus, reproduksi metrik, serta pengujian *black-box* API dan web |
+
+Sumber: Dokumentasi Rekayasa Perangkat Lunak Penelitian (2026).
 
 ## 3.2 Implementasi Kurasi Korpus dan Praproses Teks
 
-Tahap awal implementasi berfokus pada penyusunan dataset biner yang bersih, berimbang secara kontekstual, dan memiliki jejak asal data yang dapat diaudit. Modul `src/korpus_pajak.py` menghimpun dua ratus enam puluh kutipan teks bertema perpajakan yang terdiri atas seratus tiga puluh pesan penipuan dan seratus tiga puluh pengumuman resmi Direktorat Jenderal Pajak [2], [5]. Selanjutnya, modul `src/kurasi_dataset.py` menggabungkan korpus perpajakan tersebut dengan sembilan ratus empat pesan SMS berbahasa Indonesia dari korpus Rahmi [6], setelah mengeksklusi dua ratus tiga puluh sembilan pesan promo.
+Implementasi tahap data diawali penyusunan korpus domain perpajakan melalui berkas `src/korpus_pajak.py` dan `src/kurasi_dataset.py`. Sebanyak enam puluh delapan halaman web otoritatif dari DJP, media perpajakan, dan kanal pemeriksa fakta diambil, lalu dibersihkan dari teks navigasi berulang memakai `strip_djp_boilerplate` [2], [5]. Dari jumlah itu, tersaring enam puluh lima sumber unik menjadi dua ratus enam puluh pesan dari dua belas modus penipuan dan sepuluh layanan resmi DJP. Jumlah kedua kelas disusun seimbang.
 
-Penggabungan kedua sumber data menghasilkan korpus induk sebanyak seribu seratus enam puluh empat baris yang terbagi menjadi empat ratus enam puluh lima pesan kelas penipuan dan enam ratus sembilan puluh sembilan pesan kelas normal. Untuk memastikan keutuhan berkas selama eksperimen berulang, setiap berkas data olahan diverifikasi menggunakan nilai *hash* kriptografis SHA-256 yang tercatat pada katalog provenans. Selain korpus induk, disiapkan pula korpus uji perluasan sebanyak dua ribu lima ratus dua puluh satu baris yang memuat tambahan data eksternal dari korpus Theodorus dan Saragih guna menguji ketahanan model lintas sumber [7].
+Modul `src/kurasi_dataset.py` menggabungkan dua ratus enam puluh teks pajak tersebut dengan sembilan ratus empat SMS bahasa Indonesia dari korpus Rahmi dan Wibisono [6]. Sebanyak dua ratus tiga puluh sembilan iklan promo disisihkan terlebih dahulu. Penggabungan ini membentuk korpus induk biner sebanyak seribu seratus enam puluh empat baris, terdiri atas empat ratus enam puluh lima pesan penipuan (`1`) dan enam ratus sembilan puluh sembilan pesan normal (`0`). Keutuhan seluruh artefak korpus dijaga memakai sepuluh catatan *hash* SHA-256 pada `Katalog Asal Sumber Data.csv`.
 
-Setiap teks mentah yang masuk ke jalur pelatihan maupun inferensi melewati fungsi pembersihan terpadu `clean_text` di dalam modul `src/eksperimen_baseline.py`. Proses pembersihan dijalankan secara berurutan agar pola teknis khas penipuan WhatsApp tidak hilang sebelum tahap pembobotan kata dilakukan. Urutan transformasi teks pada fungsi `clean_text` dirinci sebagai berikut:
+Selain korpus induk, fungsi `build_combined_datasets` merakit korpus perluasan untuk menguji generalisasi model lintas sumber. Korpus tersebut menggabungkan himpunan induk, korpus biner Theodorus (`Label` `0` dan `2` dipetakan ke `0` dan `1`), serta korpus Saragih (`non-spam` dan `penipuan`) menjadi 4.255 baris awal [7]. Penyaringan duplikat pada `clean_text` menyisihkan 1.734 baris duplikat, terdiri atas 5 duplikat internal Rahmi dan 1.729 duplikat internal maupun lintas sumber. Himpunan akhir memuat 2.521 baris unik (822 penipuan dan 1.699 aman).
 
-a) Seluruh karakter huruf diubah menjadi huruf kecil (*case folding*) dan pola tautan situs web diganti menjadi token khusus `token_url` sebelum penghapusan tanda baca dijalankan.
+Pada jalur praproses, setiap teks masukan saat pelatihan maupun inferensi melewati fungsi `clean_text` dalam modul `src/eksperimen_baseline.py`. Kamus kata henti diambil dari `StopWordRemoverFactory`, sedangkan daftar kata dasar `StemmerFactory` diubah dari tipe daftar menjadi himpunan (`set`) berakselerasi `lru_cache` dua puluh ribu kata agar pencarian berjalan dalam waktu konstan $O(1)$ [37]. Urutan transformasi teks mengikuti enam langkah berikut:
 
-b) Pola nama berkas aplikasi Android yang diakhiri ekstensi `.apk` dideteksi menggunakan ekspresi reguler lalu dikonversi menjadi token seragam `token_apk` agar variasi nama file tetap tertangkap sebagai satu sinyal ancaman.
+a) Seluruh karakter diubah menjadi huruf kecil melalui metode `lower()`. Langkah ini menyeragamkan representasi kata tanpa membedakan huruf kapital di awal kalimat ataupun di tengah pesan.
 
-c) Karakter selain huruf, angka, dan spasi dibersihkan, kemudian kata henti (*stopword*) umum bahasa Indonesia disaring menggunakan kamus Sastrawi kecuali kata yang berpotensi membawa konteks kehati-hatian.
+b) Pola berkas Android berakhiran `.apk` (`r"\.apk\b"`) diganti lebih dahulu menjadi `token_apk` sebelum pendeteksian tautan. Urutan ini mencegah nama berkas seperti `coretax.id.apk` tertelan sebagai alamat situs web.
 
-d) Setiap kata dasar diekstraksi menggunakan algoritma *stemming* Nazief-Adriani pada pustaka Sastrawi 1.0.1 sebelum diumpankan ke vektorisasi TF-IDF dengan batas maksimum tiga ribu fitur unigram dan bigram [36], [37].
+c) Pola alamat tautan web, baik berawalan `http`, `https`, `www`, penyingkat `bit.ly`, maupun domain umum berakhiran `.go.id`, `.co.id`, serta `.xyz`, dikonversi menjadi token khusus `token_url`.
 
-Pembagian data latih dan data uji diterapkan secara terstratifikasi dengan rasio delapan puluh berbanding dua puluh menggunakan `random_state` bernilai empat puluh dua. Strategi tersebut menghasilkan sembilan ratus tiga puluh satu data latih dan dua ratus tiga puluh tiga data uji dengan proporsi kelas yang seragam di kedua himpunan. Seluruh pembobotan TF-IDF hanya dihitung (*fit*) pada himpunan data latih untuk mencegah kebocoran informasi statistik dari data uji ke dalam proses pelatihan.
+d) Karakter selain huruf alfabet kecil, angka, spasi, dan garis bawah dihapus dengan ekspresi reguler `r"[^a-z0-9\s_]"` sehingga tanda baca terbuang sementara penanda `token_apk` dan `token_url` tetap utuh.
+
+e) Seluruh token diperiksa terhadap himpunan `SPECIAL_TOKENS` (`token_apk` dan `token_url`) agar langsung dipertahankan, sedangkan token biasa yang tercatat di dalam kamus `STOP_WORDS` Sastrawi dibuang dari rangkaian kata.
+
+f) Setiap kata alfabetis sepanjang lebih dari dua huruf (`tok.isalpha() and len(tok) > 2`) dikembalikan ke bentuk kata dasar memakai algoritma Nazief-Adriani pada Sastrawi 1.0.1 [37]. Token kemudian disatukan kembali menjadi string bersih.
+
+Guna mendukung studi ablatif pada tahap evaluasi, modul `src/eksperimen_komparasi.py` turut menyiapkan dua varian praproses teks pembanding di samping kolom utama `teks_sastrawi`. Kolom `clean_text` dari `src/kurasi_dataset.py` merepresentasikan praproses tanpa penghapusan *stopword* dan tanpa *stemming* Sastrawi untuk skenario `2_Tanpa_Sastrawi`. Sementara itu, fungsi `clean_text_without_entity_tokens` menghasilkan kolom `teks_tanpa_token_entitas` dengan menghapus pola URL serta berkas `.apk` menjadi spasi kosong untuk skenario `1_Tanpa_Token_Entitas`.
 
 ## 3.3 Implementasi Pelatihan Model, Penyetelan Hiperparameter, dan Kalibrasi
 
-Tahap pemodelan diimplementasikan di dalam modul `src/eksperimen_komparasi.py` untuk membandingkan kinerja `LinearSVC` dan `RandomForestClassifier` secara adil pada kondisi dasar maupun setelah penyetelan hiperparameter [33], [35], [40]. Pada tahap dasar, kedua algoritma dilatih dengan parameter bawaan Scikit-learn serta dievaluasi menggunakan validasi silang sepuluh lipatan terstratifikasi (*Stratified 10-Fold Cross-Validation*) pada sembilan ratus tiga puluh satu data latih [38]. Evaluasi lipatan berganda tersebut bertujuan memantau kestabilan akurasi, presisi, *recall*, dan *F1-Score* sebelum model diuji pada data uji tetap.
+Tahap pelatihan dan evaluasi komparatif diimplementasikan dalam berkas `src/eksperimen_komparasi.py` dengan menstandarkan `RANDOM_STATE` sebesar empat puluh dua demi keterulangan hasil [40]. Data induk sebanyak 1.164 baris dipisahkan terstratifikasi 80:20 menjadi 931 data latih dan 233 data uji. Pada tahap *baseline*, `LinearSVC` bawaan dan `RandomForestClassifier` dua ratus pohon dilatih pada vektor TF-IDF unigram-bigram maksimal tiga ribu fitur data latih [36].
 
-Pencarian kombinasi hiperparameter optimal dilaksanakan melalui metode `GridSearchCV` sepuluh lipatan dengan metrik sasaran *F1-Score*. Sebanyak tiga puluh enam konfigurasi parameter diuji pada ruang pencarian untuk menemukan keseimbangan terbaik antara kemampuan generalisasi dan pencegahan *overfitting*. Rincian ruang pencarian serta konfigurasi optimal yang terpilih untuk masing-masing algoritma dirangkum pada Tabel 3.1.
+Untuk mencegah kebocoran informasi pembobotan kata selama validasi silang sepuluh lipatan (`StratifiedKFold` dengan `shuffle=True` dan `random_state=42`), diimplementasikan fungsi `_precompute_tfidf_folds` [38]. Fungsi tersebut membangun objek `TfidfVectorizer(ngram_range=(1, 2), max_features=3000)` yang terpisah di dalam setiap lipatan latih sebelum mengubah data validasi lipatan bersangkutan. Selanjutnya, fungsi `_run_grid_over_folds` mengevaluasi seluruh kombinasi hiperparameter secara menyeluruh di atas sepuluh lipatan yang sudah terisolasi tersebut lalu mengurutkan kandidat berdasarkan nilai rata-rata *F1-Score*, akurasi, dan *ROC-AUC*.
 
-Tabel 3.1 Konfigurasi Ruang Pencarian Hiperparameter dan Parameter Terpilih
+Sebanyak tiga puluh enam konfigurasi parameter diuji dalam pencarian *grid*, terdiri atas dua belas kombinasi untuk `LinearSVC` (`max_iter=5000`) dan dua puluh empat kombinasi untuk `RandomForestClassifier`. Pencarian *grid* tersebut memilih `C=5.0` tanpa pembobotan kelas seimbang pada `LinearSVC`, serta dua ratus pohon tanpa batas kedalaman maksimum dengan syarat pemecahan simpul minimum lima sampel pada `RandomForestClassifier`. Rincian lengkap ruang pencarian dan parameter terpilih tercantum pada Tabel 3.2.
 
-| Algoritma Klasifikasi | Ruang Pencarian Parameter (`GridSearchCV`) | Konfigurasi Terpilih |
+Tabel 3.2 Konfigurasi Ruang Pencarian Hiperparameter dan Parameter Terpilih
+
+| Algoritma Klasifikasi | Ruang Pencarian Parameter (`_run_grid_over_folds`) | Konfigurasi Terpilih |
 | :--- | :--- | :--- |
-| `LinearSVC` | `C`: `0.1, 0.5, 1.0, 2.0, 5.0, 10.0`; `class_weight`: `None, balanced` | `C=5.0`, `class_weight=None` |
-| `RandomForestClassifier` | `n_estimators`: `100, 200, 300`; `max_depth`: `None, 20, 40`; `min_samples_split`: `2, 5`; `class_weight`: `None, balanced` | `n_estimators=200`, `max_depth=None`, `min_samples_split=5`, `class_weight=None` |
+| `LinearSVC` | `C`: `0.1, 0.25, 0.5, 1.0, 2.0, 5.0`; `class_weight`: `None, balanced`; `max_iter=5000` | `C=5.0`, `class_weight=None` |
+| `RandomForestClassifier` | `n_estimators`: `100, 200, 300`; `max_depth`: `None, 30`; `min_samples_split`: `2, 5`; `class_weight`: `None, balanced` | `n_estimators=200`, `max_depth=None`, `min_samples_split=5`, `class_weight=None` |
 
-Sumber: Hasil Eksekusi `GridSearchCV` Modul `eksperimen_komparasi.py` (2026).
+Sumber: Implementasi Penalaan Parameter pada `src/eksperimen_komparasi.py` (2026).
 
-Keluaran mentah `LinearSVC` berupa jarak terhadap *hyperplane* pemisah yang tidak langsung merepresentasikan peluang probabilitas kelas [33]. Agar purwarupa dapat menampilkan tingkat keyakinan persentase risiko yang terkalibrasi secara statistik, diterapkan metode kalibrasi sigmoid Platt melalui `CalibratedClassifierCV` lima lipatan pada model `LinearSVC` terpilih [34], [42]. Kualitas kalibrasi probabilitas kemudian diukur menggunakan metrik *Brier Score* dan *Log Loss* untuk memastikan peluang keluaran selaras dengan frekuensi empiris pesan penipuan.
+Oleh karena keluaran fungsi keputusan `LinearSVC` berupa jarak terhadap bidang pemisah dan belum berwujud peluang probabilitas, diterapkan kalibrasi sigmoid Platt memakai `CalibratedClassifierCV(method="sigmoid", cv=5)` [33], [34], [42]. Kalibrasi lima lipatan tersebut mengubah nilai margin linear menjadi probabilitas kelas penipuan pada rentang nol hingga satu sehingga setara untuk dibandingkan dengan `predict_proba` milik *Random Forest*. Mutu kesesuaian peluang selanjutnya dinilai melalui perhitungan *Brier Score* dan *Log Loss* pada himpunan uji dua ratus tiga puluh tiga pesan [39].
 
-Model final beserta vektorizer TF-IDF dilatih ulang pada keseluruhan seribu seratus enam puluh empat baris korpus induk menggunakan konfigurasi hiperparameter terbaik, lalu diserialisasi ke dalam berkas `06 Prototipe Aplikasi/model_phishing_pajak.joblib` melalui pustaka Joblib dengan tingkat kompresi tiga. Bundel serialisasi tersebut menyimpan empat objek inti, yakni `vectorizer`, `svm_linear` untuk ekstraksi bobot fitur *explainable AI*, `svm_calibrated` untuk prediksi probabilitas Platt, dan `random_forest` sebagai pembanding langsung. Penyimpanan metadata pelatihan di dalam bundel memudahkan verifikasi versi model saat layanan API dijalankan.
+Setelah penalaan dan kalibrasi selesai, fungsi `_run_stage4_domain_and_cross_corpus` menjalankan tiga uji ketahanan tambahan. Pertama, kinerja model diukur pada empat puluh empat sampel pajak di data uji serta validasi silang sepuluh lipatan atas dua ratus enam puluh teks pajak (`Stage 4A`). Kedua, model produksi pada 1.164 baris diuji secara *zero-shot* pada 1.362 pesan eksternal (`Stage 4B`). Pengujian kemudian diulang pada korpus diperluas 2.521 baris (`Stage 4C`) [7].
+
+Pada tahap akhir jalur luring, vektorizer TF-IDF, `LinearSVC` linear murni, `LinearSVC` terkalibrasi Platt, dan `RandomForestClassifier` yang telah dilatih penuh pada 1.164 baris dikemas ke satu kamus Python lalu disimpan memakai Joblib 1.6.0 (`compress=3`) ke `06 Prototipe Aplikasi/model_phishing_pajak.joblib`. Selanjutnya, fungsi `_build_feature_and_error_tables` dan `_compute_shap_table` mengekstrak koefisien fitur teratas, merangkum sampel salah prediksi, serta menghitung nilai SHAP (`LinearExplainer` dan `TreeExplainer`) pada 233 data uji [24], [25].
 
 ## 3.4 Implementasi Purwarupa Sistem Terpadu Tingkat Kesiapan Teknologi 6
 
-Purwarupa sistem dikembangkan untuk memenuhi indikator Tingkat Kesiapan Teknologi enam sesuai Peraturan Menteri Riset, Teknologi, dan Pendidikan Tinggi Nomor 42 Tahun 2016, yaitu demonstrasi prototipe dalam lingkungan simulasi yang relevan [41]. Seluruh komponen aplikasi ditempatkan di dalam direktori `06 Prototipe Aplikasi/` dan dibagi menjadi empat artefak terstruktur. Pembagian artefak tersebut memastikan antarmuka pengguna, layanan antarmuka pemrograman aplikasi, serta ekstensi peramban tetap ringan dan mudah dipelihara.
+Seluruh subsistem aplikasi purwarupa ditempatkan pada direktori `06 Prototipe Aplikasi/` guna memenuhi kriteria demonstrasi dalam lingkungan simulasi yang relevan sesuai Tingkat Kesiapan Teknologi enam [41]. Lapisan inti inferensi pada berkas `inference.py` memuat bundel `model_phishing_pajak.joblib` secara efisien ke memori menggunakan mekanisme `lru_cache(maxsize=1)`. Setiap pesan teks yang masuk dibersihkan memakai fungsi `clean_text` yang sama dengan jalur pelatihan, diubah menjadi matriks TF-IDF, lalu dihitung peluang *phishing*-nya oleh model `svm_calibrated` maupun pembanding `random_forest`.
 
-Lapisan inti inferensi diwujudkan pada berkas `inference.py` yang menggabungkan klasifikasi pembelajaran mesin dengan dua lapis pemeriksaan heuristik domain perpajakan. Pemeriksaan lapis pertama mendeteksi keberadaan nama berkas berekstensi `.apk` pada teks mentah karena Direktorat Jenderal Pajak tidak pernah mendistribusikan aplikasi resmi melalui lampiran WhatsApp [5]. Pemeriksaan lapis kedua mengekstrak seluruh alamat tautan dari pesan lalu memverifikasi apakah nama domain berakhir tepat pada `pajak.go.id` atau subdomain resminya guna mencegah manipulasi domain tiruan seperti `pajak.go.id.evil.com`.
+Di samping inferensi pembelajaran mesin, fungsi `analyze_urls_and_apk` dan `predict_message` pada `inference.py` menjalankan dua lapisan aturan heuristik perpajakan. Lapisan pertama memindai teks mentah memakai `APK_PATTERN` (`r"\b[a-z0-9_.-]+\.apk\b"`) guna menangkap lampiran aplikasi berbahaya. Lapisan kedua mengekstrak tautan melalui `URL_PATTERN` bersyarat akhiran *top-level domain* alfabetis pada tautan tanpa awalan `http` atau `www` sehingga angka jam `17.00` maupun nominal `Rp1.500.000` tidak ikut tertandai.
 
-Di atas modul inferensi, dibangun layanan *REST API* menggunakan FastAPI pada berkas `api.py` dengan dukungan kebijakan *Cross-Origin Resource Sharing* untuk asal permintaan lokal dan ekstensi peramban. Layanan API tersebut menyediakan tiga titik akhir (*endpoint*) utama yang melayani pemeriksaan kesiapan sistem maupun inferensi teks secara tunggal ataupun berkelompok. Spesifikasi teknis ketiga titik akhir layanan API dirangkum pada Tabel 3.2.
+Setiap domain hasil ekstraksi terlebih dahulu diproses oleh fungsi `_extract_domain` memakai `urlparse` agar tautan tanpa awalan `http://` tetap terbaca nama hostnya secara konsisten. Selanjutnya, fungsi `is_official_djp_domain` hanya mengembalikan nilai benar apabila nama host tepat sama dengan `pajak.go.id` atau berakhiran `.pajak.go.id`. Dengan aturan ketat tersebut, teknik pengecohan domain tiruan seperti `pajak.go.id.evil.com` tetap tertandai sebagai domain eksternal mencurigakan di antarmuka pengguna.
 
-Tabel 3.2 Spesifikasi Titik Akhir Layanan REST API FastAPI (`api.py`)
+Penetapan status akhir dan tingkat risiko pada `predict_message` menggabungkan peluang kalibrasi `svm_prob` dengan temuan heuristik secara deterministik. Pada kondisi dasar, pesan diberi label `1` apabila `svm_prob >= 0.5`. Namun, jika `has_apk` bernilai benar meskipun `svm_prob < 0.75`, sistem melakukan eskalasi otomatis menjadi `label = 1` dan risiko `TINGGI`. Tanpa berkas `.apk`, risiko ditetapkan `TINGGI` jika `svm_prob >= 0.75`, `SEDANG` jika `svm_prob >= 0.50` atau ada `suspicious_domains`, dan `RENDAH` jika aman.
 
-| Metode & Jalur | Parameter Masukan | Keluaran Utama | Fungsi dalam Sistem |
+Guna menyajikan penjelasan yang ramah bagi masyarakat umum, fungsi `_extract_top_triggers` menghitung kontribusi tiap kata atau frasa dari hasil kali bobot TF-IDF dan koefisien `svm_linear.coef_` [24]. Kontribusi tersebut lalu dipetakan ke kelompok kata pemicu, yakni desakan waktu, ancaman denda, serta ajakan verifikasi. Dari pemetaan itu, sistem menyusun satu vonis risiko utama, sorotan khusus pada berkas `.apk` atau tautan, serta daftar alasan dan langkah pencegahan berbahasa sehari-hari.
+
+Layanan *backend* dan peladen web pada berkas `api.py` dibangun di atas kerangka kerja FastAPI dengan peladen ASGI Uvicorn, dilengkapi skrip pintas `Jalankan Server.bat` untuk memudahkan pengaktifan lokal. Kebijakan *Cross-Origin Resource Sharing* mengatur `allow_private_network=True` agar permintaan `GET`, `POST`, dan `OPTIONS` dari peramban lokal, halaman publik `https://web.whatsapp.com`, maupun ekstensi `chrome-extension://*` tetap diterima secara aman. Rincian kontrak layanan API tersaji pada Tabel 3.3.
+
+Tabel 3.3 Spesifikasi Titik Akhir Layanan Web dan REST API FastAPI (`api.py`)
+
+| Metode & Jalur | Skema Masukan | Struktur Keluaran Utama | Peran dalam Arsitektur |
 | :--- | :--- | :--- | :--- |
-| `GET /health` | Tanpa parameter | Status `ok`, daftar model, metadata korpus | Memverifikasi kesiapan layanan dan bundel Joblib |
-| `POST /predict` | JSON `text` (1–5.000 karakter) dan `top_k` | Label, tingkat risiko, probabilitas SVM & RF, heuristik `.apk`/domain, token pemicu XAI | Klasifikasi pesan tunggal untuk Streamlit dan Ekstensi WA Web |
-| `POST /predict/batch` | JSON daftar `texts` (maksimum 200 pesan) | Daftar hasil prediksi terindeks per baris | Pemrosesan massal berkas CSV pada *dashboard* web |
+| `GET /` | Tanpa badan permintaan | Berkas HTML antarmuka web *Cek Pesan Pajak* | Menyajikan aplikasi web utama bagi masyarakat awam |
+| `GET /health` | Tanpa badan permintaan | Status `ok`, `models_loaded`, dan `metadata` korpus latih | Pemeriksaan kesiapan layanan oleh halaman web dan popup ekstensi |
+| `GET /api/presets` & `/api/academic-summary` | Tanpa badan permintaan | Daftar prasetel pesan uji, metadata model, dan baris `tabel_komparasi_utama.csv` | Mengisi tombol contoh siap uji serta modal info akademik di footer |
+| `POST /predict` | JSON `text` (1 sampai 5.000 karakter) dan `top_k` (1 sampai 20) | Label, `risk_level`, `risk_title`, `plain_reasons`, `highlights`, `trigger_words`, dan `action_steps` | Titik akhir inferensi tunggal bagi web *Cek Pesan Pajak* dan ekstensi |
+| `POST /predict/batch` | JSON daftar `texts` (1 sampai 200 pesan) dan `top_k` | Jumlah total dan daftar hasil prediksi terindeks per baris | Titik akhir pemrosesan pesan massal terstruktur |
 
-Sumber: Dokumentasi Perancangan Purwarupa `06 Prototipe Aplikasi/api.py` (2026).
+Sumber: Implementasi Layanan API pada `06 Prototipe Aplikasi/api.py` (2026).
 
-Fitur penjelasan keputusan (*explainable AI*) dihitung pada setiap permintaan `POST /predict` dengan mengalikan bobot TF-IDF kata pada pesan masukan terhadap koefisien vektor `LinearSVC` terlatih [24]. Token dengan nilai kontribusi absolut terbesar ditampilkan kepada pengguna beserta arah dukungannya terhadap kelas *phishing* atau kelas resmi. Transparansi kata pemicu tersebut membantu pengguna memahami alasan teknis di balik status peringatan yang muncul pada layar.
+Antarmuka web *Cek Pesan Pajak* pada `06 Prototipe Aplikasi/web/` (`index.html`, `styles.css`, `app.js`) dirancang memakai bahasa Indonesia sehari-hari untuk masyarakat awam. Elemen teknis yang tidak dibutuhkan pengguna umum, meliputi pengaturan URL *endpoint*, metadata model, unggah CSV massal, probabilitas ganda, dan tabel koefisien TF-IDF, dihapus dari layar utama. Sebagai gantinya, ringkasan evaluasi tersebut diletakkan di balik tautan *Info Akademik dan Evaluasi Model* pada bagian *footer* untuk keperluan demo sidang.
 
-Antarmuka pengguna berbasis web dibangun menggunakan Streamlit 1.67.0 pada berkas `app.py` dengan tiga tab fungsional, yakni uji pesan tunggal, uji *batch* berkas CSV, dan ringkasan metrik evaluasi model. Untuk mempercepat demonstrasi pengujian, disediakan pula tiga tombol contoh pesan siap pakai yang mencakup skenario *phishing* berkas `.apk`, skenario tautan domain tiruan, serta pengumuman resmi `djponline.pajak.go.id`. Sementara itu, ekstensi peramban Chrome berarsitektur *Manifest V3* ditempatkan di direktori `extension/` dengan berkas `manifest.json`, `content.js`, `styles.css`, `popup.html`, dan `popup.js`.
+Tata letak *Cek Pesan Pajak* memakai navigasi tab ringkas (*Cek Pesan*, *Kanal Resmi dan Ciri Scam*, serta *Darurat .apk*) agar layar utama tetap lega. Setelah pesan dipindai lewat kotak tempel atau tiga contoh cepat, pratinjau chat menyorot berkas `.apk` dan tautan disertai chip kata pemicu di bawahnya. Hasil dilengkapi alasan singkat, saran aman, tombol bagikan ke WhatsApp, panduan darurat `.apk`, daftar situs `pajak.go.id`, serta empat ciri penipuan.
 
-![Rancangan Antarmuka Dashboard Streamlit dan Ekstensi WhatsApp Web](Aset Gambar/Gambar 3.2 Rancangan Antarmuka Purwarupa dan Ekstensi.png)
+![Rancangan Antarmuka Web Cek Pesan Pajak dan Ekstensi WhatsApp Web](Aset Gambar/Gambar 3.2 Rancangan Antarmuka Purwarupa dan Ekstensi.png)
 
-**Gambar 3.2 Rancangan Antarmuka *Dashboard* Streamlit dan Ekstensi *WhatsApp Web*.**
+Gambar 3.2 Rancangan Antarmuka Web *Cek Pesan Pajak* dan Ekstensi *WhatsApp Web*.
 
-Skrip `content.js` pada ekstensi bekerja mengamati kemunculan gelembung pesan masuk di halaman `web.whatsapp.com` melalui `MutationObserver`, lalu menyisipkan tombol pemeriksaan langsung di bawah teks pesan. Saat tombol ditekan, ekstensi mengirimkan isi pesan ke titik akhir `http://127.0.0.1:8000/predict` dan menampilkan lencana warna tingkat risiko (`RENDAH`, `SEDANG`, atau `TINGGI`) beserta ringkasan kata pemicu. Rancangan visual kedua antarmuka purwarupa tersebut disajikan secara berdampingan pada Gambar 3.2.
+Integrasi langsung pada peramban diwujudkan melalui ekstensi Chrome berarsitektur *Manifest V3* di folder `extension/` yang tersusun atas enam berkas, yaitu `manifest.json`, `background.js`, `content.js`, `styles.css`, `popup.html`, dan `popup.js` [26]. Skrip `content.js` memakai `MutationObserver` untuk memindai gelembung pesan masuk minimal delapan karakter, kartu lampiran berkas `.apk`, maupun tautan pendek, serta mendukung uji mandiri pada pesan keluar bertema pajak. Saat tombol *Cek Pesan Pajak* ditekan, permintaan dikirim lewat *service worker* `background.js` ke `http://127.0.0.1:8000/predict` agar lencana risiko berbahasa awam tampil seperti pada Gambar 3.2.
 
 ## 3.5 Skenario Pengujian Sistem dan Kesiapan Evaluasi
 
-Sebelum hasil kinerja dibahas secara mendalam pada Bab IV, ditetapkan serangkaian skenario pengujian fungsional dan evaluasi empiris untuk memastikan seluruh komponen bekerja sesuai rancangan. Pengujian otomatis diimplementasikan menggunakan pustaka Pytest pada direktori `tests/` yang mencakup berkas `test_integritas_dataset.py`, `test_eksperimen_baseline.py`, `test_eksperimen_komparasi.py`, dan `test_prototipe_api.py`. Pendekatan pengujian terotomasi menjamin bahwa perubahan kode tidak merusak keutuhan data latih maupun logika verifikasi domain resmi.
+Keandalan seluruh jalur data, eksperimen pemodelan, dan antarmuka purwarupa diverifikasi otomatis memakai kerangka kerja Pytest 9.2.0 lewat dua puluh kasus uji pada empat berkas terpisah guna mencegah regresi kode. Berkas `test_integritas_dataset.py` menguji jumlah baris lima korpus mentah, validitas enam puluh delapan hasil *scraping*, serta keseimbangan dua ratus enam puluh data pajak. Pengujian juga memastikan kecocokan gabungan biner 1.164 maupun 2.521 baris serta sepuluh *hash* SHA-256.
 
-Pengujian fungsional *black-box* terhadap layanan API dan aturan heuristik difokuskan pada enam kasus uji utama yang mewakili kondisi operasional di lapangan. Setiap kasus uji dirancang untuk memvalidasi respons model terhadap pesan penipuan eksplisit, manipulasi domain mirip situs resmi, pengumuman sah pemerintah, hingga penolakan masukan kosong. Rincian skenario pengujian fungsional purwarupa dipaparkan pada Tabel 3.3.
+Pengujian pipeline pembelajaran mesin diwakili dua kasus uji dalam `test_eksperimen_baseline.py` dan empat kasus uji dalam `test_eksperimen_komparasi.py`. Pengujian itu memvalidasi pelestarian `token_apk` serta `token_url` pada `clean_text` dan mengunci reproduksi metrik dasar `LinearSVC` maupun `RandomForestClassifier`. Skrip turut memastikan kelayakan *Brier Score* di bawah `0.05`, sifat penjumlahan probabilitas Platt, serta keandalan bundel `model_phishing_pajak.joblib` memprediksi penipuan pajak. Peluang prediksinya disyaratkan melebihi delapan puluh persen.
 
-Tabel 3.3 Matriks Skenario Pengujian Fungsional Purwarupa (`test_prototipe_api.py`)
+Khusus lapisan purwarupa TKT 6, berkas `tests/test_prototipe_api.py` menjalankan sembilan pengujian *black-box* memakai `TestClient` FastAPI. Skenario tersebut mencakup uji kesehatan layanan, deteksi `.apk`, identifikasi domain tiruan, validasi domain `pajak.go.id`, serta penolakan domain pengecoh. Pengujian turut memeriksa penjagaan pola angka jam maupun nominal, penolakan masukan kosong, pemrosesan *batch*, serta ketersediaan antarmuka web. Matriks pengujian lengkapnya tercantum pada Tabel 3.4.
 
-| Kode Uji | Skenario Masukan | Perilaku yang Diharapkan | Status Validasi |
+Tabel 3.4 Matriks Skenario Pengujian Otomatis Purwarupa dan Integritas Sistem
+
+| Kode Uji | Berkas / Subjek Pengujian | Skenario Masukan & Kondisi Uji | Keluaran yang Diharapkan |
 | :--- | :--- | :--- | :--- |
-| `UJI-01` | Permintaan `GET /health` | Status HTTP 200 dengan daftar model `LinearSVC+Platt` dan `RandomForest` aktif | Terverifikasi Lulus |
-| `UJI-02` | Pesan *phishing* memuat pola `.apk` | Label `1`, `has_apk=True`, tingkat risiko `TINGGI`, token pemicu XAI terisi | Terverifikasi Lulus |
-| `UJI-03` | Pesan *phishing* tautan domain palsu | Label `1`, domain eksternal tercatat pada `suspicious_domains` | Terverifikasi Lulus |
-| `UJI-04` | Pengumuman resmi `djponline.pajak.go.id` | Label `0`, domain tercatat pada `official_domains`, `suspicious_domains` kosong | Terverifikasi Lulus |
-| `UJI-05` | Uji domain tiruan `pajak.go.id.evil.com` | Fungsi `is_official_djp_domain` mengembalikan nilai `False` | Terverifikasi Lulus |
-| `UJI-06` | Masukan teks kosong atau spasi | API menolak permintaan dengan kode status HTTP 422 (*Unprocessable Entity*) | Terverifikasi Lulus |
+| `UJI-01` | `test_prototipe_api.py` (`GET /health`) | Permintaan cek kesiapan peladen API | Status HTTP 200 dengan `LinearSVC+Platt` aktif |
+| `UJI-02` | `test_prototipe_api.py` (`POST /predict`) | Pesan memuat berkas `Coretax_DJP_Update.apk` | Label `1`, `has_apk=True`, risiko `TINGGI`, alasan awam & sorotan `.apk` terisi |
+| `UJI-03` | `test_prototipe_api.py` (`POST /predict`) | Pesan tautan palsu `pajak-djp-verifikasi.xyz` | Label `1`, domain tercatat di `suspicious_domains` tanpa angka `17.00` |
+| `UJI-04` | `test_prototipe_api.py` (`POST /predict`) | Pengumuman resmi `djponline.pajak.go.id` | Label `0`, risiko `RENDAH`, domain di `official_domains` tanpa domain curiga |
+| `UJI-05` | `test_prototipe_api.py` (`is_official_djp_domain`) | Uji pengecohan `pajak.go.id.evil.com` vs domain sah | Mengembalikan `False` untuk domain tiruan, `True` untuk sah |
+| `UJI-06` | `test_prototipe_api.py` (`POST /predict`) | Pengiriman teks berisi spasi kosong | Ditolak dengan kode status HTTP 422 (*Unprocessable Entity*) |
+| `UJI-07` | `test_prototipe_api.py` (`POST /predict/batch`) | Pengiriman dua teks campuran *phishing* dan resmi | Status HTTP 200 dengan `total=2` dan dua objek hasil |
+| `UJI-08` | `test_prototipe_api.py` (penjagaan pola angka) | Pesan resmi memuat pukul `16.00` dan `Rp1.500.000` | `suspicious_domains` kosong dan status tetap `RENDAH` |
+| `UJI-09` | `test_prototipe_api.py` (`GET /` & `/api/*`) | Permintaan halaman web utama, prasetel, dan ringkasan TA | Status HTTP 200 menyajikan *Cek Pesan Pajak*, 3 prasetel, dan tabel evaluasi |
+| `UJI-10` | `test_integritas_dataset.py` & eksperimen | Validasi lima dataset mentah, SHA-256, dan metrik `.joblib` | Seluruh sebelas pengujian data dan model lulus tanpa galat |
 
-Sumber: Hasil Pengujian Otomatis `pytest` Modul `tests/test_prototipe_api.py` (2026).
+Sumber: Implementasi Pengujian Otomatis `pytest` pada Direktori `tests/` (2026).
 
-Selain pengujian fungsional antarmuka, kesiapan evaluasi model juga dilengkapi dengan enam skenario studi ablatif pada `eksperimen_komparasi.py` untuk mengukur kontribusi token khusus, *stemming* Sastrawi, dan fitur *bigram*. Pengujian ketahanan lintas korpus disiapkan pula menggunakan korpus perluasan dua ribu lima ratus dua puluh satu baris serta uji khusus dua ratus enam puluh teks perpajakan. Seluruh keluaran numerik, matriks konfusi, kurva *ROC* dan *Precision-Recall*, serta analisis kesalahan prediksi siap dikaji lebih lanjut pada Bab IV.
+Bersamaan dengan verifikasi fungsional, skrip `eksperimen_komparasi.py` menjalankan enam konfigurasi studi ablatif untuk mengisolasi pengaruh fitur, mencakup `1_Tanpa_Token_Entitas`, `2_Tanpa_Sastrawi`, `3_Unigram_Saja`, `4_Utama_MaxFeatures_1500`, `5_Konfigurasi_Utama_3000`, dan `6_Utama_MaxFeatures_5000`. Seluruh artefak keluaran tersimpan terstruktur pada direktori `05 Hasil Evaluasi/` berupa enam grafik beresolusi tinggi, tujuh berkas tabel CSV, dan laporan JSON lengkap. Analisis hasilnya dibahas pada Bab IV.
 
 ---
 

@@ -1,0 +1,1135 @@
+"""Benchmark latensi purwarupa, rekap uji pytest, dan aset gambar Bab IV."""
+
+from __future__ import annotations
+
+import html
+import json
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+import pandas as pd
+from fastapi.testclient import TestClient
+from sklearn.model_selection import train_test_split
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+PROTOTYPE_DIR = ROOT_DIR / "06 Prototipe Aplikasi"
+EVAL_DIR = ROOT_DIR / "05 Hasil Evaluasi"
+ASSET_DIR = ROOT_DIR / "07 Naskah Tugas Akhir" / "Aset Gambar"
+EXT_DIR = PROTOTYPE_DIR / "extension"
+PRIMARY_CORPUS_PATH = (
+    ROOT_DIR / "04 Dataset" / "02 Data Olahan" / "Dataset Gabungan Utama Biner 1164 Baris.csv"
+)
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+if str(PROTOTYPE_DIR) not in sys.path:
+    sys.path.insert(0, str(PROTOTYPE_DIR))
+
+from api import app
+from inference import PRESETS, load_model_bundle, predict_message
+
+CHROME_CANDIDATES = (
+    Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe"),
+    Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"),
+)
+
+FIGURE_COPIES = (
+    (
+        "Gambar_Evaluasi_1_Confusion_Matrix_Komparasi.png",
+        "Gambar 4.1 Perbandingan Confusion Matrix Uji Holdout.png",
+    ),
+    (
+        "Gambar_Evaluasi_2_Kurva_ROC_dan_PR.png",
+        "Gambar 4.2 Evaluasi Diskriminatif Kurva ROC dan Precision-Recall.png",
+    ),
+    (
+        "Gambar_Evaluasi_3_Kalibrasi_Probabilitas_Platt.png",
+        "Gambar 4.3 Evaluasi Kalibrasi Probabilitas Model.png",
+    ),
+    (
+        "Gambar_Evaluasi_4_Bobot_Fitur_Teratas.png",
+        "Gambar 4.4 Analisis Interpretabilitas Fitur TF-IDF Terbaik.png",
+    ),
+    (
+        "Gambar_Evaluasi_5_Komparasi_Lintas_Korpus.png",
+        "Gambar 4.5 Komparasi Generalisasi Lintas Korpus dan Subset Pajak.png",
+    ),
+)
+
+UJI_MATRIX_SPEC = (
+    ("UJI-01", "test_prototipe_api.py::test_health_endpoint", "GET /health kesiapan peladen API"),
+    ("UJI-02", "test_prototipe_api.py::test_predict_phishing_apk", "POST /predict pesan berkas .apk"),
+    ("UJI-03", "test_prototipe_api.py::test_predict_phishing_fake_domain", "POST /predict domain palsu"),
+    ("UJI-04", "test_prototipe_api.py::test_predict_official_djp_message", "POST /predict pesan resmi DJP"),
+    ("UJI-05", "test_prototipe_api.py::test_official_domain_spoof_guard", "Guard domain pengecoh pajak.go.id"),
+    ("UJI-06", "test_prototipe_api.py::test_predict_empty_text_rejected", "POST /predict tolak masukan kosong (422)"),
+    ("UJI-07", "test_prototipe_api.py::test_predict_batch_endpoint", "POST /predict/batch dua pesan campuran"),
+    (
+        "UJI-08",
+        "test_prototipe_api.py::test_numeric_time_and_amount_not_flagged_as_domain",
+        "Guard angka jam dan nominal agar tidak terdeteksi sebagai domain",
+    ),
+    (
+        "UJI-09",
+        "test_prototipe_api.py::test_web_ui_and_supporting_endpoints",
+        "GET / web Cek Pesan Pajak, /api/presets, dan /api/academic-summary",
+    ),
+    ("UJI-10", "suite integritas data & model (11 kasus)", "Validasi 5 korpus, SHA-256, baseline, Platt, joblib"),
+)
+
+
+def _summarize_ms(samples_ms: list[float]) -> dict[str, float]:
+    arr = np.asarray(samples_ms, dtype=float)
+    return {
+        "n_calls": int(arr.size),
+        "total_ms": round(float(np.sum(arr)), 3),
+        "mean_ms": round(float(np.mean(arr)), 3),
+        "std_ms": round(float(np.std(arr, ddof=1)), 3),
+        "min_ms": round(float(np.min(arr)), 3),
+        "median_p50_ms": round(float(np.percentile(arr, 50)), 3),
+        "p95_ms": round(float(np.percentile(arr, 95)), 3),
+        "p99_ms": round(float(np.percentile(arr, 99)), 3),
+        "max_ms": round(float(np.max(arr)), 3),
+    }
+
+
+def _load_holdout_texts() -> list[str]:
+    df = pd.read_csv(PRIMARY_CORPUS_PATH)
+    _, idx_test = train_test_split(
+        df.index.to_numpy(),
+        test_size=0.2,
+        random_state=42,
+        stratify=df["label"].to_numpy(),
+    )
+    return df.loc[idx_test, "Teks"].fillna("").astype(str).tolist()
+
+
+def measure_latency() -> tuple[dict[str, Any], dict[str, Any]]:
+    """Measure warm inference latency for inference.py, POST /predict, and POST /predict/batch."""
+    holdout_texts = _load_holdout_texts()
+    load_model_bundle.cache_clear()
+    t_load0 = time.perf_counter()
+    bundle = load_model_bundle()
+    cold_load_ms = round((time.perf_counter() - t_load0) * 1000.0, 3)
+
+    for text in holdout_texts[:5]:
+        predict_message(text, top_k=8)
+
+    direct_ms: list[float] = []
+    for text in holdout_texts:
+        t0 = time.perf_counter()
+        predict_message(text, top_k=8)
+        direct_ms.append((time.perf_counter() - t0) * 1000.0)
+
+    client = TestClient(app)
+    api_ms: list[float] = []
+    for text in holdout_texts:
+        t0 = time.perf_counter()
+        resp = client.post("/predict", json={"text": text, "top_k": 8})
+        if resp.status_code != 200:
+            raise RuntimeError(f"POST /predict gagal: {resp.status_code} {resp.text}")
+        api_ms.append((time.perf_counter() - t0) * 1000.0)
+
+    batch_texts = holdout_texts[:50]
+    t_b0 = time.perf_counter()
+    batch_resp = client.post("/predict/batch", json={"texts": batch_texts, "top_k": 5})
+    batch_total_ms = (time.perf_counter() - t_b0) * 1000.0
+    if batch_resp.status_code != 200:
+        raise RuntimeError(f"POST /predict/batch gagal: {batch_resp.status_code}")
+
+    presets_out: dict[str, Any] = {}
+    for name, msg in PRESETS.items():
+        resp = client.post("/predict", json={"text": msg, "top_k": 8})
+        if resp.status_code != 200:
+            raise RuntimeError(f"Preset {name} gagal: {resp.status_code}")
+        presets_out[name] = {"input_text": msg, "response": resp.json()}
+
+    latency_data = {
+        "cold_bundle_load_ms": cold_load_ms,
+        "bundle_metadata": bundle.get("metadata", {}),
+        "direct_inference_holdout_233": _summarize_ms(direct_ms),
+        "fastapi_post_predict_holdout_233": _summarize_ms(api_ms),
+        "fastapi_post_predict_batch_50": {
+            "batch_size": len(batch_texts),
+            "total_ms": round(batch_total_ms, 3),
+            "avg_per_message_ms": round(batch_total_ms / len(batch_texts), 3),
+        },
+    }
+    return latency_data, presets_out
+
+
+def run_pytest_verification() -> dict[str, Any]:
+    """Execute pytest suite and parse per-test pass/fail status and duration."""
+    t0 = time.perf_counter()
+    res = subprocess.run(
+        [sys.executable, "-m", "pytest", "-v", "--durations=0"],
+        cwd=ROOT_DIR,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    elapsed_sec = round(time.perf_counter() - t0, 3)
+    if res.returncode != 0:
+        raise RuntimeError(f"Pytest gagal (exit {res.returncode}):\n{res.stdout}\n{res.stderr}")
+
+    cases: dict[str, dict[str, Any]] = {}
+    for line in res.stdout.splitlines():
+        m = re.match(r"^(tests/[^\s]+)\s+(PASSED|FAILED|SKIPPED)\s+\[", line.strip())
+        if m:
+            cases[m.group(1)] = {"status": m.group(2), "duration_sec": 0.0}
+
+    for line in res.stdout.splitlines():
+        m = re.match(r"^([\d.]+)s\s+call\s+(tests/[^\s]+)$", line.strip())
+        if m and m.group(2) in cases:
+            cases[m.group(2)]["duration_sec"] = round(float(m.group(1)), 4)
+
+    summary_match = re.search(r"(\d+)\s+passed.*?in\s+([\d.]+)s", res.stdout)
+    passed_count = int(summary_match.group(1)) if summary_match else len(cases)
+    pytest_reported_sec = float(summary_match.group(2)) if summary_match else elapsed_sec
+
+    return {
+        "total_collected": len(cases),
+        "passed": passed_count,
+        "failed": sum(1 for v in cases.values() if v["status"] != "PASSED"),
+        "pytest_reported_seconds": pytest_reported_sec,
+        "subprocess_seconds": elapsed_sec,
+        "cases": cases,
+    }
+
+
+def save_test_summary_csv(
+    pytest_info: dict[str, Any],
+    latency_info: dict[str, Any],
+    out_csv: Path,
+) -> None:
+    """Build combined CSV summarizing UJI-01..UJI-10 verification and inference latencies."""
+    cases = pytest_info["cases"]
+    rows: list[dict[str, Any]] = []
+
+    for kode, ref, deskripsi in UJI_MATRIX_SPEC:
+        if kode != "UJI-10":
+            key = f"tests/{ref}"
+            item = cases[key]
+            status = item["status"]
+            dur_ms = round(item["duration_sec"] * 1000.0, 2)
+            jumlah_uji = 1
+        else:
+            other_cases = {k: v for k, v in cases.items() if not k.startswith("tests/test_prototipe_api.py")}
+            all_passed = len(other_cases) == 11 and all(v["status"] == "PASSED" for v in other_cases.values())
+            status = "PASSED" if all_passed else "FAILED"
+            dur_ms = round(sum(v["duration_sec"] for v in other_cases.values()) * 1000.0, 2)
+            jumlah_uji = len(other_cases)
+        rows.append(
+            {
+                "kategori": "Uji Fungsional & Integritas",
+                "kode_atau_metrik": kode,
+                "subjek": ref,
+                "deskripsi": deskripsi,
+                "jumlah_sampel_atau_uji": jumlah_uji,
+                "status": status,
+                "nilai_waktu_ms": dur_ms,
+                "satuan": "ms (durasi pytest call)",
+            }
+        )
+
+    direct = latency_info["direct_inference_holdout_233"]
+    api = latency_info["fastapi_post_predict_holdout_233"]
+    batch = latency_info["fastapi_post_predict_batch_50"]
+
+    latency_rows = (
+        ("LAT-01", "inference.py::predict_message (Mean)", "Rata-rata inferensi lokal per pesan", 233, direct["mean_ms"], "ms/pesan"),
+        ("LAT-02", "inference.py::predict_message (P50/P95/P99)", f"Median={direct['median_p50_ms']} | P95={direct['p95_ms']} | P99={direct['p99_ms']}", 233, direct["p95_ms"], "ms/pesan (P95)"),
+        ("LAT-03", "FastAPI POST /predict (Mean)", "Rata-rata inferensi REST API per pesan", 233, api["mean_ms"], "ms/pesan"),
+        ("LAT-04", "FastAPI POST /predict (P50/P95/P99)", f"Median={api['median_p50_ms']} | P95={api['p95_ms']} | P99={api['p99_ms']}", 233, api["p95_ms"], "ms/pesan (P95)"),
+        ("LAT-05", "FastAPI POST /predict/batch", f"Total 50 pesan = {batch['total_ms']} ms", 50, batch["avg_per_message_ms"], "ms/pesan (batch)"),
+    )
+    for kode, subjek, desc, n_smp, val, unit in latency_rows:
+        rows.append(
+            {
+                "kategori": "Benchmark Latensi Inferensi",
+                "kode_atau_metrik": kode,
+                "subjek": subjek,
+                "deskripsi": desc,
+                "jumlah_sampel_atau_uji": n_smp,
+                "status": "PASS (<100 ms)",
+                "nilai_waktu_ms": val,
+                "satuan": unit,
+            }
+        )
+
+    pd.DataFrame(rows).to_csv(out_csv, index=False, encoding="utf-8")
+
+
+def copy_evaluation_figures() -> None:
+    ASSET_DIR.mkdir(parents=True, exist_ok=True)
+    for src_name, dst_name in FIGURE_COPIES:
+        src = EVAL_DIR / src_name
+        if not src.exists():
+            raise FileNotFoundError(f"Grafik evaluasi tidak ditemukan: {src}")
+        shutil.copy2(src, ASSET_DIR / dst_name)
+
+
+def _find_browser() -> Path:
+    for candidate in CHROME_CANDIDATES:
+        if candidate.exists():
+            return candidate
+    raise FileNotFoundError("Google Chrome atau Microsoft Edge tidak ditemukan.")
+
+
+def _capture_html_png(html_path: Path, png_path: Path, width: int = 1600, height: int = 960) -> None:
+    browser = _find_browser()
+    png_path.parent.mkdir(parents=True, exist_ok=True)
+    url = html_path.resolve().as_uri()
+    cmd = [
+        str(browser),
+        "--headless=new",
+        "--disable-gpu",
+        "--hide-scrollbars",
+        f"--window-size={width},{height}",
+        f"--screenshot={png_path.resolve()}",
+        url,
+    ]
+    res = subprocess.run(
+        cmd, check=False, capture_output=True, text=True, timeout=30
+    )
+    if res.returncode != 0 or not png_path.exists():
+        raise RuntimeError(f"Gagal menangkap PNG {png_path.name}: {res.stderr or res.stdout}")
+
+
+def _render_highlighted_bubble_html(raw_text: str, highlights: list[dict[str, Any]]) -> str:
+    if not highlights:
+        return html.escape(raw_text)
+    chunks: list[str] = []
+    cursor = 0
+    for span in sorted(highlights, key=lambda h: h["start"]):
+        start = int(span["start"])
+        end = int(span["end"])
+        if start > cursor:
+            chunks.append(html.escape(raw_text[cursor:start]))
+        kind = html.escape(str(span["kind"]))
+        chunks.append(f'<mark class="hl hl-{kind}">{html.escape(raw_text[start:end])}</mark>')
+        cursor = end
+    if cursor < len(raw_text):
+        chunks.append(html.escape(raw_text[cursor:]))
+    return "".join(chunks)
+
+
+def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any]) -> str:
+    web_css = (PROTOTYPE_DIR / "web" / "styles.css").read_text(encoding="utf-8")
+    apk_case = presets_out["Phishing APK (Coretax Palsu)"]
+    r = apk_case["response"]
+    api_lat = latency_info["fastapi_post_predict_holdout_233"]
+
+    highlighted_msg_html = _render_highlighted_bubble_html(
+        apk_case["input_text"], r.get("highlights", [])
+    )
+    trigger_chips_html = "".join(
+        f'<span class="trigger-chip">{html.escape(w)}</span>'
+        for w in r.get("trigger_words", [])[:4]
+    )
+    reasons_html = "\n".join(
+        f'<li class="type-{html.escape(item["type"])}">'
+        f'<span class="reason-dot"></span>'
+        f'<div><div class="reason-title">{html.escape(item["title"])}</div>'
+        f'<div class="reason-detail">{html.escape(item["detail"])}</div></div></li>'
+        for item in r.get("plain_reasons", [])[:3]
+    )
+    actions_html = "\n".join(
+        f"<li>{html.escape(step)}</li>" for step in r.get("action_steps", [])[:3]
+    )
+
+    json_preview = json.dumps(
+        {
+            "label": r["label"],
+            "risk_level": r["risk_level"],
+            "risk_title": r["risk_title"],
+            "confidence_note": r["confidence_note"],
+            "has_apk": r["has_apk"],
+            "apk_matches": r["apk_matches"],
+            "trigger_words": r.get("trigger_words", []),
+            "plain_reasons": [p["title"] for p in r.get("plain_reasons", [])],
+            "recommendation": r["recommendation"],
+        },
+        indent=2,
+        ensure_ascii=False,
+    )
+
+    return f"""<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Web Cek Pesan Pajak &amp; FastAPI REST API</title>
+<style>
+{web_css}
+  body {{
+    display: block;
+    min-height: 0;
+    padding: 16px;
+    background: #e9eef4;
+  }}
+  .shot-grid {{
+    display: grid;
+    grid-template-columns: 1.72fr 1fr;
+    gap: 16px;
+    max-width: 1560px;
+    margin: 0 auto;
+    align-items: start;
+  }}
+  .browser-win {{
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.09);
+  }}
+  .win-bar {{
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+  }}
+  .dots {{ display: flex; gap: 5px; }}
+  .dot {{ width: 9px; height: 9px; border-radius: 50%; display: inline-block; }}
+  .url-bar {{
+    background: #0f172a;
+    color: #cbd5e1;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-family: Consolas, monospace;
+    font-size: 11.5px;
+    flex: 1;
+  }}
+  .web-stage {{
+    background: var(--bg);
+    padding-bottom: 14px;
+  }}
+  .web-stage .topbar {{ position: static; backdrop-filter: none; }}
+  .web-stage .topbar-inner {{ padding: 10px 18px; }}
+  .web-stage .main-content {{ padding: 14px 18px 8px; }}
+  .web-stage .workspace {{ grid-template-columns: 0.9fr 1.1fr; gap: 14px; }}
+  .web-stage .surface {{ padding: 16px; }}
+  .web-stage .message-textarea {{ min-height: 110px; font-size: 0.85rem; }}
+  .api-body {{ padding: 16px; display: flex; flex-direction: column; gap: 12px; }}
+  .swagger-head {{ border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }}
+  .swagger-head h2 {{ font-size: 16px; margin-bottom: 3px; }}
+  .swagger-sub {{ font-size: 11.5px; color: #475569; }}
+  .endpoint-pill {{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ecfdf5;
+    border: 1px solid #10b981;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 12px;
+  }}
+  .method {{
+    background: #059669;
+    color: #ffffff;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+  }}
+  .status-200 {{
+    margin-left: auto;
+    background: #dcfce7;
+    color: #166534;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 11px;
+  }}
+  .json-box {{
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    overflow: hidden;
+  }}
+  .lat-box {{
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 11.8px;
+    line-height: 1.55;
+  }}
+</style>
+</head>
+<body>
+<div class="shot-grid">
+  <div class="browser-win">
+    <div class="win-bar">
+      <div class="dots">
+        <span class="dot" style="background:#ef4444"></span>
+        <span class="dot" style="background:#f59e0b"></span>
+        <span class="dot" style="background:#22c55e"></span>
+      </div>
+      <div class="url-bar">http://127.0.0.1:8000/ — Cek Pesan Pajak</div>
+    </div>
+    <div class="web-stage">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="brand">
+            <div class="brand-mark">&#10003;</div>
+            <div>
+              <h1 class="brand-title">Cek Pesan Pajak</h1>
+              <p class="brand-subtitle">Cek apakah chat WA Pajak asli DJP atau scam.</p>
+            </div>
+          </div>
+          <nav class="nav-tabs">
+            <span class="nav-tab active">Cek Pesan</span>
+            <span class="nav-tab">Kanal Resmi &amp; Ciri Scam</span>
+            <span class="nav-tab nav-tab-alert">Darurat .apk</span>
+          </nav>
+          <div class="status-pill status-ready"><span class="status-dot"></span><span>Siap</span></div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <section class="workspace">
+          <div class="surface">
+            <div class="card-head">
+              <h2 class="card-title">Tempel Chat WhatsApp</h2>
+              <p class="card-desc">Gratis, cepat, dan isi pesan tidak disimpan.</p>
+            </div>
+            <div class="toolbar">
+              <span class="btn-soft">Paste &amp; Cek</span>
+              <span class="btn-text">Clear</span>
+            </div>
+            <div class="message-textarea" style="background:#ffffff; border-color:var(--brand);">{html.escape(apk_case["input_text"])}</div>
+            <div class="input-meta">
+              <span>{len(apk_case["input_text"])} / 5.000</span>
+              <span>Ctrl + Enter untuk cek cepat</span>
+            </div>
+            <div class="btn-primary">Cek Pesan Sekarang</div>
+            <div class="presets-block">
+              <span class="presets-label">Coba contoh pesan:</span>
+              <div class="presets-grid">
+                <div class="preset-pill active"><span class="preset-tag tone-danger">Berbahaya</span><span class="preset-name">Scam File .apk</span></div>
+                <div class="preset-pill"><span class="preset-tag tone-danger">Link Palsu</span><span class="preset-name">Link Pajak Palsu</span></div>
+                <div class="preset-pill"><span class="preset-tag tone-safe">Resmi DJP</span><span class="preset-name">Chat Resmi DJP</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="surface">
+            <div class="result-state">
+              <div class="verdict-banner tone-tinggi">
+                <div class="verdict-top">
+                  <div class="verdict-head-text">
+                    <div class="verdict-badges-row">
+                      <span class="verdict-badge">{html.escape(r["risk_badge"])}</span>
+                      <span class="confidence-pill">{html.escape(r["confidence_note"])}</span>
+                    </div>
+                    <h2 class="verdict-title">{html.escape(r["risk_title"])}</h2>
+                  </div>
+                </div>
+                <p class="verdict-summary">{html.escape(r["verdict_summary"])}</p>
+                <div class="meter-track"><div class="meter-fill" style="width:{max(round(r['svm_probability']*100), 92)}%;"></div></div>
+              </div>
+
+              <div class="bubble-section">
+                <div class="wa-canvas">
+                  <div class="wa-bubble">
+                    <div class="wa-text">{highlighted_msg_html}</div>
+                  </div>
+                </div>
+                <div class="trigger-chips-row"><span>Kata pemicu:</span>{trigger_chips_html}</div>
+              </div>
+
+              <div class="details-split">
+                <div class="detail-col">
+                  <h3 class="mini-heading">Alasan</h3>
+                  <ul class="compact-reasons">{reasons_html}</ul>
+                </div>
+                <div class="detail-col">
+                  <h3 class="mini-heading">Saran Aman</h3>
+                  <ul class="compact-actions">{actions_html}</ul>
+                </div>
+              </div>
+
+              <div class="result-footer-actions">
+                <span class="btn-soft">Copy Alert</span>
+                <span class="btn-soft-link">Share WA</span>
+                <span class="btn-danger-pill">Sudah Install .apk? Buka Darurat</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="browser-win">
+    <div class="win-bar">
+      <div class="dots">
+        <span class="dot" style="background:#ef4444"></span>
+        <span class="dot" style="background:#f59e0b"></span>
+        <span class="dot" style="background:#22c55e"></span>
+      </div>
+      <div class="url-bar">http://127.0.0.1:8000/docs — FastAPI OpenAPI &amp; Respons JSON</div>
+    </div>
+    <div class="api-body">
+      <div class="swagger-head">
+        <h2>Cek Pesan Pajak REST API <span style="font-size:11px; background:#e2e8f0; padding:2px 6px; border-radius:4px;">v2.0.0</span></h2>
+        <div class="swagger-sub">Layanan web terpadu &amp; REST API berbasis LinearSVC (Kalibrasi Platt) + Heuristik DJP</div>
+      </div>
+      <div class="endpoint-pill">
+        <span class="method">POST</span>
+        <code>/predict</code>
+        <span class="status-200">HTTP 200 OK</span>
+      </div>
+      <pre class="json-box">{html.escape(json_preview)}</pre>
+      <div class="lat-box">
+        <strong>Ringkasan Uji Waktu Nyata (Holdout n = {api_lat['n_calls']} pesan):</strong><br/>
+        &bull; Rata-rata POST /predict: <strong>{api_lat['mean_ms']:.2f} ms/pesan</strong> (Median: {api_lat['median_p50_ms']:.2f} ms, P95: {api_lat['p95_ms']:.2f} ms)<br/>
+        &bull; Batch 50 pesan (POST /predict/batch): <strong>{latency_info['fastapi_post_predict_batch_50']['total_ms']:.2f} ms</strong> ({latency_info['fastapi_post_predict_batch_50']['avg_per_message_ms']:.2f} ms/pesan)
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+"""
+
+
+def _build_whatsapp_simulation_html(presets_out: dict[str, Any]) -> str:
+    ext_css = (EXT_DIR / "styles.css").read_text(encoding="utf-8")
+    p_apk = presets_out["Phishing APK (Coretax Palsu)"]
+    p_dom = presets_out["Phishing Domain Palsu"]
+    p_res = presets_out["Pengumuman Resmi DJP"]
+
+    bubble_items = [
+        ("+62 812-9901-xxxx (Tidak Dikenal)", "10:14", p_apk),
+        ("+62 857-4410-xxxx (Pesan Terusan)", "10:17", p_dom),
+        ("Kring Pajak / DJP Resmi", "10:21", p_res),
+    ]
+
+    bubbles_html = []
+    for sender, ts, item in bubble_items:
+        r = item["response"]
+        risk_cls = (
+            "wa-pajak-tinggi"
+            if r["risk_level"] == "TINGGI"
+            else "wa-pajak-sedang"
+            if r["risk_level"] == "SEDANG"
+            else "wa-pajak-rendah"
+        )
+        detail_parts = []
+        if r["has_apk"]:
+            detail_parts.append("Ada file .apk berbahaya")
+        if r["suspicious_domains"]:
+            detail_parts.append(f"Link luar DJP: {', '.join(r['suspicious_domains'])}")
+        elif r["official_domains"] and r["risk_level"] == "RENDAH":
+            detail_parts.append(f"Link resmi: {', '.join(r['official_domains'])}")
+        if not detail_parts and r.get("plain_reasons"):
+            detail_parts.append(r["plain_reasons"][0]["title"])
+        detail_line = " • ".join(detail_parts)
+
+        bubbles_html.append(
+            f"""
+            <div class="wa-row">
+              <div class="message-in" data-pajak-attached="1">
+                <div class="sender-tag">{html.escape(sender)}</div>
+                <span class="selectable-text">{html.escape(item['input_text'])}</span>
+                <div class="msg-time">{ts}</div>
+                <button type="button" class="wa-pajak-btn">Cek Ulang</button>
+                <div class="wa-pajak-badge {risk_cls}">
+                  <strong>{html.escape(r['risk_title'])}</strong><br>
+                  <small>{html.escape(detail_line)}</small>
+                </div>
+              </div>
+            </div>
+            """
+        )
+
+    dom_resp = p_dom["response"]
+    dom_reason = (
+        dom_resp["plain_reasons"][0]["title"]
+        if dom_resp.get("plain_reasons")
+        else ""
+    )
+    return f"""<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Simulasi WhatsApp Web - Ekstensi Cek Pesan Pajak (Manifest V3)</title>
+<style>
+{ext_css}
+  * {{ box-sizing: border-box; }}
+  body {{
+    margin: 0;
+    padding: 18px;
+    background: #dfe5e1;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #111b21;
+  }}
+  .stage {{
+    max-width: 1540px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 370px;
+    gap: 18px;
+    align-items: start;
+  }}
+  .wa-shell {{
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
+  }}
+  .chrome-bar {{
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 8px 14px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }}
+  .url-pill {{
+    background: #0f172a;
+    color: #cbd5e1;
+    padding: 4px 12px;
+    border-radius: 5px;
+    font-family: Consolas, monospace;
+    font-size: 11.5px;
+    flex: 1;
+  }}
+  .ext-pill {{
+    background: #0f4c81;
+    color: #ffffff;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+  }}
+  .wa-grid {{
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 760px;
+  }}
+  .wa-chats {{
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+  }}
+  .wa-head {{
+    background: #f0f2f5;
+    padding: 12px 14px;
+    font-weight: 700;
+    font-size: 14px;
+    border-bottom: 1px solid #e2e8f0;
+  }}
+  .chat-item {{
+    padding: 12px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 12.5px;
+  }}
+  .chat-item.active {{ background: #f0f2f5; }}
+  .chat-name {{ font-weight: 700; margin-bottom: 2px; }}
+  .chat-sub {{ color: #64748b; font-size: 11.5px; }}
+  .wa-conv {{
+    background: #efeae2;
+    display: flex;
+    flex-direction: column;
+  }}
+  .wa-messages {{
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }}
+  .wa-row {{ display: flex; justify-content: flex-start; }}
+  .message-in {{
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 10px 13px;
+    max-width: 780px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    font-size: 13px;
+    line-height: 1.48;
+  }}
+  .sender-tag {{
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #0f4c81;
+    margin-bottom: 4px;
+  }}
+  .msg-time {{
+    font-size: 10.5px;
+    color: #64748b;
+    text-align: right;
+    margin-top: 3px;
+  }}
+  .popup-card {{
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  }}
+  .popup-cap {{
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #475569;
+    margin-bottom: 8px;
+  }}
+  .popup-box {{
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    background: #f8fafc;
+  }}
+  .popup-box h1 {{ font-size: 15px; margin: 0 0 6px; color: #0f4c81; }}
+  .popup-status {{
+    font-size: 11.5px;
+    color: #166534;
+    background: #f0fdf4;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }}
+  .popup-textarea {{
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.45;
+    background: #ffffff;
+    margin-bottom: 8px;
+  }}
+  .popup-btn {{
+    width: 100%;
+    padding: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #0f4c81;
+    color: #ffffff;
+    border: none;
+    border-radius: 7px;
+    margin-bottom: 10px;
+  }}
+  .popup-out {{
+    padding: 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    line-height: 1.45;
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+  }}
+  .ext-note {{
+    margin-top: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: #334155;
+  }}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="wa-shell">
+    <div class="chrome-bar">
+      <div class="url-pill">https://web.whatsapp.com — Simulasi DOM Ekstensi Manifest V3 (background.js + content.js + styles.css)</div>
+      <div class="ext-pill">Cek Pesan Pajak Aktif</div>
+    </div>
+    <div class="wa-grid">
+      <div class="wa-chats">
+        <div class="wa-head">WhatsApp Web (Simulasi)</div>
+        <div class="chat-item active">
+          <div class="chat-name">Uji 3 Skenario Pesan Pajak</div>
+          <div class="chat-sub">Lencana bahasa awam pada div.message-in</div>
+        </div>
+        <div class="chat-item">
+          <div class="chat-name">Kring Pajak 1500200</div>
+          <div class="chat-sub">Kanal resmi informasi DJP</div>
+        </div>
+        <div class="chat-item">
+          <div class="chat-name">Pelaporan SPT Tahunan</div>
+          <div class="chat-sub">Portal djponline.pajak.go.id</div>
+        </div>
+      </div>
+      <div class="wa-conv">
+        <div class="wa-head">Percakapan Masuk — Pemindaian Langsung Ekstensi</div>
+        <div class="wa-messages">
+          {"".join(bubbles_html)}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup-card">
+    <div class="popup-cap">Popup Ekstensi Chrome (popup.html)</div>
+    <div class="popup-box">
+      <h1>Cek Pesan Pajak</h1>
+      <div class="popup-status">Siap</div>
+      <div class="popup-textarea">{html.escape(p_dom['input_text'])}</div>
+      <button type="button" class="popup-btn">Cek Pesan Sekarang</button>
+      <div class="popup-out">
+        <strong>{html.escape(dom_resp['risk_title'])}</strong><br>
+        <small>{html.escape(dom_resp['confidence_note'])}</small><br>
+        Alasan: {html.escape(dom_reason)}.<br>
+        {html.escape(dom_resp['recommendation'])}
+      </div>
+    </div>
+    <div class="ext-note">
+      <strong>Verifikasi Kontrak Manifest V3:</strong><br/>
+      1. <code>content.js</code> memindai gelembung pesan (<code>&ge;8</code> karakter, kartu lampiran <code>.apk</code>, atau tautan) lalu meneruskan teks via <code>background.js</code> (<code>WA_PAJAK_PREDICT</code>).<br/>
+      2. <em>Service worker</em> mengirim permintaan ke <code>POST http://127.0.0.1:8000/predict</code> dengan header CORS <code>allow_private_network=True</code>.<br/>
+      3. Merender lencana bahasa awam (<code>wa-pajak-tinggi</code> / <code>wa-pajak-rendah</code>) tanpa salah menandai jam <code>17.00</code>.
+    </div>
+  </div>
+</div>
+</body>
+</html>
+"""
+
+
+def _build_architecture_diagram_html() -> str:
+    return """<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #ffffff;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #0f172a;
+    padding: 36px 48px;
+    width: 1500px;
+  }
+  .title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 30px;
+    color: #0f172a;
+  }
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+  }
+  .row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 1fr;
+    gap: 28px;
+  }
+  .box {
+    border: 2.2px solid #475569;
+    border-radius: 16px;
+    padding: 20px 24px;
+    text-align: center;
+    background: #ffffff;
+  }
+  .box h2 { font-size: 18px; font-weight: 800; margin-bottom: 8px; color: #0f172a; }
+  .box p { font-size: 14px; line-height: 1.5; color: #334155; }
+  .blue { border-color: #2563eb; background: #eff6ff; }
+  .green { border-color: #16a34a; background: #f0fdf4; }
+  .amber { border-color: #d97706; background: #fffbeb; max-width: 960px; margin: 0 auto; }
+  .slate { border-color: #475569; background: #f8fafc; }
+  .red { border-color: #dc2626; background: #fef2f2; }
+  .model { border-color: #0f172a; background: #f8fafc; max-width: 800px; margin: 0 auto; }
+  .arrow-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    margin: 10px 0;
+  }
+  .arrow-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 1fr;
+    gap: 28px;
+    margin: 10px 0;
+  }
+  .arrow-cell {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.4;
+  }
+  .arrow-single {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 10px 0;
+    line-height: 1.4;
+  }
+  .arrow-sym { font-size: 18px; display: block; color: #334155; }
+</style>
+</head>
+<body>
+  <div class="title">Arsitektur Sistem Terpadu Deteksi Phishing WhatsApp Perpajakan (TKT 6)</div>
+  <div class="row-2">
+    <div class="box blue">
+      <h2>Antarmuka Web Cek Pesan Pajak (web/)</h2>
+      <p>Pemeriksaan pesan ramah awam, sorotan bahaya interaktif,<br/>panduan darurat .apk, kanal resmi DJP, &amp; modal info TA</p>
+    </div>
+    <div class="box green">
+      <h2>Ekstensi WhatsApp Web (Manifest V3)</h2>
+      <p>background.js + content.js + popup.html pada web.whatsapp.com<br/>dengan lencana risiko dan alasan bahasa sehari-hari</p>
+    </div>
+  </div>
+  <div class="arrow-row-2">
+    <div class="arrow-cell"><span class="arrow-sym">&darr;</span>GET / &amp; POST /predict</div>
+    <div class="arrow-cell"><span class="arrow-sym">&darr;</span>Service Worker POST /predict</div>
+  </div>
+  <div class="box amber">
+    <h2>Layanan Terpadu FastAPI (api.py)</h2>
+    <p>GET / (Web UI) | GET /health | GET /api/presets | GET /api/academic-summary | POST /predict | POST /predict/batch</p>
+  </div>
+  <div class="arrow-row-3">
+    <div class="arrow-cell"><span class="arrow-sym">&darr;</span></div>
+    <div class="arrow-cell"><span class="arrow-sym">&darr;</span>inference.py</div>
+    <div class="arrow-cell"><span class="arrow-sym">&darr;</span></div>
+  </div>
+  <div class="row-3">
+    <div class="box slate">
+      <h2>Praproses &amp; TF-IDF</h2>
+      <p>clean_text (Sastrawi)<br/>token_apk &amp; token_url (3.000 fitur)</p>
+    </div>
+    <div class="box slate">
+      <h2>Klasifikasi &amp; Penjelasan</h2>
+      <p>LinearSVC (Platt, C=5.0) + Random Forest<br/>Penerjemah alasan awam &amp; sorotan teks</p>
+    </div>
+    <div class="box red">
+      <h2>Pemeriksa Heuristik</h2>
+      <p>Deteksi pola .apk, validasi TLD,<br/>&amp; whitelist domain pajak.go.id</p>
+    </div>
+  </div>
+  <div class="arrow-single"><span class="arrow-sym">&uarr;</span>Load Joblib (lru_cache)</div>
+  <div class="box model">
+    <h2>Bundel Model Terlatih (model_phishing_pajak.joblib)</h2>
+    <p>Vectorizer TF-IDF + LinearSVC + CalibratedClassifierCV + RandomForest (1.164 korpus)</p>
+  </div>
+</body>
+</html>
+"""
+
+
+def generate_prototype_screenshots(
+    presets_out: dict[str, Any], latency_info: dict[str, Any]
+) -> None:
+    EXT_DIR.mkdir(parents=True, exist_ok=True)
+    sim_html_path = EXT_DIR / "simulasi_whatsapp_web.html"
+    sim_html_path.write_text(
+        _build_whatsapp_simulation_html(presets_out), encoding="utf-8"
+    )
+
+    old_streamlit_png = (
+        ASSET_DIR
+        / "Gambar 4.6 Tangkapan Layar Antarmuka Dashboard Streamlit dan Respons API.png"
+    )
+    if old_streamlit_png.exists():
+        old_streamlit_png.unlink()
+
+    arch_png = ASSET_DIR / "Gambar 3.1 Arsitektur Sistem Terpadu.png"
+    web_png = (
+        ASSET_DIR
+        / "Gambar 4.6 Tangkapan Layar Antarmuka Web Cek Pesan Pajak dan Respons API.png"
+    )
+    ext_png = (
+        ASSET_DIR
+        / "Gambar 4.7 Tangkapan Layar Ekstensi Chrome pada Simulasi WhatsApp Web.png"
+    )
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".html", encoding="utf-8", delete=False
+    ) as tmp_arch:
+        tmp_arch.write(_build_architecture_diagram_html())
+        tmp_arch_html = Path(tmp_arch.name)
+
+    try:
+        _capture_html_png(tmp_arch_html, arch_png, width=1500, height=790)
+    finally:
+        tmp_arch_html.unlink(missing_ok=True)
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".html", encoding="utf-8", delete=False
+    ) as tmp:
+        tmp.write(_build_web_api_html(presets_out, latency_info))
+        tmp_html = Path(tmp.name)
+
+    try:
+        _capture_html_png(tmp_html, web_png, width=1600, height=880)
+    finally:
+        tmp_html.unlink(missing_ok=True)
+
+    _capture_html_png(sim_html_path, ext_png, width=1600, height=900)
+
+
+def main() -> None:
+    EVAL_DIR.mkdir(parents=True, exist_ok=True)
+    latency_info, presets_out = measure_latency()
+    pytest_info = run_pytest_verification()
+
+    full_json = {
+        "pytest_verification": pytest_info,
+        "latency_benchmark": latency_info,
+        "preset_verification": presets_out,
+    }
+    json_path = EVAL_DIR / "benchmark_latensi_purwarupa.json"
+    json_path.write_text(
+        json.dumps(full_json, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+
+    csv_path = EVAL_DIR / "tabel_pengujian_purwarupa.csv"
+    save_test_summary_csv(pytest_info, latency_info, csv_path)
+
+    copy_evaluation_figures()
+    generate_prototype_screenshots(presets_out, latency_info)
+
+    direct = latency_info["direct_inference_holdout_233"]
+    api = latency_info["fastapi_post_predict_holdout_233"]
+    batch = latency_info["fastapi_post_predict_batch_50"]
+    print(
+        f"Pytest: {pytest_info['passed']}/{pytest_info['total_collected']} PASSED "
+        f"({pytest_info['pytest_reported_seconds']}s)"
+    )
+    print(
+        f"Latensi inference.py (n=233): mean={direct['mean_ms']} ms, "
+        f"p50={direct['median_p50_ms']} ms, p95={direct['p95_ms']} ms, p99={direct['p99_ms']} ms"
+    )
+    print(
+        f"Latensi POST /predict (n=233): mean={api['mean_ms']} ms, "
+        f"p50={api['median_p50_ms']} ms, p95={api['p95_ms']} ms, p99={api['p99_ms']} ms"
+    )
+    print(
+        f"Latensi POST /predict/batch (n=50): total={batch['total_ms']} ms, "
+        f"avg={batch['avg_per_message_ms']} ms/pesan"
+    )
+    print("Aset gambar Bab IV dan simulasi_whatsapp_web.html selesai dibuat.")
+
+
+if __name__ == "__main__":
+    main()

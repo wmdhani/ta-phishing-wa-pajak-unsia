@@ -47,9 +47,9 @@
 
 ## 4. Algoritma *Machine Learning* yang Dikomparasikan
 - ***Supervised Learning* (Pembelajaran Terawasi)**: Pelatihan model menggunakan data yang sudah diberi label (`1` = *phishing/fraud*, `0` = aman/resmi).
-- **SVM (*Support Vector Machine* — `LinearSVC`)**: Algoritma yang mencari garis/bidang pemisah (*hyperplane*) dengan jarak paling lebar (*maximum margin*) antar kelas; sangat unggul pada data teks TF-IDF berdimensi tinggi. Hasil *baseline*: akurasi **98,28%** (`Recall` `0,98`; `F1-Score` `0,98`).
+- **SVM (*Support Vector Machine* — `LinearSVC`)**: Algoritma yang mencari garis/bidang pemisah (*hyperplane*) dengan jarak paling lebar (*maximum margin*) antar kelas; sangat unggul pada data teks TF-IDF berdimensi tinggi. Hasil *baseline*: akurasi **98,28%** (`Recall` `0,98`; `F1-Score` `0,98`); setelah penalaan `C=5.0` dan kalibrasi *Platt scaling*: akurasi uji **97,42%** (*Brier Score* `0,019`) dan **97,73%** pada subset pajak.
 - ***Platt Scaling* (Kalibrasi Probabilitas)**: Teknik mengubah nilai jarak (*decision function*) dari `LinearSVC` menjadi skor probabilitas (0%–100%) agar mudah dibaca pengguna.
-- ***Random Forest Classifier***: Algoritma *ensemble* yang menggabungkan banyak pohon keputusan (*decision trees*, `n_estimators=200` pada *baseline*) melalui pemungutan suara mayoritas (*bagging*). Hasil *baseline*: akurasi **95,28%** (`Recall` `0,95`; `F1-Score` `0,94`).
+- ***Random Forest Classifier***: Algoritma *ensemble* yang menggabungkan banyak pohon keputusan (*decision trees*, `n_estimators=200`) melalui pemungutan suara mayoritas (*bagging*). Hasil *baseline*: akurasi **95,28%** (`Recall` `0,95`; `F1-Score` `0,94`); setelah penalaan: akurasi uji **96,57%**, tetapi turun ke **88,64%** pada subset khusus pajak akibat *false positive*.
 
 ---
 
@@ -70,8 +70,8 @@
 
 ## 6. Arsitektur Purwarupa & Kesiapan Teknologi
 - **TKT Level 6 (*Tingkat Kesiapan Teknologi*)**: Purwarupa sistem telah diintegrasikan dan diuji fungsionalnya pada lingkungan operasional yang relevan (bukan sekadar teori/skrip lokal).
-- **REST API (`FastAPI`)**: Layanan *backend* cepat berbasis Python yang menerima teks pesan WhatsApp via HTTP dan mengembalikan hasil prediksi, probabilitas, serta penjelasan fitur.
-- **Ekstensi Peramban *WhatsApp Web* (`Manifest V3`)**: Pengaya Chrome/Edge yang menyuntikkan tombol/lencana pemeriksaan langsung ke gelembung obrolan dan menu klik kanan di *WhatsApp Web* agar pengguna tidak perlu *copy-paste*.
-- ***Dashboard* `Streamlit`**: Antarmuka web interaktif untuk pengujian manual, demonstrasi model, dan inspeksi metrik evaluasi.
+- **REST API (`FastAPI` & `Jalankan Server.bat`)**: Layanan *backend* cepat berbasis Python (`allow_private_network=True`) yang menyajikan aplikasi web utama sekaligus menerima teks pesan WhatsApp via HTTP untuk mengembalikan vonis risiko, sorotan `.apk`/tautan, dan alasan berbahasa awam.
+- **Ekstensi Peramban *WhatsApp Web* (`Manifest V3`)**: Pengaya Chrome/Edge (`background.js` + `content.js` + `popup.html`) yang memindai pesan di *WhatsApp Web* (termasuk lampiran `.apk`) dan menyuntikkan tombol `Cek Pesan Pajak` serta lencana risiko berbahasa awam agar pengguna tidak perlu *copy-paste*.
+- **Antarmuka Web *Cek Pesan Pajak* (`web/`)**: Antarmuka web responsif berbahasa ramah orang awam yang disajikan langsung oleh FastAPI (`HTML`/`CSS`/`JS`), dilengkapi sorotan bahaya interaktif, panduan darurat `.apk`, kanal resmi `pajak.go.id`, serta modal evaluasi akademik khusus demo sidang.
 - ***Explainable Detection* (XAI)**: Kemampuan sistem menjelaskan *mengapa* suatu pesan dicurigai—menampilkan kata/frasa pemicu dari bobot `LinearSVC`, peringatan `token_apk`, dan status domain `pajak.go.id`.
 - **`Joblib`**: Pustaka Python untuk menyimpan dan memuat ulang model `LinearSVC` beserta *vectorizer* TF-IDF yang sudah dilatih (`model_phishing_pajak.joblib`).

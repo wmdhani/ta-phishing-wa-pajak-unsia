@@ -1,0 +1,456 @@
+{
+  "pytest_verification": {
+    "total_collected": 20,
+    "passed": 20,
+    "failed": 0,
+    "pytest_reported_seconds": 5.17,
+    "subprocess_seconds": 7.201,
+    "cases": {
+      "tests/test_eksperimen_baseline.py::test_clean_text_preserves_tokens_and_stems": {
+        "status": "PASSED",
+        "duration_sec": 0.0
+      },
+      "tests/test_eksperimen_baseline.py::test_load_combined_dataset_shape": {
+        "status": "PASSED",
+        "duration_sec": 0.27
+      },
+      "tests/test_eksperimen_komparasi.py::test_baseline_reproduction_matches_locked_metrics": {
+        "status": "PASSED",
+        "duration_sec": 0.0
+      },
+      "tests/test_eksperimen_komparasi.py::test_multistage_sections_and_calibration_validity": {
+        "status": "PASSED",
+        "duration_sec": 0.0
+      },
+      "tests/test_eksperimen_komparasi.py::test_expected_artifacts_and_plots_exist": {
+        "status": "PASSED",
+        "duration_sec": 0.0
+      },
+      "tests/test_eksperimen_komparasi.py::test_exported_joblib_bundle_predicts_tax_phishing_and_official_messages": {
+        "status": "PASSED",
+        "duration_sec": 0.07
+      },
+      "tests/test_integritas_dataset.py::test_raw_corpora_exist_and_row_counts": {
+        "status": "PASSED",
+        "duration_sec": 0.01
+      },
+      "tests/test_integritas_dataset.py::test_scraped_official_tax_sources_valid": {
+        "status": "PASSED",
+        "duration_sec": 0.0
+      },
+      "tests/test_integritas_dataset.py::test_curated_tax_dataset_balance_and_provenance": {
+        "status": "PASSED",
+        "duration_sec": 0.01
+      },
+      "tests/test_integritas_dataset.py::test_processed_combined_datasets": {
+        "status": "PASSED",
+        "duration_sec": 0.01
+      },
+      "tests/test_integritas_dataset.py::test_provenance_catalog_sha256_matches_files": {
+        "status": "PASSED",
+        "duration_sec": 0.01
+      },
+      "tests/test_prototipe_api.py::test_health_endpoint": {
+        "status": "PASSED",
+        "duration_sec": 0.06
+      },
+      "tests/test_prototipe_api.py::test_predict_phishing_apk": {
+        "status": "PASSED",
+        "duration_sec": 0.07
+      },
+      "tests/test_prototipe_api.py::test_predict_phishing_fake_domain": {
+        "status": "PASSED",
+        "duration_sec": 0.02
+      },
+      "tests/test_prototipe_api.py::test_predict_official_djp_message": {
+        "status": "PASSED",
+        "duration_sec": 0.02
+      },
+      "tests/test_prototipe_api.py::test_numeric_time_and_amount_not_flagged_as_domain": {
+        "status": "PASSED",
+        "duration_sec": 0.02
+      },
+      "tests/test_prototipe_api.py::test_official_domain_spoof_guard": {
+        "status": "PASSED",
+        "duration_sec": 0.0
+      },
+      "tests/test_prototipe_api.py::test_predict_empty_text_rejected": {
+        "status": "PASSED",
+        "duration_sec": 0.01
+      },
+      "tests/test_prototipe_api.py::test_predict_batch_endpoint": {
+        "status": "PASSED",
+        "duration_sec": 0.03
+      },
+      "tests/test_prototipe_api.py::test_web_ui_and_supporting_endpoints": {
+        "status": "PASSED",
+        "duration_sec": 0.18
+      }
+    }
+  },
+  "latency_benchmark": {
+    "cold_bundle_load_ms": 61.255,
+    "bundle_metadata": {
+      "trained_on": "Dataset Gabungan Utama Biner 1164 Baris.csv",
+      "n_samples": 1164,
+      "preprocessing": "src.eksperimen_baseline.clean_text",
+      "svm_best_params": {
+        "C": 5.0,
+        "class_weight": null
+      },
+      "rf_best_params": {
+        "n_estimators": 200,
+        "max_depth": null,
+        "min_samples_split": 5,
+        "class_weight": null
+      },
+      "holdout_accuracy_svm": 0.9742489270386266,
+      "holdout_brier_svm_calibrated": 0.019000116983948104,
+      "holdout_accuracy_rf": 0.9656652360515021
+    },
+    "direct_inference_holdout_233": {
+      "n_calls": 233,
+      "total_ms": 3348.352,
+      "mean_ms": 14.371,
+      "std_ms": 2.289,
+      "min_ms": 11.436,
+      "median_p50_ms": 13.879,
+      "p95_ms": 17.829,
+      "p99_ms": 19.986,
+      "max_ms": 35.178
+    },
+    "fastapi_post_predict_holdout_233": {
+      "n_calls": 233,
+      "total_ms": 5409.528,
+      "mean_ms": 23.217,
+      "std_ms": 7.512,
+      "min_ms": 18.161,
+      "median_p50_ms": 22.177,
+      "p95_ms": 27.998,
+      "p99_ms": 32.047,
+      "max_ms": 118.637
+    },
+    "fastapi_post_predict_batch_50": {
+      "batch_size": 50,
+      "total_ms": 708.565,
+      "avg_per_message_ms": 14.171
+    }
+  },
+  "preset_verification": {
+    "Phishing APK (Coretax Palsu)": {
+      "input_text": "Yth. Wajib Pajak, segera unduh dan instal berkas Pembaruan_Coretax_DJP.apk untuk verifikasi NPWP agar terhindar dari denda administratif.",
+      "response": {
+        "label": 1,
+        "label_text": "Indikasi Scam",
+        "risk_level": "TINGGI",
+        "risk_title": "Berbahaya — Besar Kemungkinan Scam",
+        "risk_badge": "Berbahaya",
+        "verdict_summary": "Ada file .apk berbahaya — DJP tidak pernah kirim aplikasi lewat WA.",
+        "confidence_note": "Indikasi scam: 99%",
+        "svm_probability": 0.9873,
+        "rf_probability": 0.9343,
+        "cleaned_text": "yth wajib pajak segera unduh instal berkas pembaruan_coretax_djp token_apk verifikasi npwp hindar denda administratif",
+        "has_apk": true,
+        "apk_matches": [
+          "Pembaruan_Coretax_DJP.apk"
+        ],
+        "urls_found": [],
+        "official_domains": [],
+        "suspicious_domains": [],
+        "top_triggers": [
+          {
+            "token": "token_apk",
+            "contribution": 0.367,
+            "svm_coef": 1.9949,
+            "direction": "phishing"
+          },
+          {
+            "token": "segera",
+            "contribution": 0.3354,
+            "svm_coef": 1.838,
+            "direction": "phishing"
+          },
+          {
+            "token": "denda",
+            "contribution": 0.2603,
+            "svm_coef": 0.979,
+            "direction": "phishing"
+          },
+          {
+            "token": "hindar",
+            "contribution": 0.2139,
+            "svm_coef": 0.8511,
+            "direction": "phishing"
+          },
+          {
+            "token": "yth",
+            "contribution": 0.2036,
+            "svm_coef": 1.225,
+            "direction": "phishing"
+          },
+          {
+            "token": "wajib",
+            "contribution": 0.1434,
+            "svm_coef": 0.9376,
+            "direction": "phishing"
+          },
+          {
+            "token": "instal",
+            "contribution": 0.1373,
+            "svm_coef": 0.5462,
+            "direction": "phishing"
+          },
+          {
+            "token": "verifikasi",
+            "contribution": 0.1349,
+            "svm_coef": 0.6207,
+            "direction": "phishing"
+          }
+        ],
+        "highlights": [
+          {
+            "start": 49,
+            "end": 74,
+            "text": "Pembaruan_Coretax_DJP.apk",
+            "kind": "apk",
+            "reason": "File .apk berbahaya — DJP tidak pernah kirim aplikasi lewat WA."
+          }
+        ],
+        "trigger_words": [
+          "segera",
+          "unduh",
+          "instal",
+          "verifikasi",
+          "denda"
+        ],
+        "plain_reasons": [
+          {
+            "type": "danger",
+            "title": "Ada file .apk (Pembaruan_Coretax_DJP.apk)",
+            "detail": "Modus pencurian OTP & m-banking. DJP tidak pernah kirim .apk."
+          },
+          {
+            "type": "warning",
+            "title": "Nada mendesak / ancaman denda",
+            "detail": "Memakai kata segera, unduh, instal, verifikasi untuk memicu panik."
+          }
+        ],
+        "action_steps": [
+          "Jangan download atau install file .apk tersebut.",
+          "Hapus chat dan blokir nomor pengirim di WA.",
+          "Jika terlanjur install, buka tab Darurat .apk."
+        ],
+        "recommendation": "Jangan download atau install file .apk ini. Hapus chat dan blokir pengirimnya."
+      }
+    },
+    "Phishing Domain Palsu": {
+      "input_text": "Pemberitahuan resmi Direktorat Jenderal Pajak: terdapat selisih SPT Tahunan Anda. Segera login melalui https://djp-coretax-verifikasi.xyz/login sebelum pukul 17.00 WIB.",
+      "response": {
+        "label": 1,
+        "label_text": "Indikasi Scam",
+        "risk_level": "TINGGI",
+        "risk_title": "Berbahaya — Besar Kemungkinan Scam",
+        "risk_badge": "Berbahaya",
+        "verdict_summary": "Link mengarah ke situs palsu di luar pajak.go.id.",
+        "confidence_note": "Indikasi scam: 89%",
+        "svm_probability": 0.8921,
+        "rf_probability": 0.5902,
+        "cleaned_text": "pemberitahuan resmi direktorat jenderal pajak dapat selisih spt tahun segera login lalu token_url pukul 17 00 wib",
+        "has_apk": false,
+        "apk_matches": [],
+        "urls_found": [
+          "https://djp-coretax-verifikasi.xyz/login"
+        ],
+        "official_domains": [],
+        "suspicious_domains": [
+          "djp-coretax-verifikasi.xyz"
+        ],
+        "top_triggers": [
+          {
+            "token": "segera",
+            "contribution": 0.2782,
+            "svm_coef": 1.838,
+            "direction": "phishing"
+          },
+          {
+            "token": "pemberitahuan",
+            "contribution": 0.2193,
+            "svm_coef": 1.1534,
+            "direction": "phishing"
+          },
+          {
+            "token": "00",
+            "contribution": 0.1911,
+            "svm_coef": 0.9165,
+            "direction": "phishing"
+          },
+          {
+            "token": "dapat",
+            "contribution": 0.1774,
+            "svm_coef": 1.0707,
+            "direction": "phishing"
+          },
+          {
+            "token": "pajak dapat",
+            "contribution": 0.1418,
+            "svm_coef": 0.5642,
+            "direction": "phishing"
+          },
+          {
+            "token": "resmi",
+            "contribution": -0.1361,
+            "svm_coef": -1.2209,
+            "direction": "resmi"
+          },
+          {
+            "token": "token_url",
+            "contribution": 0.1111,
+            "svm_coef": 1.1982,
+            "direction": "phishing"
+          },
+          {
+            "token": "pemberitahuan resmi",
+            "contribution": 0.0891,
+            "svm_coef": 0.3651,
+            "direction": "phishing"
+          }
+        ],
+        "highlights": [
+          {
+            "start": 103,
+            "end": 143,
+            "text": "https://djp-coretax-verifikasi.xyz/login",
+            "kind": "suspicious_url",
+            "reason": "Link palsu / luar DJP (djp-coretax-verifikasi.xyz) — bukan pajak.go.id."
+          }
+        ],
+        "trigger_words": [
+          "Pemberitahuan",
+          "terdapat",
+          "selisih",
+          "Segera",
+          "login"
+        ],
+        "plain_reasons": [
+          {
+            "type": "danger",
+            "title": "Link di luar pajak.go.id (djp-coretax-verifikasi.xyz)",
+            "detail": "Situs resmi DJP selalu berakhiran pajak.go.id."
+          },
+          {
+            "type": "warning",
+            "title": "Nada mendesak / ancaman denda",
+            "detail": "Memakai kata Pemberitahuan, terdapat, selisih, Segera untuk memicu panik."
+          }
+        ],
+        "action_steps": [
+          "Jangan klik link atau kirim NIK, NPWP, EFIN, maupun OTP.",
+          "Cek info asli hanya di pajak.go.id atau Kring Pajak 1500200.",
+          "Share peringatan ini jika pesan beredar di grup keluarga/kantor."
+        ],
+        "recommendation": "Jangan klik link atau kirim OTP/PIN. Cek langsung ke pajak.go.id atau Kring Pajak 1500200."
+      }
+    },
+    "Pengumuman Resmi DJP": {
+      "input_text": "Direktorat Jenderal Pajak mengimbau Wajib Pajak melaporkan SPT Tahunan tepat waktu melalui laman resmi https://djponline.pajak.go.id atau hubungi Kring Pajak 1500200.",
+      "response": {
+        "label": 0,
+        "label_text": "Pesan Aman / Resmi",
+        "risk_level": "RENDAH",
+        "risk_title": "Aman — Pola Pesan Resmi / Normal",
+        "risk_badge": "Aman",
+        "verdict_summary": "Link mengarah ke situs resmi pajak.go.id dan bebas ciri scam.",
+        "confidence_note": "Sesuai pesan aman: 90%",
+        "svm_probability": 0.0963,
+        "rf_probability": 0.2399,
+        "cleaned_text": "direktorat jenderal pajak imbau wajib pajak lapor spt tahun tepat waktu lalu laman resmi token_url hubung kring pajak 1500200",
+        "has_apk": false,
+        "apk_matches": [],
+        "urls_found": [
+          "https://djponline.pajak.go.id"
+        ],
+        "official_domains": [
+          "djponline.pajak.go.id"
+        ],
+        "suspicious_domains": [],
+        "top_triggers": [
+          {
+            "token": "laman",
+            "contribution": -0.1667,
+            "svm_coef": -0.9148,
+            "direction": "resmi"
+          },
+          {
+            "token": "resmi",
+            "contribution": -0.1281,
+            "svm_coef": -1.2209,
+            "direction": "resmi"
+          },
+          {
+            "token": "wajib",
+            "contribution": 0.112,
+            "svm_coef": 0.9376,
+            "direction": "phishing"
+          },
+          {
+            "token": "hubung",
+            "contribution": 0.1095,
+            "svm_coef": 0.7463,
+            "direction": "phishing"
+          },
+          {
+            "token": "resmi token_url",
+            "contribution": -0.1061,
+            "svm_coef": -0.6422,
+            "direction": "resmi"
+          },
+          {
+            "token": "laman resmi",
+            "contribution": -0.1058,
+            "svm_coef": -0.5095,
+            "direction": "resmi"
+          },
+          {
+            "token": "token_url",
+            "contribution": 0.1046,
+            "svm_coef": 1.1982,
+            "direction": "phishing"
+          },
+          {
+            "token": "1500200",
+            "contribution": -0.103,
+            "svm_coef": -0.549,
+            "direction": "resmi"
+          }
+        ],
+        "highlights": [
+          {
+            "start": 103,
+            "end": 132,
+            "text": "https://djponline.pajak.go.id",
+            "kind": "official_url",
+            "reason": "Link resmi DJP (djponline.pajak.go.id)."
+          }
+        ],
+        "trigger_words": [],
+        "plain_reasons": [
+          {
+            "type": "safe",
+            "title": "Link resmi (djponline.pajak.go.id)",
+            "detail": "Alamat situs terdaftar sah milik Direktorat Jenderal Pajak."
+          },
+          {
+            "type": "safe",
+            "title": "Bebas file .apk & link mencurigakan",
+            "detail": "Gaya bahasa sesuai imbauan atau chat layanan pajak normal."
+          }
+        ],
+        "action_steps": [
+          "Aman dibaca, tetap jangan pernah bagikan OTP atau PIN ke siapa pun.",
+          "Untuk akses layanan, ketik langsung pajak.go.id di browser."
+        ],
+        "recommendation": "Link mengarah ke situs resmi pajak.go.id. Tetap jaga kerahasiaan OTP dan PIN Anda."
+      }
+    }
+  }
+}

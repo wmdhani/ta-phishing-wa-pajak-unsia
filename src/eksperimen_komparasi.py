@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import shap
 from sklearn.calibration import CalibratedClassifierCV, calibration_curve
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -369,6 +370,8 @@ def _run_stage2_and_3_tuning_calibration(
             "svm_tuned": svm_tuned,
             "svm_calibrated": svm_calibrated,
             "rf_tuned": rf_tuned,
+            "x_train_tf": x_train_tf,
+            "x_test_tf": x_test_tf,
         },
         "holdout_arrays": {
             "y_test": y_test,
@@ -693,10 +696,65 @@ def _build_feature_and_error_tables(
     return df_features, df_err[cols].reset_index(drop=True)
 
 
+def _extract_positive_shap(raw_values: Any) -> np.ndarray:
+    """Normalisasi keluaran SHAP biner menjadi matriks 2D untuk kelas positif (Phishing = 1)."""
+    if isinstance(raw_values, list):
+        return np.asarray(raw_values[1], dtype=float)
+    arr = np.asarray(raw_values, dtype=float)
+    if arr.ndim == 3:
+        return arr[:, :, 1]
+    return arr
+
+
+def _compute_shap_table(stage2_3: dict[str, Any], top_n: int = 20) -> pd.DataFrame:
+    """Hitung kontribusi SHAP global pada data holdout untuk SVM Linear dan Random Forest."""
+    models = stage2_3["models_holdout"]
+    feature_names = models["vectorizer"].get_feature_names_out()
+    x_train_tf = models["x_train_tf"]
+    x_test_tf = models["x_test_tf"]
+    x_test_dense = x_test_tf.toarray()
+
+    svm_masker = shap.maskers.Independent(x_train_tf, max_samples=x_train_tf.shape[0])
+    svm_shap = _extract_positive_shap(
+        shap.LinearExplainer(models["svm_tuned"], svm_masker).shap_values(x_test_tf)
+    )
+    rf_background = shap.sample(x_train_tf.toarray(), 100, random_state=RANDOM_STATE)
+    rf_shap = _extract_positive_shap(
+        shap.TreeExplainer(
+            models["rf_tuned"],
+            data=rf_background,
+            feature_perturbation="interventional",
+        ).shap_values(x_test_dense)
+    )
+
+    rows: list[dict[str, Any]] = []
+    for model_label, shap_matrix in (
+        ("SVM_Linear_SHAP", svm_shap),
+        ("Random_Forest_SHAP", rf_shap),
+    ):
+        mean_abs = np.abs(shap_matrix).mean(axis=0)
+        mean_signed = shap_matrix.mean(axis=0)
+        top_idx = np.argsort(mean_abs)[::-1][:top_n]
+        for rank, idx in enumerate(top_idx, start=1):
+            signed_val = float(mean_signed[idx])
+            rows.append(
+                {
+                    "model": model_label,
+                    "rank": rank,
+                    "fitur": str(feature_names[idx]),
+                    "mean_abs_shap": float(mean_abs[idx]),
+                    "mean_shap_signed": signed_val,
+                    "arah_dominan": "Phishing" if signed_val >= 0 else "Resmi/Normal",
+                }
+            )
+    return pd.DataFrame(rows)
+
+
 def _generate_plots(
     stage2_3: dict[str, Any],
     stage4: dict[str, Any],
     df_features: pd.DataFrame,
+    df_shap: pd.DataFrame,
     out_dir: Path,
 ) -> None:
     arr = stage2_3["holdout_arrays"]
@@ -894,6 +952,23 @@ def _generate_plots(
     fig.savefig(out_dir / "Gambar_Evaluasi_5_Komparasi_Lintas_Korpus.png", bbox_inches="tight")
     plt.close(fig)
 
+    # Gambar 6: Komparasi SHAP Global (SVM Linear vs Random Forest)
+    fig, axes = plt.subplots(1, 2, figsize=(13, 6.0))
+    for ax, model_key, title in (
+        (axes[0], "SVM_Linear_SHAP", "Top-15 Fitur SHAP: SVM Linear\n(Merah = Mendorong Phishing, Biru = Resmi/Normal)"),
+        (axes[1], "Random_Forest_SHAP", "Top-15 Fitur SHAP: Random Forest\n(Merah = Mendorong Phishing, Biru = Resmi/Normal)"),
+    ):
+        sub = df_shap[df_shap["model"] == model_key].head(15).sort_values("mean_abs_shap")
+        colors = ["#dc2626" if val >= 0 else "#2563eb" for val in sub["mean_shap_signed"]]
+        ax.barh(sub["fitur"], sub["mean_abs_shap"], color=colors)
+        ax.set_title(title, fontsize=10.5, fontweight="bold")
+        ax.set_xlabel("Rata-rata |Nilai SHAP| (Dampak Prediksi Holdout)")
+
+    fig.suptitle("Interpretabilitas Model Berbasis SHAP (Holdout n = 233)", fontsize=12.5, fontweight="bold", y=1.01)
+    fig.tight_layout()
+    fig.savefig(out_dir / "Gambar_Evaluasi_6_SHAP_Komparasi.png", bbox_inches="tight")
+    plt.close(fig)
+
 
 def _build_main_comparison_table(stage1: dict[str, Any], stage2_3: dict[str, Any], stage4: dict[str, Any]) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
@@ -979,6 +1054,7 @@ def _build_markdown_report(
     df_ablation: pd.DataFrame,
     stage4: dict[str, Any],
     df_features: pd.DataFrame,
+    df_shap: pd.DataFrame,
     df_errors: pd.DataFrame,
     runtime_sec: float,
 ) -> str:
@@ -1016,6 +1092,14 @@ def _build_markdown_report(
     top_rf = ", ".join(
         f"`{r['fitur']}` ({r['skor']:.4f})"
         for _, r in df_features[df_features["model_kelompok"] == "RF_Importance"].head(8).iterrows()
+    )
+    top_shap_svm = ", ".join(
+        f"`{r['fitur']}` ({r['mean_abs_shap']:.4f}, {r['arah_dominan']})"
+        for _, r in df_shap[df_shap["model"] == "SVM_Linear_SHAP"].head(8).iterrows()
+    )
+    top_shap_rf = ", ".join(
+        f"`{r['fitur']}` ({r['mean_abs_shap']:.4f}, {r['arah_dominan']})"
+        for _, r in df_shap[df_shap["model"] == "Random_Forest_SHAP"].head(8).iterrows()
     )
 
     err_lines = []
@@ -1068,6 +1152,8 @@ def _build_markdown_report(
             f"- **Indikator Phishing Terkuat SVM Linear (+):** {top_pos}",
             f"- **Indikator Resmi/Normal Terkuat SVM Linear (-):** {top_neg}",
             f"- **Fitur Terpenting Random Forest (Gini):** {top_rf}",
+            f"- **Top-8 Fitur SHAP SVM Linear (Holdout):** {top_shap_svm}",
+            f"- **Top-8 Fitur SHAP Random Forest (Holdout):** {top_shap_rf}",
             f"- **Jumlah Sampel Salah Prediksi (gabungan SVM/RF pada holdout):** {len(df_errors)} baris (rincian lengkap tersedia di `analisis_kesalahan_prediksi.csv`).",
             "",
             *err_lines,
@@ -1112,6 +1198,7 @@ def run_all_experiments(save_outputs: bool = True) -> dict[str, Any]:
     df_features, df_errors = _build_feature_and_error_tables(
         df_primary, idx_test, stage1, stage2_3
     )
+    df_shap = _compute_shap_table(stage2_3, top_n=20)
     df_main_table = _build_main_comparison_table(stage1, stage2_3, stage4)
     runtime_sec = float(time.perf_counter() - t_start)
 
@@ -1148,6 +1235,10 @@ def run_all_experiments(save_outputs: bool = True) -> dict[str, Any]:
         "tax_subset": stage4["tax_subset"],
         "external_cross_corpus": stage4["external_cross_corpus"],
         "extended_2521": stage4["extended_2521"],
+        "shap_top_features": {
+            "svm_linear": df_shap[df_shap["model"] == "SVM_Linear_SHAP"].head(10).to_dict(orient="records"),
+            "random_forest": df_shap[df_shap["model"] == "Random_Forest_SHAP"].head(10).to_dict(orient="records"),
+        },
         "error_analysis_count": len(df_errors),
         "runtime_seconds": round(runtime_sec, 2),
     }
@@ -1160,12 +1251,13 @@ def run_all_experiments(save_outputs: bool = True) -> dict[str, Any]:
         stage2_3["grid_df"].to_csv(EVALUATION_DIR / "hasil_gridsearch_10fold.csv", index=False)
         df_ablation.to_csv(EVALUATION_DIR / "studi_ablatif_fitur.csv", index=False)
         df_features.to_csv(EVALUATION_DIR / "fitur_teratas_svm_vs_rf.csv", index=False)
+        df_shap.to_csv(EVALUATION_DIR / "shap_fitur_teratas_svm_vs_rf.csv", index=False)
         df_errors.to_csv(EVALUATION_DIR / "analisis_kesalahan_prediksi.csv", index=False)
 
-        _generate_plots(stage2_3, stage4, df_features, EVALUATION_DIR)
+        _generate_plots(stage2_3, stage4, df_features, df_shap, EVALUATION_DIR)
 
         report_md = _build_markdown_report(
-            stage1, stage2_3, df_ablation, stage4, df_features, df_errors, runtime_sec
+            stage1, stage2_3, df_ablation, stage4, df_features, df_shap, df_errors, runtime_sec
         )
         (EVALUATION_DIR / "Laporan Hasil Eksperimen Komparasi.md").write_text(
             report_md, encoding="utf-8"

@@ -222,17 +222,17 @@ def build_proposal_docx(docx_path: Path) -> None:
             ),
             ("Natural Language Processing", False, True),
             (
-                (
-                    " (NLP) yang terintegrasi ke REST API, ekstensi peramban WhatsApp Web dengan penjelasan "
-                    "kata pemicu, dan "
+                    (
+                        " (NLP) yang terintegrasi ke REST API, ekstensi peramban WhatsApp Web dengan penjelasan "
+                        "indikator risiko berbahasa awam, dan "
+                    ),
+                    False,
+                    False,
                 ),
-                False,
-                False,
-            ),
-            ("dashboard", False, True),
-            (" Streamlit.", False, False),
-        ],
-    )
+                ("antarmuka web Cek Pesan Pajak", False, True),
+                (".", False, False),
+            ],
+        )
 
     _add_section_heading(doc, "2. Rumusan Masalah")
     for item in (
@@ -276,13 +276,13 @@ def build_proposal_docx(docx_path: Path) -> None:
             (
                 (
                     " guna diintegrasikan ke sistem verifikasi langsung tanpa salin-tempel melalui REST API (FastAPI), "
-                    "ekstensi peramban WhatsApp Web dengan penjelasan kata pemicu, serta "
+                    "ekstensi peramban WhatsApp Web dengan penjelasan indikator risiko berbahasa awam, serta "
                 ),
                 False,
                 False,
             ),
-            ("dashboard", False, True),
-            (" Streamlit.", False, False),
+            ("antarmuka web Cek Pesan Pajak", False, True),
+            (".", False, False),
         ],
     ):
         _add_body_paragraph(doc, item, indent_cm=0.42, first_line_cm=-0.42, space_after_pt=1.5)
@@ -392,10 +392,14 @@ def build_proposal_docx(docx_path: Path) -> None:
             ("REST API (FastAPI)", True, False),
             (", ", False, False),
             ("Ekstensi Peramban WhatsApp Web (Manifest V3)", True, False),
-            (" (tombol/lencana cek langsung pada gelembung obrolan dan menu klik kanan tanpa ", False, False),
+            (" (tombol pemeriksaan langsung ", False, False),
+            ("Cek Pesan Pajak", False, True),
+            (" pada gelembung obrolan dan jendela ", False, False),
+            ("popup", False, True),
+            (" tanpa ", False, False),
             ("copy-paste", False, True),
             ("), serta ", False, False),
-            ("Dashboard Streamlit", True, False),
+            ("Antarmuka Web Cek Pesan Pajak", True, False),
             (", dilengkapi lapisan ", False, False),
             ("explainable detection", False, True),
             (" (bobot kata pemicu ", False, False),

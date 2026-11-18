@@ -2,54 +2,102 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Detektor Phishing Pajak</title>
+  <title>Cek Pesan Pajak</title>
   <style>
     body {
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
       width: 340px;
-      padding: 12px;
+      padding: 14px;
       margin: 0;
+      background: #f6f7f9;
       color: #0f172a;
     }
-    h1 { font-size: 14px; margin: 0 0 8px; }
-    .status { font-size: 12px; margin-bottom: 10px; color: #475569; }
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 14.5px;
+      font-weight: 800;
+      margin: 0;
+      color: #0b4f71;
+    }
+    .status {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #475569;
+    }
     textarea {
       width: 100%;
       box-sizing: border-box;
-      height: 84px;
-      padding: 8px;
-      font-size: 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
+      height: 88px;
+      padding: 9px 10px;
+      font-family: inherit;
+      font-size: 12.5px;
+      line-height: 1.45;
+      border: 1.5px solid rgba(15, 23, 42, 0.14);
+      border-radius: 10px;
+      background: #ffffff;
       resize: vertical;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #0b4f71;
     }
     button {
       margin-top: 8px;
       width: 100%;
-      padding: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      background: #0f172a;
+      padding: 9px 12px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      background: #0b4f71;
       color: #ffffff;
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
       cursor: pointer;
+    }
+    button:hover {
+      background: #083d58;
     }
     #output {
       margin-top: 10px;
-      padding: 8px;
-      border-radius: 6px;
+      padding: 10px;
+      border-radius: 10px;
       font-size: 12px;
+      line-height: 1.45;
       display: none;
+    }
+    .foot-link {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #0b4f71;
+      text-decoration: none;
+    }
+    .foot-link:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <h1>Detektor Phishing Pajak WA</h1>
-  <div id="api-status" class="status">Memeriksa koneksi FastAPI...</div>
-  <textarea id="msg-input" placeholder="Tempelkan teks pesan WhatsApp di sini..."></textarea>
-  <button id="check-btn">Periksa Pesan</button>
+  <div class="head">
+    <h1>Cek Pesan Pajak</h1>
+    <span id="api-status" class="status">Cek layanan...</span>
+  </div>
+  <textarea id="msg-input" placeholder="Paste chat WA pajak yang mau dicek..."></textarea>
+  <button id="check-btn" type="button">Cek Pesan Sekarang</button>
   <div id="output"></div>
+  <a class="foot-link" href="http://127.0.0.1:8000/" target="_blank" rel="noopener noreferrer">
+    Buka web lengkap &amp; panduan darurat &rarr;
+  </a>
   <script src="popup.js"></script>
 </body>
 </html>

@@ -1,0 +1,20 @@
+.git/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+01 *
+02 *
+03 *
+04 Dataset/
+05 Hasil Evaluasi/*.png
+05 Hasil Evaluasi/*.json
+05 Hasil Evaluasi/*.txt
+07 Naskah Tugas Akhir/
+tests/
+**/*.docx
+**/*.pdf
+**/*.md
+!README.md

@@ -14,13 +14,171 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from src.eksperimen_baseline import clean_text
+from src.eksperimen_baseline import STEM_WORD, clean_text
 
 MODEL_PATH = Path(__file__).resolve().parent / "model_phishing_pajak.joblib"
 APK_PATTERN = re.compile(r"\b[a-z0-9_.-]+\.apk\b", re.IGNORECASE)
+
+_BARE_TLD_LIST = (
+    "go\\.id|co\\.id|my\\.id|or\\.id|ac\\.id|sch\\.id|web\\.id|biz\\.id|net\\.id|"
+    "id|com|net|org|info|biz|xyz|top|site|online|website|store|shop|app|dev|link|"
+    "click|live|vip|icu|club|fun|me|cc|tv|io|co|ly|gl|gg|to|us|uk|sg|my|ru|cn|"
+    "tk|ml|ga|cf|gq|pro|tech|cloud|space|asia|edu|gov|mil|win|loan|work|press|"
+    "host|uno|cfd|sbs|cyou|monster|quest|rest|bar|buzz|surf|digital|portal|"
+    "support|services|center"
+)
 URL_PATTERN = re.compile(
-    r"(?:https?://|www\.)[^\s<>\"']+|(?<!@)\b[a-z0-9-]+(?:\.[a-z0-9-]+)+\b(?:/[^\s<>\"']*)?",
+    rf"(?:https?://|www\.)[^\s<>\"']+|(?<!@)\b(?:[a-z0-9-]+\.)+(?:{_BARE_TLD_LIST})\b(?:/[^\s<>\"']*)?",
     re.IGNORECASE,
+)
+
+PRESETS: dict[str, str] = {
+    "Phishing APK (Coretax Palsu)": (
+        "Yth. Wajib Pajak, segera unduh dan instal berkas Pembaruan_Coretax_DJP.apk "
+        "untuk verifikasi NPWP agar terhindar dari denda administratif."
+    ),
+    "Phishing Domain Palsu": (
+        "Pemberitahuan resmi Direktorat Jenderal Pajak: terdapat selisih SPT Tahunan Anda. "
+        "Segera login melalui https://djp-coretax-verifikasi.xyz/login sebelum pukul 17.00 WIB."
+    ),
+    "Pengumuman Resmi DJP": (
+        "Direktorat Jenderal Pajak mengimbau Wajib Pajak melaporkan SPT Tahunan tepat waktu "
+        "melalui laman resmi https://djponline.pajak.go.id atau hubungi Kring Pajak 1500200."
+    ),
+}
+
+PRESET_CATALOG: list[dict[str, str]] = [
+    {
+        "id": "apk",
+        "key": "Phishing APK (Coretax Palsu)",
+        "label": "Scam File .apk",
+        "tag": "Berbahaya",
+        "tone": "danger",
+        "text": PRESETS["Phishing APK (Coretax Palsu)"],
+    },
+    {
+        "id": "domain",
+        "key": "Phishing Domain Palsu",
+        "label": "Link Pajak Palsu",
+        "tag": "Link Palsu",
+        "tone": "danger",
+        "text": PRESETS["Phishing Domain Palsu"],
+    },
+    {
+        "id": "official",
+        "key": "Pengumuman Resmi DJP",
+        "label": "Chat Resmi DJP",
+        "tag": "Resmi DJP",
+        "tone": "safe",
+        "text": PRESETS["Pengumuman Resmi DJP"],
+    },
+]
+
+_URGENCY_STEMS = frozenset(
+    {
+        "segera",
+        "cepat",
+        "batas",
+        "akhir",
+        "hari",
+        "jam",
+        "langsung",
+        "kedaluwarsa",
+        "kadaluarsa",
+        "hangus",
+        "tenggat",
+        "terakhir",
+    }
+)
+_THREAT_STEMS = frozenset(
+    {
+        "denda",
+        "blokir",
+        "sanksi",
+        "hukum",
+        "pidana",
+        "beku",
+        "tutup",
+        "selisih",
+        "tagih",
+        "tunggak",
+        "batal",
+        "cabut",
+        "periksa",
+        "sit",
+        "sita",
+    }
+)
+_ACTION_BAIT_STEMS = frozenset(
+    {
+        "unduh",
+        "instal",
+        "install",
+        "download",
+        "klik",
+        "verifikasi",
+        "mutakhir",
+        "perbarui",
+        "baru",
+        "update",
+        "aktivasi",
+        "login",
+        "masuk",
+        "klaim",
+        "hadiah",
+        "menang",
+        "transfer",
+        "kirim",
+        "rekening",
+        "pin",
+        "otp",
+        "efin",
+        "kode",
+        "daftar",
+        "isi",
+        "buka",
+    }
+)
+_NEUTRAL_TAX_STEMS = frozenset(
+    {
+        "pajak",
+        "wajib",
+        "npwp",
+        "spt",
+        "tahun",
+        "djp",
+        "direktorat",
+        "jenderal",
+        "lapor",
+        "nik",
+        "coretax",
+        "layan",
+        "resmi",
+        "informasi",
+        "imbau",
+        "kantor",
+        "kring",
+        "yth",
+        "hormat",
+        "hindar",
+        "berkas",
+        "agar",
+        "untuk",
+        "mohon",
+        "kepada",
+        "bapak",
+        "ibu",
+        "saudara",
+        "dengan",
+        "berikut",
+        "melalui",
+        "atas",
+        "terima",
+        "kasih",
+        "administratif",
+        "administrasi",
+        "anda",
+    }
 )
 
 
@@ -38,8 +196,7 @@ def _extract_domain(raw_url: str) -> str:
     if not candidate.lower().startswith(("http://", "https://")):
         candidate = f"https://{candidate}"
     parsed = urlparse(candidate)
-    host = (parsed.hostname or "").lower().strip(".")
-    return host
+    return (parsed.hostname or "").lower().strip(".")
 
 
 def is_official_djp_domain(domain: str) -> bool:
@@ -119,19 +276,260 @@ def _build_recommendation(
 ) -> str:
     if has_apk:
         return (
-            "BAHAYA: Pesan mengandung pola berkas .apk. Direktorat Jenderal Pajak tidak "
-            "pernah mengirimkan file aplikasi (.apk) melalui WhatsApp. Jangan unduh atau pasang berkas."
+            "Jangan download atau install file .apk ini. Hapus chat dan blokir pengirimnya."
         )
     if label == 1 or suspicious_domains:
         return (
-            "WASPADA PHISHING: Pesan terindikasi penipuan atau memuat tautan di luar domain resmi "
-            "pajak.go.id. Verifikasi melalui Kring Pajak 1500200 atau laman resmi djponline.pajak.go.id."
+            "Jangan klik link atau kirim OTP/PIN. Cek langsung ke pajak.go.id atau Kring Pajak 1500200."
         )
     if official_domains:
-        return (
-            "AMAN: Pesan terklasifikasi normal/resmi dan hanya merujuk pada domain resmi pajak.go.id."
+        return "Link mengarah ke situs resmi pajak.go.id. Tetap jaga kerahasiaan OTP dan PIN Anda."
+    return "Tidak ada tanda scam, tapi tetap jangan pernah bagikan OTP, PIN, atau password lewat WA."
+
+
+def _collect_trigger_stems(top_triggers: list[dict[str, Any]]) -> set[str]:
+    stems: set[str] = set()
+    for item in top_triggers:
+        if item["direction"] != "phishing" or item["contribution"] <= 0:
+            continue
+        for part in str(item["token"]).split():
+            if part in ("token_apk", "token_url") or part.isdigit() or len(part) <= 2:
+                continue
+            if part in _NEUTRAL_TAX_STEMS:
+                continue
+            stems.add(part)
+    return stems
+
+
+def _extract_highlights_and_triggers(
+    raw_text: str,
+    risk_level: str,
+    trigger_stems: set[str],
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Highlight only .apk attachments and URLs in the chat bubble; extract cue words separately."""
+    spans: list[tuple[int, int, str, str, str]] = []
+
+    for match in APK_PATTERN.finditer(raw_text):
+        spans.append(
+            (
+                match.start(),
+                match.end(),
+                match.group(0),
+                "apk",
+                "File .apk berbahaya — DJP tidak pernah kirim aplikasi lewat WA.",
+            )
         )
-    return "AMAN: Pesan tidak menunjukkan indikator phishing perpajakan, tetap jaga kerahasiaan data."
+
+    for match in URL_PATTERN.finditer(raw_text):
+        raw_url = match.group(0)
+        trimmed = raw_url.rstrip(".,;:!?)")
+        if not trimmed or trimmed.lower().endswith(".apk"):
+            continue
+        end_pos = match.start() + len(trimmed)
+        if any(not (end_pos <= s or match.start() >= e) for s, e, *_ in spans):
+            continue
+        domain = _extract_domain(trimmed)
+        if not domain or "." not in domain:
+            continue
+        if is_official_djp_domain(domain):
+            spans.append(
+                (
+                    match.start(),
+                    end_pos,
+                    trimmed,
+                    "official_url",
+                    f"Link resmi DJP ({domain}).",
+                )
+            )
+        else:
+            spans.append(
+                (
+                    match.start(),
+                    end_pos,
+                    trimmed,
+                    "suspicious_url",
+                    f"Link palsu / luar DJP ({domain}) — bukan pajak.go.id.",
+                )
+            )
+
+    matched_words: list[str] = []
+    if risk_level in ("TINGGI", "SEDANG"):
+        cue_stems = trigger_stems | _URGENCY_STEMS | _THREAT_STEMS | _ACTION_BAIT_STEMS
+        for match in re.finditer(r"[A-Za-z]{3,}", raw_text):
+            start_pos, end_pos = match.start(), match.end()
+            if any(not (end_pos <= s or start_pos >= e) for s, e, *_ in spans):
+                continue
+            word = match.group(0)
+            low = word.lower()
+            stem = STEM_WORD(low)
+            if stem in _NEUTRAL_TAX_STEMS or low in _NEUTRAL_TAX_STEMS:
+                continue
+            if (stem in cue_stems or low in cue_stems) and low not in {
+                w.lower() for w in matched_words
+            }:
+                matched_words.append(word)
+
+    spans.sort(key=lambda item: item[0])
+    highlights = [
+        {
+            "start": s,
+            "end": e,
+            "text": text,
+            "kind": kind,
+            "reason": reason,
+        }
+        for s, e, text, kind, reason in spans
+    ]
+    return highlights, matched_words[:5]
+
+
+def _build_plain_reasons(
+    risk_level: str,
+    heuristics: dict[str, Any],
+    matched_words: list[str],
+    trigger_stems: set[str],
+) -> list[dict[str, str]]:
+    reasons: list[dict[str, str]] = []
+
+    if heuristics["has_apk"]:
+        files = ", ".join(heuristics["apk_matches"])
+        reasons.append(
+            {
+                "type": "danger",
+                "title": f"Ada file .apk ({files})",
+                "detail": "Modus pencurian OTP & m-banking. DJP tidak pernah kirim .apk.",
+            }
+        )
+
+    if heuristics["suspicious_domains"]:
+        domains = ", ".join(heuristics["suspicious_domains"])
+        reasons.append(
+            {
+                "type": "danger",
+                "title": f"Link di luar pajak.go.id ({domains})",
+                "detail": "Situs resmi DJP selalu berakhiran pajak.go.id.",
+            }
+        )
+
+    if risk_level in ("TINGGI", "SEDANG"):
+        all_cue_stems = trigger_stems | {STEM_WORD(w.lower()) for w in matched_words}
+        has_threat = bool(all_cue_stems & _THREAT_STEMS)
+        has_urgency = bool(all_cue_stems & _URGENCY_STEMS)
+        has_bait = bool(all_cue_stems & _ACTION_BAIT_STEMS)
+
+        word_preview = ", ".join(matched_words[:4])
+        if has_threat or has_urgency:
+            reasons.append(
+                {
+                    "type": "warning",
+                    "title": "Nada mendesak / ancaman denda",
+                    "detail": (
+                        f"Memakai kata {word_preview} untuk memicu panik."
+                        if word_preview
+                        else "Memaksa penerima bertindak cepat tanpa cek ulang."
+                    ),
+                }
+            )
+        elif has_bait and not heuristics["has_apk"]:
+            reasons.append(
+                {
+                    "type": "warning",
+                    "title": "Ajakan klik link / verifikasi akun",
+                    "detail": (
+                        f"Memancing korban lewat kata {word_preview}."
+                        if word_preview
+                        else "Mengarahkan penerima untuk login atau isi data pribadi."
+                    ),
+                }
+            )
+        if not reasons:
+            reasons.append(
+                {
+                    "type": "warning",
+                    "title": "Pola kalimat mirip modus scam WA",
+                    "detail": "Susunan katanya cocok dengan pola penipuan yang sering beredar.",
+                }
+            )
+    else:
+        if heuristics["official_domains"]:
+            domains = ", ".join(heuristics["official_domains"])
+            reasons.append(
+                {
+                    "type": "safe",
+                    "title": f"Link resmi ({domains})",
+                    "detail": "Alamat situs terdaftar sah milik Direktorat Jenderal Pajak.",
+                }
+            )
+        reasons.append(
+            {
+                "type": "safe",
+                "title": "Bebas file .apk & link mencurigakan",
+                "detail": "Gaya bahasa sesuai imbauan atau chat layanan pajak normal.",
+            }
+        )
+
+    return reasons
+
+
+def _build_action_steps(risk_level: str, has_apk: bool) -> list[str]:
+    if has_apk:
+        return [
+            "Jangan download atau install file .apk tersebut.",
+            "Hapus chat dan blokir nomor pengirim di WA.",
+            "Jika terlanjur install, buka tab Darurat .apk.",
+        ]
+    if risk_level in ("TINGGI", "SEDANG"):
+        return [
+            "Jangan klik link atau kirim NIK, NPWP, EFIN, maupun OTP.",
+            "Cek info asli hanya di pajak.go.id atau Kring Pajak 1500200.",
+            "Share peringatan ini jika pesan beredar di grup keluarga/kantor.",
+        ]
+    return [
+        "Aman dibaca, tetap jangan pernah bagikan OTP atau PIN ke siapa pun.",
+        "Untuk akses layanan, ketik langsung pajak.go.id di browser.",
+    ]
+
+
+def _build_human_verdict(
+    label: int,
+    risk_level: str,
+    svm_prob: float,
+    has_apk: bool,
+    suspicious_domains: list[str],
+    official_domains: list[str],
+) -> tuple[str, str, str, str]:
+    risk_pct = round(svm_prob * 100)
+    safe_pct = max(0, 100 - risk_pct)
+
+    if risk_level == "TINGGI":
+        title = "Berbahaya — Besar Kemungkinan Scam"
+        badge = "Berbahaya"
+        if has_apk:
+            summary = "Ada file .apk berbahaya — DJP tidak pernah kirim aplikasi lewat WA."
+        elif suspicious_domains:
+            summary = "Link mengarah ke situs palsu di luar pajak.go.id."
+        else:
+            summary = "Gaya bahasanya sangat mirip modus scam pajak di WA."
+        confidence_note = f"Indikasi scam: {max(risk_pct, 85 if has_apk else risk_pct)}%"
+    elif risk_level == "SEDANG":
+        title = "Waspada — Ada Tanda Mencurigakan"
+        badge = "Waspada"
+        if suspicious_domains and label == 0:
+            summary = "Ada link di luar situs resmi pajak.go.id, cek ulang pengirimnya."
+            confidence_note = "Ditemukan link eksternal"
+        else:
+            summary = "Sebagian isi pesan mencurigakan, pastikan langsung ke kanal resmi DJP."
+            confidence_note = f"Indikasi scam: {risk_pct}%"
+    else:
+        title = "Aman — Pola Pesan Resmi / Normal"
+        badge = "Aman"
+        if official_domains:
+            summary = "Link mengarah ke situs resmi pajak.go.id dan bebas ciri scam."
+        else:
+            summary = "Tidak ada file .apk, link palsu, atau pola ancaman scam."
+        confidence_note = f"Sesuai pesan aman: {safe_pct}%"
+
+    return title, badge, summary, confidence_note
 
 
 def predict_message(
@@ -139,7 +537,7 @@ def predict_message(
     model_path: str | Path = MODEL_PATH,
     top_k: int = 8,
 ) -> dict[str, Any]:
-    """Run full preprocessing, SVM Platt + RF inference, heuristic checks, and XAI."""
+    """Run full preprocessing, SVM Platt + RF inference, heuristic checks, and layperson XAI."""
     text = raw_text.strip()
     if not text:
         raise ValueError("Teks pesan tidak boleh kosong.")
@@ -174,11 +572,32 @@ def predict_message(
         svm_linear.coef_.ravel(),
         top_k=top_k,
     )
+    trigger_stems = _collect_trigger_stems(triggers)
+    highlights, trigger_words = _extract_highlights_and_triggers(text, risk_level, trigger_stems)
+    risk_title, risk_badge, verdict_summary, confidence_note = _build_human_verdict(
+        label=label,
+        risk_level=risk_level,
+        svm_prob=svm_prob,
+        has_apk=heuristics["has_apk"],
+        suspicious_domains=heuristics["suspicious_domains"],
+        official_domains=heuristics["official_domains"],
+    )
+    plain_reasons = _build_plain_reasons(
+        risk_level=risk_level,
+        heuristics=heuristics,
+        matched_words=trigger_words,
+        trigger_stems=trigger_stems,
+    )
+    action_steps = _build_action_steps(risk_level=risk_level, has_apk=heuristics["has_apk"])
 
     return {
         "label": label,
-        "label_text": "Phishing / Penipuan" if label == 1 else "Normal / Resmi",
+        "label_text": "Indikasi Scam" if label == 1 else "Pesan Aman / Resmi",
         "risk_level": risk_level,
+        "risk_title": risk_title,
+        "risk_badge": risk_badge,
+        "verdict_summary": verdict_summary,
+        "confidence_note": confidence_note,
         "svm_probability": round(svm_prob, 4),
         "rf_probability": round(rf_prob, 4),
         "cleaned_text": cleaned,
@@ -188,6 +607,10 @@ def predict_message(
         "official_domains": heuristics["official_domains"],
         "suspicious_domains": heuristics["suspicious_domains"],
         "top_triggers": triggers,
+        "highlights": highlights,
+        "trigger_words": trigger_words,
+        "plain_reasons": plain_reasons,
+        "action_steps": action_steps,
         "recommendation": _build_recommendation(
             label=label,
             has_apk=heuristics["has_apk"],

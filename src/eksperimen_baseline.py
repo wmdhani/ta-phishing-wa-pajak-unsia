@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 import re
 from functools import lru_cache
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-import pandas as pd
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+
+if TYPE_CHECKING:
+    import pandas as pd
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -59,6 +64,8 @@ def clean_text(text: str) -> str:
 
 
 def load_combined_dataset() -> pd.DataFrame:
+    import pandas as pd
+
     dataset_dir = Path(__file__).resolve().parent.parent / "04 Dataset"
     df_base = pd.read_csv(
         dataset_dir / "01 Data Mentah" / "Rahmi 2016 Korpus SMS Spam Utama v1.csv"

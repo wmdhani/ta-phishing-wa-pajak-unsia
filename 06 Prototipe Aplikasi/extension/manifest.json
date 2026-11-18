@@ -1,17 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "Detektor Phishing Pajak WhatsApp Web",
-  "version": "1.0.0",
-  "description": "Ekstensi Manifest V3 untuk mendeteksi pesan phishing WhatsApp mengatasnamakan otoritas perpajakan melalui REST API FastAPI.",
+  "name": "Cek Pesan Pajak — Pelindung WhatsApp Web",
+  "version": "1.2.0",
+  "description": "Ekstensi untuk membantu memeriksa pesan WhatsApp mengatasnamakan Pajak (DJP) secara langsung agar terhindar dari file .apk dan tautan palsu.",
   "permissions": ["activeTab"],
   "host_permissions": [
     "https://web.whatsapp.com/*",
     "http://127.0.0.1:8000/*",
     "http://localhost:8000/*"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Detektor Phishing Pajak"
+    "default_title": "Cek Pesan Pajak"
   },
   "content_scripts": [
     {
