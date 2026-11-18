@@ -51,8 +51,8 @@ PRESET_CATALOG: list[dict[str, str]] = [
     {
         "id": "apk",
         "key": "Phishing APK (Coretax Palsu)",
-        "label": "Scam File .apk",
-        "tag": "Berbahaya",
+        "label": "File .apk Palsu",
+        "tag": "Scam",
         "tone": "danger",
         "text": PRESETS["Phishing APK (Coretax Palsu)"],
     },
@@ -60,7 +60,7 @@ PRESET_CATALOG: list[dict[str, str]] = [
         "id": "domain",
         "key": "Phishing Domain Palsu",
         "label": "Link Pajak Palsu",
-        "tag": "Link Palsu",
+        "tag": "Scam",
         "tone": "danger",
         "text": PRESETS["Phishing Domain Palsu"],
     },
@@ -68,7 +68,7 @@ PRESET_CATALOG: list[dict[str, str]] = [
         "id": "official",
         "key": "Pengumuman Resmi DJP",
         "label": "Chat Resmi DJP",
-        "tag": "Resmi DJP",
+        "tag": "Aman",
         "tone": "safe",
         "text": PRESETS["Pengumuman Resmi DJP"],
     },
@@ -275,16 +275,12 @@ def _build_recommendation(
     official_domains: list[str],
 ) -> str:
     if has_apk:
-        return (
-            "Jangan download atau install file .apk ini. Hapus chat dan blokir pengirimnya."
-        )
+        return "Jangan download/install file .apk ini. Hapus chat & block pengirimnya."
     if label == 1 or suspicious_domains:
-        return (
-            "Jangan klik link atau kirim OTP/PIN. Cek langsung ke pajak.go.id atau Kring Pajak 1500200."
-        )
+        return "Jangan klik link atau kasih OTP/PIN. Cek resmi di pajak.go.id / 1500200."
     if official_domains:
-        return "Link mengarah ke situs resmi pajak.go.id. Tetap jaga kerahasiaan OTP dan PIN Anda."
-    return "Tidak ada tanda scam, tapi tetap jangan pernah bagikan OTP, PIN, atau password lewat WA."
+        return "Link resmi pajak.go.id. Tetap jaga kerahasiaan OTP & password."
+    return "Tidak ada tanda scam. Tetap jangan bagikan OTP/PIN lewat WA."
 
 
 def _collect_trigger_stems(top_triggers: list[dict[str, Any]]) -> set[str]:
@@ -316,7 +312,7 @@ def _extract_highlights_and_triggers(
                 match.end(),
                 match.group(0),
                 "apk",
-                "File .apk berbahaya — DJP tidak pernah kirim aplikasi lewat WA.",
+                "File .apk berbahaya (DJP tidak pernah kirim .apk lewat WA).",
             )
         )
 
@@ -338,7 +334,7 @@ def _extract_highlights_and_triggers(
                     end_pos,
                     trimmed,
                     "official_url",
-                    f"Link resmi DJP ({domain}).",
+                    f"Website resmi DJP ({domain}).",
                 )
             )
         else:
@@ -348,7 +344,7 @@ def _extract_highlights_and_triggers(
                     end_pos,
                     trimmed,
                     "suspicious_url",
-                    f"Link palsu / luar DJP ({domain}) — bukan pajak.go.id.",
+                    f"Link di luar pajak.go.id ({domain}).",
                 )
             )
 
@@ -396,8 +392,8 @@ def _build_plain_reasons(
         reasons.append(
             {
                 "type": "danger",
-                "title": f"Ada file .apk ({files})",
-                "detail": "Modus pencurian OTP & m-banking. DJP tidak pernah kirim .apk.",
+                "title": f"File .apk ({files})",
+                "detail": "Bisa curi OTP & akses m-banking.",
             }
         )
 
@@ -406,8 +402,8 @@ def _build_plain_reasons(
         reasons.append(
             {
                 "type": "danger",
-                "title": f"Link di luar pajak.go.id ({domains})",
-                "detail": "Situs resmi DJP selalu berakhiran pajak.go.id.",
+                "title": f"Link asing ({domains})",
+                "detail": "Web resmi DJP selalu berakhiran pajak.go.id.",
             }
         )
 
@@ -422,11 +418,11 @@ def _build_plain_reasons(
             reasons.append(
                 {
                     "type": "warning",
-                    "title": "Nada mendesak / ancaman denda",
+                    "title": "Nada memaksa / ancam denda",
                     "detail": (
-                        f"Memakai kata {word_preview} untuk memicu panik."
+                        f"Kata pemicu: {word_preview}."
                         if word_preview
-                        else "Memaksa penerima bertindak cepat tanpa cek ulang."
+                        else "Membuat panik agar cepat klik."
                     ),
                 }
             )
@@ -434,11 +430,11 @@ def _build_plain_reasons(
             reasons.append(
                 {
                     "type": "warning",
-                    "title": "Ajakan klik link / verifikasi akun",
+                    "title": "Minta klik / install / login",
                     "detail": (
-                        f"Memancing korban lewat kata {word_preview}."
+                        f"Kata pemicu: {word_preview}."
                         if word_preview
-                        else "Mengarahkan penerima untuk login atau isi data pribadi."
+                        else "Mengarahkan korban mengisi data pribadi."
                     ),
                 }
             )
@@ -446,8 +442,8 @@ def _build_plain_reasons(
             reasons.append(
                 {
                     "type": "warning",
-                    "title": "Pola kalimat mirip modus scam WA",
-                    "detail": "Susunan katanya cocok dengan pola penipuan yang sering beredar.",
+                    "title": "Pola kalimat scam",
+                    "detail": "Mirip modus penipuan pajak di WA.",
                 }
             )
     else:
@@ -457,14 +453,14 @@ def _build_plain_reasons(
                 {
                     "type": "safe",
                     "title": f"Link resmi ({domains})",
-                    "detail": "Alamat situs terdaftar sah milik Direktorat Jenderal Pajak.",
+                    "detail": "Domain sah milik DJP.",
                 }
             )
         reasons.append(
             {
                 "type": "safe",
-                "title": "Bebas file .apk & link mencurigakan",
-                "detail": "Gaya bahasa sesuai imbauan atau chat layanan pajak normal.",
+                "title": "Tidak ada file .apk / link palsu",
+                "detail": "Gaya bahasa normal.",
             }
         )
 
@@ -474,19 +470,19 @@ def _build_plain_reasons(
 def _build_action_steps(risk_level: str, has_apk: bool) -> list[str]:
     if has_apk:
         return [
-            "Jangan download atau install file .apk tersebut.",
-            "Hapus chat dan blokir nomor pengirim di WA.",
-            "Jika terlanjur install, buka tab Darurat .apk.",
+            "Jangan download / install file .apk.",
+            "Hapus chat & block nomor pengirim.",
+            "Terlanjur install? Buka tab Darurat .apk.",
         ]
     if risk_level in ("TINGGI", "SEDANG"):
         return [
-            "Jangan klik link atau kirim NIK, NPWP, EFIN, maupun OTP.",
-            "Cek info asli hanya di pajak.go.id atau Kring Pajak 1500200.",
-            "Share peringatan ini jika pesan beredar di grup keluarga/kantor.",
+            "Jangan klik link atau kasih OTP, PIN, & EFIN.",
+            "Cek info asli di pajak.go.id atau Kring Pajak 1500200.",
+            "Share info ini ke grup jika pesan beredar.",
         ]
     return [
-        "Aman dibaca, tetap jangan pernah bagikan OTP atau PIN ke siapa pun.",
-        "Untuk akses layanan, ketik langsung pajak.go.id di browser.",
+        "Aman dibaca, tetap rahasiakan OTP & password.",
+        "Akses layanan pajak langsung di pajak.go.id.",
     ]
 
 
@@ -502,32 +498,32 @@ def _build_human_verdict(
     safe_pct = max(0, 100 - risk_pct)
 
     if risk_level == "TINGGI":
-        title = "Berbahaya — Besar Kemungkinan Scam"
-        badge = "Berbahaya"
+        badge = "BAHAYA / SCAM"
+        title = "Jangan Klik atau Download!"
         if has_apk:
-            summary = "Ada file .apk berbahaya — DJP tidak pernah kirim aplikasi lewat WA."
+            summary = "Ada file .apk berbahaya. DJP tidak pernah kirim aplikasi lewat WA."
         elif suspicious_domains:
-            summary = "Link mengarah ke situs palsu di luar pajak.go.id."
+            summary = "Link mengarah ke web palsu (bukan pajak.go.id)."
         else:
-            summary = "Gaya bahasanya sangat mirip modus scam pajak di WA."
-        confidence_note = f"Indikasi scam: {max(risk_pct, 85 if has_apk else risk_pct)}%"
+            summary = "Kalimatnya cocok dengan pola chat scam pajak."
+        confidence_note = f"Scam {max(risk_pct, 85 if has_apk else risk_pct)}%"
     elif risk_level == "SEDANG":
-        title = "Waspada — Ada Tanda Mencurigakan"
-        badge = "Waspada"
+        badge = "WASPADA"
+        title = "Cek Dulu Sebelum Klik"
         if suspicious_domains and label == 0:
-            summary = "Ada link di luar situs resmi pajak.go.id, cek ulang pengirimnya."
-            confidence_note = "Ditemukan link eksternal"
+            summary = "Ada link di luar pajak.go.id. Pastikan dulu pengirimnya."
+            confidence_note = "Link eksternal"
         else:
-            summary = "Sebagian isi pesan mencurigakan, pastikan langsung ke kanal resmi DJP."
-            confidence_note = f"Indikasi scam: {risk_pct}%"
+            summary = "Ada kata yang mirip pola scam. Cek langsung ke pajak.go.id."
+            confidence_note = f"Risiko {risk_pct}%"
     else:
-        title = "Aman — Pola Pesan Resmi / Normal"
-        badge = "Aman"
+        badge = "AMAN"
+        title = "Pola Chat Resmi / Normal"
         if official_domains:
-            summary = "Link mengarah ke situs resmi pajak.go.id dan bebas ciri scam."
+            summary = "Link resmi pajak.go.id & tidak ada ciri scam."
         else:
-            summary = "Tidak ada file .apk, link palsu, atau pola ancaman scam."
-        confidence_note = f"Sesuai pesan aman: {safe_pct}%"
+            summary = "Tidak ada file .apk, link palsu, atau paksaan."
+        confidence_note = f"Aman {safe_pct}%"
 
     return title, badge, summary, confidence_note
 

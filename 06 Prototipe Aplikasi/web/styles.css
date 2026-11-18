@@ -1575,6 +1575,72 @@ input:focus-visible {
   color: var(--safe-ink);
 }
 
+.acad-hero-meta {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  line-height: 1.45;
+}
+
+.acad-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.xai-msg-preview {
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  border: 1px solid var(--hairline);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+.xai-weights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.xai-weight-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 9px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  font-size: 0.78rem;
+}
+
+.xai-weight-score {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--ink-muted);
+}
+
+.xai-clean-line {
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.xai-clean-line strong {
+  color: var(--ink);
+}
+
+.reason-line {
+  line-height: 1.42;
+}
+
 /* Responsive */
 @media (max-width: 960px) {
   .topbar-inner {

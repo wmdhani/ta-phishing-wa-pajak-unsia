@@ -2,22 +2,22 @@
   const FALLBACK_PRESETS = [
     {
       id: "apk",
-      label: "Scam File .apk",
-      tag: "Berbahaya",
+      label: "File .apk Palsu",
+      tag: "Scam",
       tone: "danger",
       text: "Yth. Wajib Pajak, segera unduh dan instal berkas Pembaruan_Coretax_DJP.apk untuk verifikasi NPWP agar terhindar dari denda administratif.",
     },
     {
       id: "domain",
       label: "Link Pajak Palsu",
-      tag: "Link Palsu",
+      tag: "Scam",
       tone: "danger",
       text: "Pemberitahuan resmi Direktorat Jenderal Pajak: terdapat selisih SPT Tahunan Anda. Segera login melalui https://djp-coretax-verifikasi.xyz/login sebelum pukul 17.00 WIB.",
     },
     {
       id: "official",
       label: "Chat Resmi DJP",
-      tag: "Resmi DJP",
+      tag: "Aman",
       tone: "safe",
       text: "Direktorat Jenderal Pajak mengimbau Wajib Pajak melaporkan SPT Tahunan tepat waktu melalui laman resmi https://djponline.pajak.go.id atau hubungi Kring Pajak 1500200.",
     },
@@ -53,7 +53,6 @@
     verdictSummary: document.getElementById("verdict-summary"),
     meterFill: document.getElementById("meter-fill"),
     highlightedText: document.getElementById("highlighted-text"),
-    highlightHint: document.getElementById("highlight-hint"),
     highlightInspector: document.getElementById("highlight-inspector"),
     triggerChipsRow: document.getElementById("trigger-chips-row"),
     reasonsList: document.getElementById("reasons-list"),
@@ -80,6 +79,7 @@
   let lastCheckedText = "";
   let inspectorResult = null;
   let inspectorText = "";
+  let showFullBenchmarkTable = false;
   let presetsCache = FALLBACK_PRESETS;
   let toastTimer = null;
   let activeCheckController = null;
@@ -134,7 +134,7 @@
   function setLoading(loading) {
     el.checkBtn.disabled = loading;
     el.checkBtnSpinner.hidden = !loading;
-    el.checkBtnLabel.textContent = loading ? "Memeriksa..." : "Cek Pesan Sekarang";
+    el.checkBtnLabel.textContent = loading ? "Memeriksa..." : "Cek Sekarang";
   }
 
   function clearActivePreset() {
@@ -174,7 +174,6 @@
 
   function renderHighlightedBubble(rawText, highlights, triggerWords) {
     el.highlightedText.replaceChildren();
-    el.highlightHint.hidden = true;
     el.highlightInspector.hidden = true;
     el.triggerChipsRow.replaceChildren();
     el.triggerChipsRow.hidden = true;
@@ -219,7 +218,6 @@
       }
 
       if (showHandlers.length > 0) {
-        el.highlightHint.hidden = false;
         const preferred =
           showHandlers.find((h) => h.kind === "apk" || h.kind === "suspicious_url") ||
           showHandlers[0];
@@ -229,7 +227,7 @@
 
     if (Array.isArray(triggerWords) && triggerWords.length > 0) {
       const label = document.createElement("span");
-      label.textContent = "Kata pemicu:";
+      label.textContent = "Trigger words:";
       el.triggerChipsRow.appendChild(label);
       triggerWords.slice(0, 4).forEach((word) => {
         const chip = document.createElement("span");
@@ -285,11 +283,12 @@
       dot.setAttribute("aria-hidden", "true");
 
       const content = document.createElement("div");
-      const title = document.createElement("div");
+      content.className = "reason-line";
+      const title = document.createElement("strong");
       title.className = "reason-title";
-      title.textContent = item.title;
+      title.textContent = `${item.title}: `;
 
-      const detail = document.createElement("div");
+      const detail = document.createElement("span");
       detail.className = "reason-detail";
       detail.textContent = item.detail;
 
@@ -321,7 +320,7 @@
   async function runCheck(textOverride) {
     const text = (textOverride ?? el.input.value).trim();
     if (!text) {
-      showInputAlert("Paste atau ketik pesan WA dulu.");
+      showInputAlert("Paste atau ketik chat WA dulu.");
       el.input.focus();
       return;
     }
@@ -422,10 +421,36 @@
     }
   }
 
+  function shortenStageName(rawStage) {
+    const map = {
+      "Tahap 1: Baseline Holdout 80:20": "Baseline Holdout",
+      "Tahap 1: 10-Fold CV Default (Latih)": "10-Fold CV Default",
+      "Tahap 2: 10-Fold CV Tuned (Latih)": "10-Fold CV Tuned",
+      "Tahap 3: Holdout Tuned & Kalibrasi": "Holdout Final (80:20)",
+      "Tahap 4A: Subset Pajak Holdout": "Khusus Chat Pajak",
+      "Tahap 4A: 10-Fold CV Korpus Pajak 260": "CV Korpus Pajak (260)",
+      "Tahap 4B: Zero-Shot Eksternal (Unseen)": "Zero-Shot Eksternal",
+      "Tahap 4C: Holdout Korpus 2.521 (80:20)": "Holdout 2.521 Teks",
+      "Tahap 4C: 10-Fold CV Korpus 2.521": "10-Fold CV 2.521",
+    };
+    return map[rawStage] || rawStage || "-";
+  }
+
+  function isKeyComparisonRow(row) {
+    const st = row.tahap_evaluasi || "";
+    const mdl = row.model || "";
+    if (st === "Tahap 2: 10-Fold CV Tuned (Latih)") return true;
+    if (st === "Tahap 4A: Subset Pajak Holdout") return true;
+    if (st === "Tahap 3: Holdout Tuned & Kalibrasi") {
+      return mdl.includes("Platt Sigmoid") || mdl.includes("Random Forest");
+    }
+    return false;
+  }
+
   function renderAcademicSummaryPanel(data) {
     const meta = data.metadata || {};
     const thesis = data.thesis || {};
-    const rows = data.evaluation_rows || [];
+    const allRows = data.evaluation_rows || [];
 
     const container = document.createElement("div");
     container.className = "acad-panel";
@@ -435,26 +460,10 @@
     const heroTitle = document.createElement("p");
     heroTitle.className = "acad-hero-title";
     heroTitle.textContent = thesis.title || "";
-
-    const identityGrid = document.createElement("div");
-    identityGrid.className = "acad-identity-grid";
-    const identities = [
-      ["Penulis", thesis.author || "Wan Mirza Dhani (240101020194)"],
-      ["Dosen Pembimbing", thesis.advisor || "Bapak Novi Dian Nathasia, S.Kom., MMSI"],
-      ["Program Studi", thesis.program || "PJJ Sistem Informasi — Universitas Siber Asia"],
-      ["Skema", thesis.scheme || "Tugas Akhir Prototype (TKT Level 6)"],
-    ];
-    identities.forEach(([k, v]) => {
-      const item = document.createElement("div");
-      item.className = "acad-identity-item";
-      const label = document.createElement("span");
-      label.textContent = `${k}: `;
-      const val = document.createElement("strong");
-      val.textContent = v;
-      item.append(label, val);
-      identityGrid.appendChild(item);
-    });
-    hero.append(heroTitle, identityGrid);
+    const heroSub = document.createElement("p");
+    heroSub.className = "acad-hero-meta";
+    heroSub.textContent = `${thesis.author || "Wan Mirza Dhani (240101020194)"} • Pembimbing: ${thesis.advisor || "Bapak Novi Dian Nathasia, S.Kom., MMSI"} • PJJ Sistem Informasi UNSIA (TKT 6)`;
+    hero.append(heroTitle, heroSub);
     container.appendChild(hero);
 
     const statsGrid = document.createElement("div");
@@ -462,13 +471,13 @@
     const svmAcc = meta.holdout_accuracy_svm ? formatIdDecimal(meta.holdout_accuracy_svm, 2, true) : "97,42%";
     const rfAcc = meta.holdout_accuracy_rf ? formatIdDecimal(meta.holdout_accuracy_rf, 2, true) : "96,57%";
     const brierVal = meta.holdout_brier_svm_calibrated
-      ? formatIdDecimal(meta.holdout_brier_svm_calibrated, 5, false)
-      : "0,01900";
+      ? formatIdDecimal(meta.holdout_brier_svm_calibrated, 4, false)
+      : "0,0190";
     const stats = [
-      ["Korpus Induk & Perluasan", `${(meta.n_samples ?? 1164).toLocaleString("id-ID")} / 2.521 pesan`, "904 SMS umum + 260 teks pajak seimbang"],
-      ["Holdout LinearSVC (Platt)", svmAcc, `Pembanding Random Forest: ${rfAcc}`],
-      ["Ketahanan Subset Pajak (n=44)", "97,73% vs 88,64%", "LinearSVC unggul atas RF (mitigasi keyword bias)"],
-      ["Kalibrasi & Latensi", `Brier ${brierVal}`, "14,37 ms lokal • 23,22 ms REST API"],
+      ["Dataset", `${(meta.n_samples ?? 1164).toLocaleString("id-ID")} Chat`, "904 umum + 260 pajak"],
+      ["Accuracy (Holdout)", svmAcc, `LinearSVC vs RF ${rfAcc}`],
+      ["Khusus Chat Pajak", "97,73%", "LinearSVC vs RF 88,64%"],
+      ["Speed & Calibration", "~14 ms", `Brier ${brierVal} • Platt Scaling`],
     ];
     stats.forEach(([label, val, sub]) => {
       const box = document.createElement("div");
@@ -484,14 +493,31 @@
     });
     container.appendChild(statsGrid);
 
-    if (rows.length > 0) {
+    if (allRows.length > 0) {
+      const tableToolbar = document.createElement("div");
+      tableToolbar.className = "acad-table-toolbar";
+      const tableTitle = document.createElement("h3");
+      tableTitle.className = "xai-section-title";
+      tableTitle.style.margin = "0";
+      tableTitle.textContent = showFullBenchmarkTable ? `Full Benchmark (${allRows.length} Rows)` : "Key Comparison (LinearSVC vs RF)";
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.type = "button";
+      toggleBtn.className = "xai-preset-btn";
+      toggleBtn.textContent = showFullBenchmarkTable ? "Show Compact (6 Rows)" : `Show All ${allRows.length} Rows`;
+      toggleBtn.addEventListener("click", () => {
+        showFullBenchmarkTable = !showFullBenchmarkTable;
+        renderAcademicSummaryPanel(data);
+      });
+      tableToolbar.append(tableTitle, toggleBtn);
+      container.appendChild(tableToolbar);
+
+      const visibleRows = showFullBenchmarkTable ? allRows : allRows.filter(isKeyComparisonRow);
       const colSpecs = [
-        ["tahap_evaluasi", "Tahap Evaluasi"],
-        ["model", "Model Klasifikasi"],
-        ["n_sampel", "Sampel"],
+        ["tahap_evaluasi", "Stage"],
+        ["model", "Model"],
+        ["n_sampel", "Samples"],
         ["accuracy", "Accuracy"],
-        ["precision", "Precision"],
-        ["recall", "Recall"],
         ["f1", "F1-Score"],
         ["roc_auc", "ROC-AUC"],
       ];
@@ -510,7 +536,7 @@
       thead.appendChild(headRow);
 
       const tbody = document.createElement("tbody");
-      rows.forEach((row) => {
+      visibleRows.forEach((row) => {
         const tr = document.createElement("tr");
         if ((row.model || "").includes("Platt Sigmoid")) {
           tr.className = "row-highlight";
@@ -518,10 +544,12 @@
         colSpecs.forEach(([key]) => {
           const td = document.createElement("td");
           const rawVal = row[key];
-          if (key === "n_sampel") {
+          if (key === "tahap_evaluasi") {
+            td.textContent = shortenStageName(rawVal);
+          } else if (key === "n_sampel") {
             const n = Number(rawVal);
             td.textContent = Number.isNaN(n) ? rawVal || "-" : n.toLocaleString("id-ID");
-          } else if (["accuracy", "precision", "recall", "f1"].includes(key)) {
+          } else if (key === "accuracy" || key === "f1") {
             td.textContent = formatIdDecimal(rawVal, 2, true);
           } else if (key === "roc_auc") {
             td.textContent = formatIdDecimal(rawVal, 4, false);
@@ -544,7 +572,7 @@
     el.acadPanelSummary.replaceChildren();
     const loading = document.createElement("p");
     loading.className = "dialog-loading";
-    loading.textContent = "Memuat ringkasan evaluasi...";
+    loading.textContent = "Loading...";
     el.acadPanelSummary.appendChild(loading);
     try {
       const resp = await fetch("/api/academic-summary");
@@ -552,7 +580,7 @@
       const data = await resp.json();
       renderAcademicSummaryPanel(data);
     } catch (err) {
-      el.acadPanelSummary.textContent = `Gagal memuat ringkasan akademik: ${err.message}`;
+      el.acadPanelSummary.textContent = `Gagal memuat ringkasan: ${err.message}`;
     }
   }
 
@@ -560,7 +588,7 @@
     const resp = await fetch("/predict", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: sampleText, top_k: 8 }),
+      body: JSON.stringify({ text: sampleText, top_k: 6 }),
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     inspectorText = sampleText;
@@ -575,9 +603,7 @@
     toolbar.className = "xai-toolbar";
     const tbLabel = document.createElement("span");
     tbLabel.className = "xai-toolbar-label";
-    tbLabel.textContent = lastResult
-      ? "Menampilkan analisis pesan yang baru diperiksa (atau pilih contoh uji):"
-      : "Pilih contoh pesan untuk membedah komparasi model & bobot XAI:";
+    tbLabel.textContent = lastResult ? "Hasil pesan terakhir (atau ganti contoh):" : "Pilih contoh uji:";
 
     const presetBtns = document.createElement("div");
     presetBtns.className = "xai-preset-btns";
@@ -588,7 +614,7 @@
       btn.textContent = p.label;
       btn.addEventListener("click", () => {
         fetchPredictionForInspector(p.text).catch((err) => {
-          el.acadPanelInspector.textContent = `Gagal memuat inspektor XAI: ${err.message}`;
+          el.acadPanelInspector.textContent = `Gagal memuat XAI: ${err.message}`;
         });
       });
       presetBtns.appendChild(btn);
@@ -600,22 +626,15 @@
     if (!data) {
       const waitMsg = document.createElement("p");
       waitMsg.className = "dialog-loading";
-      waitMsg.textContent = "Memuat contoh analisis model...";
+      waitMsg.textContent = "Loading...";
       el.acadPanelInspector.appendChild(waitMsg);
       return;
     }
 
-    const msgBox = document.createElement("div");
-    msgBox.className = "xai-section-box";
-    const msgTitle = document.createElement("h3");
-    msgTitle.className = "xai-section-title";
-    msgTitle.textContent = "Pesan yang Dianalisis";
-    const msgText = document.createElement("div");
-    msgText.style.fontSize = "0.83rem";
-    msgText.style.lineHeight = "1.48";
-    msgText.textContent = inspectorText;
-    msgBox.append(msgTitle, msgText);
-    el.acadPanelInspector.appendChild(msgBox);
+    const msgSnippet = document.createElement("div");
+    msgSnippet.className = "xai-msg-preview";
+    msgSnippet.textContent = inspectorText;
+    el.acadPanelInspector.appendChild(msgSnippet);
 
     const compareGrid = document.createElement("div");
     compareGrid.className = "xai-compare-grid";
@@ -624,17 +643,17 @@
     const rfProb = Number(data.rf_probability || 0);
     const modelCards = [
       {
-        name: "LinearSVC (Platt Scaling)",
-        tag: data.inference_ms ? `Model Utama • ${data.inference_ms} ms` : "Model Utama",
+        name: "LinearSVC (Platt)",
+        tag: data.inference_ms ? `Production • ${data.inference_ms} ms` : "Production",
         prob: svmProb,
-        note: `Vonis sistem: ${data.risk_level} (${data.label === 1 ? "Phishing" : "Aman/Resmi"})`,
+        note: `Verdict: ${data.risk_level} (${data.label === 1 ? "Scam" : "Aman"})`,
         winner: true,
       },
       {
-        name: "Random Forest (200 Pohon)",
-        tag: "Model Pembanding",
+        name: "Random Forest (200 Trees)",
+        tag: "Benchmark",
         prob: rfProb,
-        note: `Selisih probabilitas: ${formatIdDecimal(Math.abs(svmProb - rfProb), 2, true)}`,
+        note: `Gap: ${formatIdDecimal(Math.abs(svmProb - rfProb), 2, true)}`,
         winner: false,
       },
     ];
@@ -670,81 +689,47 @@
     });
     el.acadPanelInspector.appendChild(compareGrid);
 
-    const prepBox = document.createElement("div");
-    prepBox.className = "xai-section-box";
-    const prepTitle = document.createElement("h3");
-    prepTitle.className = "xai-section-title";
-    prepTitle.textContent = "Hasil Praproses Sastrawi & Penyandian Token Entitas (clean_text)";
-    const flow = document.createElement("div");
-    flow.className = "xai-tokens-flow";
-    const cleanedTokens = (data.cleaned_text || "").split(/\s+/).filter(Boolean);
-    if (cleanedTokens.length === 0) {
-      const emptyTok = document.createElement("span");
-      emptyTok.className = "xai-model-note";
-      emptyTok.textContent = "(Tidak ada token tersisa setelah stopword removal)";
-      flow.appendChild(emptyTok);
-    } else {
-      cleanedTokens.forEach((tok) => {
-        const chip = document.createElement("span");
-        chip.className =
-          tok === "token_apk" || tok === "token_url"
-            ? "xai-stem-token is-entity"
-            : "xai-stem-token";
-        chip.textContent = tok;
-        flow.appendChild(chip);
-      });
-    }
-    prepBox.append(prepTitle, flow);
-    el.acadPanelInspector.appendChild(prepBox);
-
-    const triggers = data.top_triggers || [];
+    const triggers = (data.top_triggers || []).slice(0, 6);
     if (triggers.length > 0) {
       const trigBox = document.createElement("div");
       trigBox.className = "xai-section-box";
       const trigTitle = document.createElement("h3");
       trigTitle.className = "xai-section-title";
-      trigTitle.textContent = "Kontribusi Fitur Teratas LinearSVC (TF-IDF x Koefisien Hyperplane w)";
+      trigTitle.textContent = "Top Feature Weights (TF-IDF x Coef w)";
 
-      const wrap = document.createElement("div");
-      wrap.className = "acad-table-wrap";
-      const table = document.createElement("table");
-      table.className = "acad-table xai-coef-table";
-
-      const thead = document.createElement("thead");
-      const htr = document.createElement("tr");
-      ["Fitur / Token", "Koefisien w", "Kontribusi (TF-IDF x w)", "Arah Dorongan"].forEach((h) => {
-        const th = document.createElement("th");
-        th.textContent = h;
-        htr.appendChild(th);
-      });
-      thead.appendChild(htr);
-
-      const tbody = document.createElement("tbody");
+      const list = document.createElement("div");
+      list.className = "xai-weights-list";
       triggers.forEach((t) => {
-        const tr = document.createElement("tr");
-        const tdTok = document.createElement("td");
-        tdTok.textContent = t.token;
+        const row = document.createElement("div");
+        row.className = "xai-weight-row";
 
-        const tdCoef = document.createElement("td");
-        tdCoef.textContent = `${t.svm_coef > 0 ? "+" : ""}${Number(t.svm_coef).toFixed(4)}`;
+        const tok = document.createElement("span");
+        tok.className = "xai-stem-token";
+        tok.textContent = t.token;
 
-        const tdContrib = document.createElement("td");
-        tdContrib.textContent = `${t.contribution > 0 ? "+" : ""}${Number(t.contribution).toFixed(4)}`;
+        const score = document.createElement("span");
+        score.className = "xai-weight-score";
+        score.textContent = `${t.contribution > 0 ? "+" : ""}${Number(t.contribution).toFixed(3)} (w=${t.svm_coef > 0 ? "+" : ""}${Number(t.svm_coef).toFixed(2)})`;
 
-        const tdDir = document.createElement("td");
         const pill = document.createElement("span");
         pill.className = `xai-dir-pill ${t.direction === "phishing" ? "phishing" : "resmi"}`;
-        pill.textContent = t.direction === "phishing" ? "Phishing (+)" : "Resmi / Normal (-)";
-        tdDir.appendChild(pill);
+        pill.textContent = t.direction === "phishing" ? "Scam (+)" : "Aman (-)";
 
-        tr.append(tdTok, tdCoef, tdContrib, tdDir);
-        tbody.appendChild(tr);
+        row.append(tok, score, pill);
+        list.appendChild(row);
       });
-      table.append(thead, tbody);
-      wrap.appendChild(table);
-      trigBox.append(trigTitle, wrap);
+      trigBox.append(trigTitle, list);
       el.acadPanelInspector.appendChild(trigBox);
     }
+
+    const prepBox = document.createElement("div");
+    prepBox.className = "xai-clean-line";
+    const prepLabel = document.createElement("strong");
+    prepLabel.textContent = "Preprocessed (Sastrawi): ";
+    const prepText = document.createElement("code");
+    prepText.textContent = data.cleaned_text || "(kosong)";
+    prepBox.append(prepLabel, prepText);
+    el.acadPanelInspector.appendChild(prepBox);
   }
 
   function renderAcademicInspector() {
@@ -772,8 +757,7 @@
     const head = document.createElement("div");
     head.className = "sim-ext-head";
     const headText = document.createElement("span");
-    headText.textContent =
-      "Simulasi langsung ekstensi Chrome Manifest V3 (content.js + background.js) memindai gelembung WhatsApp Web ke endpoint /predict.";
+    headText.textContent = "Simulasi tombol Cek Pesan Pajak di dalam chat WhatsApp Web (Manifest V3):";
 
     const headActions = document.createElement("div");
     headActions.style.display = "flex";
@@ -783,14 +767,14 @@
     const runAllBtn = document.createElement("button");
     runAllBtn.type = "button";
     runAllBtn.className = "sim-scan-btn";
-    runAllBtn.textContent = "Uji Semua 3 Gelembung";
+    runAllBtn.textContent = "Test All 3 Chats";
 
     const openFullLink = document.createElement("a");
     openFullLink.className = "btn-soft-link";
     openFullLink.href = "/simulasi-wa";
     openFullLink.target = "_blank";
     openFullLink.rel = "noopener noreferrer";
-    openFullLink.textContent = "Buka Simulasi Penuh (/simulasi-wa)";
+    openFullLink.textContent = "Full Screen";
 
     headActions.append(runAllBtn, openFullLink);
     head.append(headText, headActions);
@@ -799,8 +783,8 @@
     const list = document.createElement("div");
     list.className = "sim-wa-list";
     const senderLabels = [
-      "+62 812-9901-xxxx (Tidak Dikenal)",
-      "+62 857-4410-xxxx (Pesan Terusan)",
+      "+62 812-9901-xxxx (Unknown)",
+      "+62 857-4410-xxxx (Forward)",
       "Kring Pajak / DJP Resmi",
     ];
     const scanButtons = [];
@@ -822,7 +806,7 @@
       const scanBtn = document.createElement("button");
       scanBtn.type = "button";
       scanBtn.className = "sim-scan-btn";
-      scanBtn.textContent = "Cek Pesan Pajak";
+      scanBtn.textContent = "Cek";
 
       const badge = document.createElement("div");
       badge.className = "sim-wa-badge";
@@ -830,7 +814,7 @@
 
       const runBubbleScan = async () => {
         scanBtn.disabled = true;
-        scanBtn.textContent = "Memeriksa...";
+        scanBtn.textContent = "Cek...";
         try {
           const resp = await fetch("/predict", {
             method: "POST",
@@ -843,7 +827,7 @@
           badge.className = `sim-wa-badge ${riskCls}`;
           badge.replaceChildren();
           const strong = document.createElement("strong");
-          strong.textContent = res.risk_title || res.label_text;
+          strong.textContent = `${res.risk_badge}: ${res.risk_title}`;
           badge.appendChild(strong);
           badge.appendChild(document.createElement("br"));
           const sub = document.createElement("small");
@@ -857,9 +841,9 @@
           scanBtn.textContent = "Cek Ulang";
         } catch (err) {
           badge.className = "sim-wa-badge sedang";
-          badge.textContent = `Gagal memindai: ${err.message}`;
+          badge.textContent = `Gagal cek: ${err.message}`;
           badge.hidden = false;
-          scanBtn.textContent = "Cek Pesan Pajak";
+          scanBtn.textContent = "Cek";
         } finally {
           scanBtn.disabled = false;
         }
@@ -949,9 +933,9 @@
     const textToCopy = buildShareMessage(lastCheckedText, lastResult);
     try {
       await navigator.clipboard.writeText(textToCopy);
-      showToast("Alert berhasil disalin — siap paste ke grup WA.");
+      showToast("Berhasil disalin. Siap paste ke grup WA.");
     } catch {
-      showToast("Gagal salin otomatis. Pakai tombol Share WA.");
+      showToast("Gagal salin. Pakai tombol Share WA.");
     }
   });
 
@@ -960,12 +944,11 @@
       const checkedCount = Array.from(el.scamChecks).filter((c) => c.checked).length;
       if (checkedCount === 0) {
         el.checklistFeedback.className = "checklist-feedback";
-        el.checklistFeedback.textContent =
-          "Salah satu ciri saja sudah cukup jadi alasan untuk tidak klik link atau file.";
+        el.checklistFeedback.textContent = "Ada 1 tanda saja? Jangan klik link atau file.";
       } else {
         el.checklistFeedback.className = "checklist-feedback alert";
         el.checklistFeedback.textContent =
-          `${checkedCount} tanda scam tercentang. Jangan klik link, install file, atau kirim OTP.`;
+          `${checkedCount} ciri ditemukan. Jangan klik link, install file, atau kirim OTP.`;
       }
     });
   });
