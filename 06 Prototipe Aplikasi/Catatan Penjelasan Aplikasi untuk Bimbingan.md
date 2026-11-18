@@ -58,3 +58,46 @@
 | *"Kalau penipu pakai domain mirip seperti `pajak.go.id.verifikasi.xyz` bagaimana?"* | *"Sistem mengecek bagian akhiran host yang benar-benar persis `pajak.go.id` atau `.pajak.go.id`. Karena akhiran domain di contoh itu `.xyz`, sistem langsung menandainya sebagai domain mencurigakan."* |
 | *"Apakah angka jam seperti `17.00` atau uang `Rp1.500.000` bisa salah dianggap link?"* | *"Sudah dicegah, Pak. Pola regex link kami mensyaratkan akhiran huruf domain asli (seperti `.com`, `.id`, `.xyz`), jadi angka dengan titik seperti jam atau rupiah tidak akan terdeteksi sebagai URL."* |
 | *"Apa keterbatasan aplikasi yang sekarang?"* | *"Dua hal, Pak: pertama, ekstensi Chrome saat ini masih diarahkan ke server lokal (`localhost:8000`) sedangkan aplikasi webnya sudah online di Railway; kedua, pembatas spam (*rate limiter*) masih disimpan di memori satu server, jadi kalau suatu saat sistem diperbesar ke banyak server sekaligus, penghitungnya perlu dipindah ke Redis."* |
+
+---
+
+## 4. Cara Menjawab Jika Ditanya Syntax Kode
+
+Gunakan **rumus 3 langkah** saat dosen menunjuk baris kode apa pun:
+1. **Fungsinya:** baris ini bertugas melakukan apa.
+2. **Alasannya:** kenapa ditulis seperti itu (bukan cara lain).
+3. **Dampaknya:** apa yang terjadi kalau baris ini tidak ada.
+
+### A. Syntax Praproses & Regex (`src/eksperimen_baseline.py`)
+- **`re.sub(r"\.apk\b", " token_apk ", text)`**
+  - *Cara jawab:* "`\.` artinya mencari karakter titik asli (bukan sembarang karakter), `\b` artinya batas akhir kata. Jadi hanya kata yang berakhiran `.apk` yang diubah jadi `token_apk`, dan ini dijalankan sebelum deteksi link supaya nama file seperti `coretax.id.apk` tidak ketukar jadi `token_url`."
+- **`re.sub(r"[^a-z0-9\s_]", " ", text)`**
+  - *Cara jawab:* "Tanda `^` di dalam kurung siku artinya *kecuali*. Jadi semua simbol atau tanda baca selain huruf kecil, angka, spasi, dan garis bawah (`_`) dihapus. Garis bawah sengaja disisakan supaya penanda `token_apk` dan `token_url` tidak ikut terpotong."
+- **`lru_cache(maxsize=20000)(stemmer.stem)`**
+  - *Cara jawab:* "Ini menyimpan hingga 20.000 hasil kata dasar Sastrawi di memori RAM. Kalau ada kata yang sama muncul lagi, tidak perlu dihitung ulang, jadi prosesnya jauh lebih cepat."
+
+### B. Syntax Deteksi & XAI (`06 Prototipe Aplikasi/inference.py`)
+- **`clean == "pajak.go.id" or clean.endswith(".pajak.go.id")`**
+  - *Cara jawab:* "Kami sengaja memakai `endswith('.pajak.go.id')`, bukan sekadar mencari kata `'pajak.go.id' in domain`. Kalau hanya pakai `in`, domain jebakan seperti `pajak.go.id.evil.com` bisa lolos dianggap resmi. Dengan `endswith`, akhiran domain harus benar-benar milik DJP."
+- **`URL_PATTERN` dengan `_BARE_TLD_LIST`**
+  - *Cara jawab:* "Regex link ini mewajibkan akhiran domain berupa huruf yang terdaftar (seperti `.go.id`, `.com`, `.xyz`), sehingga angka bertitik seperti jam `17.00` atau nominal `Rp1.500.000` tidak salah dianggap alamat website."
+- **`svm_calibrated.predict_proba(features)[0, 1]`**
+  - *Cara jawab:* "`predict_proba` mengeluarkan dua kolom peluang: kolom `0` untuk aman dan kolom `1` untuk scam. Indeks `[0, 1]` mengambil hasil pesan pertama pada kolom probabilitas scam."
+- **`score = tfidf_val * coef_val`**
+  - *Cara jawab:* "Untuk XAI, bobot TF-IDF suatu kata pada pesan dikalikan dengan koefisien garis pemisah `LinearSVC`. Hasil positif mendorong ke arah *phishing*, sedangkan hasil negatif mendorong ke arah aman/resmi."
+
+### C. Syntax Backend FastAPI & Keamanan (`06 Prototipe Aplikasi/api.py`)
+- **`@app.post("/predict")` dan `Field(..., min_length=1, max_length=5000)`**
+  - *Cara jawab:* "`@app.post` adalah *decorator* FastAPI untuk menerima data JSON lewat metode POST, sedangkan `Field` dari Pydantic otomatis memvalidasi panjang teks minimal 1 dan maksimal 5.000 huruf. Kalau kosong atau kepanjangan, API otomatis menolak dengan kode HTTP `422`."
+- **`@asynccontextmanager` pada `lifespan`**
+  - *Cara jawab:* "Kode sebelum `yield` dijalankan sekali saat server pertama kali hidup. Di sini dipakai untuk *warm-up* memuat model `.joblib` dan Sastrawi ke memori sebelum ada pengguna yang mengakses."
+- **`@app.middleware("http")`**
+  - *Cara jawab:* "Middleware bekerja sebagai pos pemeriksaan di depan semua endpoint: setiap request `POST /predict` dicek batas per menitnya (*rate limit* `429`), dan setiap respons ditempeli *security headers* seperti `X-Frame-Options` dan `X-Content-Type-Options`."
+
+### D. Syntax Frontend Web & Ekstensi (`web/app.js` & `extension/content.js`)
+- **`document.createElement(...)` dan `.textContent = ...`**
+  - *Cara jawab:* "Saya memakai `textContent`, bukan `innerHTML`, saat menampilkan teks pesan atau hasil analisis agar browser memperlakukannya murni sebagai teks biasa. Ini mencegah serangan XSS jika ada yang memasukkan kode `<script>` ke kotak pesan."
+- **`new AbortController()`**
+  - *Cara jawab:* "Untuk mencegah *race condition* kalau user mengklik tombol Cek berkali-kali dengan cepat. Request lama otomatis dibatalkan sehingga hasil yang tampil selalu milik pesan terakhir."
+- **`new MutationObserver(...)` (di `content.js`)**
+  - *Cara jawab:* "WhatsApp Web selalu menambah elemen HTML baru secara dinamis saat ada chat masuk tanpa me-refresh halaman. `MutationObserver` memantau perubahan DOM tersebut dan memakai jeda `150 ms` (*debounce*) agar tombol **Cek Pesan Pajak** muncul otomatis tanpa memberatkan browser."
