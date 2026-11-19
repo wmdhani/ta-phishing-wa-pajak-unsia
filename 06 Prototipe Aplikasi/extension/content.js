@@ -196,17 +196,22 @@ function attachScanButton(row) {
   btn.addEventListener("click", async (event) => {
     event.preventDefault();
     event.stopPropagation();
-    const latestText = extractMessageText(row) || text;
+    const latestText = (extractMessageText(row) || text).slice(0, 5000);
     btn.disabled = true;
     btn.textContent = "Memeriksa...";
     try {
       const data = await predictViaExtension(latestText);
       renderResultBadge(wrap, data);
     } catch (err) {
-      const msg =
-        err && err.message && err.message.includes("refresh (F5)")
-          ? err.message
-          : "Server belum aktif di port 8000. Jalankan Cek Pesan Pajak dulu.";
+      const errMsg = (err && err.message) || "";
+      let msg = "Server belum aktif di port 8000. Jalankan Cek Pesan Pajak dulu.";
+      if (errMsg.includes("refresh (F5)")) {
+        msg = errMsg;
+      } else if (errMsg.includes("HTTP 429")) {
+        msg = "Terlalu banyak permintaan. Coba lagi sebentar.";
+      } else if (errMsg.includes("HTTP 422")) {
+        msg = "Format teks pesan tidak valid untuk diperiksa.";
+      }
       renderErrorBadge(wrap, msg);
     } finally {
       btn.disabled = false;

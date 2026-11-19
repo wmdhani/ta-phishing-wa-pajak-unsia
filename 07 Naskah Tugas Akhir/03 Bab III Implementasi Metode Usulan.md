@@ -26,7 +26,7 @@ Tabel 3.1 Pemetaan Modul Kode Sumber terhadap Tahapan Metodologi Penelitian
 | `06 Prototipe Aplikasi/api.py` & `Jalankan Server.bat` | Layanan *Backend*, Web, & Peluncur | Menyajikan antarmuka web *Cek Pesan Pajak* (`/`) serta *endpoint* API `/health`, `/api/*`, `/predict`, dan `/predict/batch` |
 | `06 Prototipe Aplikasi/web/` | Antarmuka Web Pengguna Awam | Menyediakan halaman web responsif (`index.html`, `styles.css`, `app.js`) dengan pratinjau chat WA, sorotan bahaya, panduan darurat `.apk`, dan modal evaluasi TA |
 | `06 Prototipe Aplikasi/extension/` | Ekstensi Peramban *WhatsApp Web* | Memindai pesan di `web.whatsapp.com`, meneruskan lewat `background.js`, dan menampilkan lencana risiko berbahasa awam (*Manifest V3*) |
-| `tests/` | Verifikasi Otomatis Sistem | Menjalankan dua puluh pengujian `pytest` untuk integritas korpus, reproduksi metrik, serta pengujian *black-box* API dan web |
+| `tests/` | Verifikasi Otomatis Sistem | Menjalankan dua puluh tiga pengujian `pytest` untuk integritas korpus, deduplikasi, reproduksi metrik, serta pengujian *black-box* API dan web |
 
 Sumber: Dokumentasi Rekayasa Perangkat Lunak Penelitian (2026).
 
@@ -56,26 +56,26 @@ Guna mendukung studi ablatif pada tahap evaluasi, modul `src/eksperimen_komparas
 
 ## 3.3 Implementasi Pelatihan Model, Penyetelan Hiperparameter, dan Kalibrasi
 
-Tahap pelatihan dan evaluasi komparatif diimplementasikan dalam berkas `src/eksperimen_komparasi.py` dengan menstandarkan `RANDOM_STATE` sebesar empat puluh dua demi keterulangan hasil [40]. Data induk sebanyak 1.164 baris dipisahkan terstratifikasi 80:20 menjadi 931 data latih dan 233 data uji. Pada tahap *baseline*, `LinearSVC` bawaan dan `RandomForestClassifier` dua ratus pohon dilatih pada vektor TF-IDF unigram-bigram maksimal tiga ribu fitur data latih [36].
+Tahap pelatihan dan evaluasi komparatif diimplementasikan dalam berkas `src/eksperimen_komparasi.py` dengan menstandarkan `RANDOM_STATE` sebesar empat puluh dua demi keterulangan hasil [40]. Fungsi `load_datasets` mendeduplikasi lima baris `teks_sastrawi` identik pada korpus induk 1.164 baris menjadi 1.159 teks unik (697 aman dan 462 penipuan), lalu memisahkannya terstratifikasi 80:20 menjadi 927 data latih dan 232 data uji. Pada tahap *baseline*, `LinearSVC` bawaan dan `RandomForestClassifier` dua ratus pohon dilatih pada vektor TF-IDF tiga ribu fitur [36].
 
 Untuk mencegah kebocoran informasi pembobotan kata selama validasi silang sepuluh lipatan (`StratifiedKFold` dengan `shuffle=True` dan `random_state=42`), diimplementasikan fungsi `_precompute_tfidf_folds` [38]. Fungsi tersebut membangun objek `TfidfVectorizer(ngram_range=(1, 2), max_features=3000)` yang terpisah di dalam setiap lipatan latih sebelum mengubah data validasi lipatan bersangkutan. Selanjutnya, fungsi `_run_grid_over_folds` mengevaluasi seluruh kombinasi hiperparameter secara menyeluruh di atas sepuluh lipatan yang sudah terisolasi tersebut lalu mengurutkan kandidat berdasarkan nilai rata-rata *F1-Score*, akurasi, dan *ROC-AUC*.
 
-Sebanyak tiga puluh enam konfigurasi parameter diuji dalam pencarian *grid*, terdiri atas dua belas kombinasi untuk `LinearSVC` (`max_iter=5000`) dan dua puluh empat kombinasi untuk `RandomForestClassifier`. Pencarian *grid* tersebut memilih `C=5.0` tanpa pembobotan kelas seimbang pada `LinearSVC`, serta dua ratus pohon tanpa batas kedalaman maksimum dengan syarat pemecahan simpul minimum lima sampel pada `RandomForestClassifier`. Rincian lengkap ruang pencarian dan parameter terpilih tercantum pada Tabel 3.2.
+Sebanyak tiga puluh enam konfigurasi parameter diuji dalam pencarian *grid*, terdiri atas dua belas kombinasi untuk `LinearSVC` (`max_iter=5000`) dan dua puluh empat kombinasi untuk `RandomForestClassifier`. Pencarian *grid* tersebut memilih `C=2.0` tanpa pembobotan kelas seimbang pada `LinearSVC`, serta seratus pohon tanpa batas kedalaman maksimum dengan syarat pemecahan simpul minimum dua sampel pada `RandomForestClassifier`. Rincian lengkap ruang pencarian dan parameter terpilih tercantum pada Tabel 3.2.
 
 Tabel 3.2 Konfigurasi Ruang Pencarian Hiperparameter dan Parameter Terpilih
 
 | Algoritma Klasifikasi | Ruang Pencarian Parameter (`_run_grid_over_folds`) | Konfigurasi Terpilih |
 | :--- | :--- | :--- |
-| `LinearSVC` | `C`: `0.1, 0.25, 0.5, 1.0, 2.0, 5.0`; `class_weight`: `None, balanced`; `max_iter=5000` | `C=5.0`, `class_weight=None` |
-| `RandomForestClassifier` | `n_estimators`: `100, 200, 300`; `max_depth`: `None, 30`; `min_samples_split`: `2, 5`; `class_weight`: `None, balanced` | `n_estimators=200`, `max_depth=None`, `min_samples_split=5`, `class_weight=None` |
+| `LinearSVC` | `C`: `0.1, 0.25, 0.5, 1.0, 2.0, 5.0`; `class_weight`: `None, balanced`; `max_iter=5000` | `C=2.0`, `class_weight=None` |
+| `RandomForestClassifier` | `n_estimators`: `100, 200, 300`; `max_depth`: `None, 30`; `min_samples_split`: `2, 5`; `class_weight`: `None, balanced` | `n_estimators=100`, `max_depth=None`, `min_samples_split=2`, `class_weight=None` |
 
 Sumber: Implementasi Penalaan Parameter pada `src/eksperimen_komparasi.py` (2026).
 
-Oleh karena keluaran fungsi keputusan `LinearSVC` berupa jarak terhadap bidang pemisah dan belum berwujud peluang probabilitas, diterapkan kalibrasi sigmoid Platt memakai `CalibratedClassifierCV(method="sigmoid", cv=5)` [33], [34], [42]. Kalibrasi lima lipatan tersebut mengubah nilai margin linear menjadi probabilitas kelas penipuan pada rentang nol hingga satu sehingga setara untuk dibandingkan dengan `predict_proba` milik *Random Forest*. Mutu kesesuaian peluang selanjutnya dinilai melalui perhitungan *Brier Score* dan *Log Loss* pada himpunan uji dua ratus tiga puluh tiga pesan [39].
+Oleh karena keluaran fungsi keputusan `LinearSVC` berupa jarak terhadap bidang pemisah dan belum berwujud peluang probabilitas, fungsi `_make_calibrated_svm_pipeline` membungkus `TfidfVectorizer` bersama `LinearSVC` ke dalam `Pipeline` sebelum dikalibrasi memakai `CalibratedClassifierCV(method="sigmoid", cv=5)` [33], [34], [42]. Isolasi `Pipeline` lima lipatan tersebut mencegah bocornya bobot IDF antar-lipatan kalibrasi sekaligus mengubah margin linear menjadi probabilitas kelas penipuan. Mutu kesesuaian peluang selanjutnya dinilai melalui *Brier Score* dan *Log Loss* pada 232 data uji [39].
 
-Setelah penalaan dan kalibrasi selesai, fungsi `_run_stage4_domain_and_cross_corpus` menjalankan tiga uji ketahanan tambahan. Pertama, kinerja model diukur pada empat puluh empat sampel pajak di data uji serta validasi silang sepuluh lipatan atas dua ratus enam puluh teks pajak (`Stage 4A`). Kedua, model produksi pada 1.164 baris diuji secara *zero-shot* pada 1.362 pesan eksternal (`Stage 4B`). Pengujian kemudian diulang pada korpus diperluas 2.521 baris (`Stage 4C`) [7].
+Setelah penalaan dan kalibrasi selesai, fungsi `_run_stage4_domain_and_cross_corpus` menjalankan tiga uji ketahanan tambahan. Pertama, kinerja model diukur pada empat puluh lima sampel pajak di data uji serta validasi silang sepuluh lipatan atas dua ratus enam puluh teks pajak (`Stage 4A`). Kedua, model produksi pada 1.159 baris unik diuji secara *zero-shot* pada 1.360 pesan eksternal unik dari 3.091 baris biner mentah (`Stage 4B`). Pengujian kemudian diulang pada korpus diperluas 2.519 baris unik (`Stage 4C`) [7].
 
-Pada tahap akhir jalur luring, vektorizer TF-IDF, `LinearSVC` linear murni, `LinearSVC` terkalibrasi Platt, dan `RandomForestClassifier` yang telah dilatih penuh pada 1.164 baris dikemas ke satu kamus Python lalu disimpan memakai Joblib 1.6.0 (`compress=3`) ke `06 Prototipe Aplikasi/model_phishing_pajak.joblib`. Selanjutnya, fungsi `_build_feature_and_error_tables` dan `_compute_shap_table` mengekstrak koefisien fitur teratas, merangkum sampel salah prediksi, serta menghitung nilai SHAP (`LinearExplainer` dan `TreeExplainer`) pada 233 data uji [24], [25].
+Pada tahap akhir jalur luring, vektorizer TF-IDF, `LinearSVC` linear murni, `LinearSVC` terkalibrasi Platt berbasis `Pipeline`, dan `RandomForestClassifier` yang telah dilatih penuh pada 1.159 baris unik dikemas ke satu kamus Python lalu disimpan memakai Joblib 1.6.0 (`compress=3`) ke `06 Prototipe Aplikasi/model_phishing_pajak.joblib`. Selanjutnya, fungsi `_build_feature_and_error_tables` dan `_compute_shap_table` mengekstrak koefisien fitur teratas, merangkum sampel salah prediksi, serta menghitung nilai SHAP (`LinearExplainer` dan `TreeExplainer`) terkondisi fitur aktif pada 232 data uji [24], [25].
 
 ## 3.4 Implementasi Purwarupa Sistem Terpadu Tingkat Kesiapan Teknologi 6
 
@@ -115,11 +115,11 @@ Integrasi langsung pada peramban diwujudkan melalui ekstensi Chrome berarsitektu
 
 ## 3.5 Skenario Pengujian Sistem dan Kesiapan Evaluasi
 
-Keandalan seluruh jalur data, eksperimen pemodelan, dan antarmuka purwarupa diverifikasi otomatis memakai kerangka kerja Pytest 9.2.0 lewat dua puluh kasus uji pada empat berkas terpisah guna mencegah regresi kode. Berkas `test_integritas_dataset.py` menguji jumlah baris lima korpus mentah, validitas enam puluh delapan hasil *scraping*, serta keseimbangan dua ratus enam puluh data pajak. Pengujian juga memastikan kecocokan gabungan biner 1.164 maupun 2.521 baris serta sepuluh *hash* SHA-256.
+Keandalan seluruh jalur data, eksperimen pemodelan, dan antarmuka purwarupa diverifikasi otomatis memakai kerangka kerja Pytest 9.2.0 lewat dua puluh tiga kasus uji pada empat berkas terpisah guna mencegah regresi kode. Berkas `test_integritas_dataset.py` menguji jumlah baris lima korpus mentah, validitas enam puluh delapan hasil *scraping*, serta keseimbangan dua ratus enam puluh data pajak. Pengujian juga memastikan kecocokan gabungan biner 1.164 maupun 2.521 baris, konsistensi deduplikasi Sastrawi (1.159 dan 2.519 baris unik), serta sepuluh *hash* SHA-256.
 
-Pengujian pipeline pembelajaran mesin diwakili dua kasus uji dalam `test_eksperimen_baseline.py` dan empat kasus uji dalam `test_eksperimen_komparasi.py`. Pengujian itu memvalidasi pelestarian `token_apk` serta `token_url` pada `clean_text` dan mengunci reproduksi metrik dasar `LinearSVC` maupun `RandomForestClassifier`. Skrip turut memastikan kelayakan *Brier Score* di bawah `0.05`, sifat penjumlahan probabilitas Platt, serta keandalan bundel `model_phishing_pajak.joblib` memprediksi penipuan pajak. Peluang prediksinya disyaratkan melebihi delapan puluh persen.
+Pengujian pipeline pembelajaran mesin diwakili dua kasus uji dalam `test_eksperimen_baseline.py` dan lima kasus uji dalam `test_eksperimen_komparasi.py`. Pengujian itu memvalidasi pelestarian `token_apk` serta `token_url` pada `clean_text`, memastikan isolasi `Pipeline` kalibrasi Platt, dan mengunci reproduksi metrik `LinearSVC` maupun `RandomForestClassifier`. Skrip turut memastikan kelayakan *Brier Score* di bawah `0.05`, konsistensi arah SHAP terkondisi, serta keandalan bundel `model_phishing_pajak.joblib` memprediksi penipuan pajak dengan peluang melebihi delapan puluh persen.
 
-Khusus lapisan purwarupa TKT 6, berkas `tests/test_prototipe_api.py` menjalankan sembilan pengujian *black-box* memakai `TestClient` FastAPI. Skenario tersebut mencakup uji kesehatan layanan, deteksi `.apk`, identifikasi domain tiruan, validasi domain `pajak.go.id`, serta penolakan domain pengecoh. Pengujian turut memeriksa penjagaan pola angka jam maupun nominal, penolakan masukan kosong, pemrosesan *batch*, serta ketersediaan antarmuka web. Matriks pengujian lengkapnya tercantum pada Tabel 3.4.
+Khusus lapisan purwarupa TKT 6, berkas `tests/test_prototipe_api.py` menjalankan sepuluh pengujian *black-box* memakai `TestClient` FastAPI. Skenario tersebut mencakup uji kesehatan layanan, deteksi `.apk`, identifikasi domain tiruan, validasi domain `pajak.go.id`, serta penolakan domain pengecoh. Pengujian turut memeriksa penjagaan pola angka jam maupun nominal, penolakan masukan kosong, pemrosesan *batch*, ketersediaan antarmuka web, serta *security headers* dan pembatas laju permintaan (*rate limiter*). Matriks pengujian lengkapnya tercantum pada Tabel 3.4.
 
 Tabel 3.4 Matriks Skenario Pengujian Otomatis Purwarupa dan Integritas Sistem
 
@@ -134,7 +134,7 @@ Tabel 3.4 Matriks Skenario Pengujian Otomatis Purwarupa dan Integritas Sistem
 | `UJI-07` | `test_prototipe_api.py` (`POST /predict/batch`) | Pengiriman dua teks campuran *phishing* dan resmi | Status HTTP 200 dengan `total=2` dan dua objek hasil |
 | `UJI-08` | `test_prototipe_api.py` (penjagaan pola angka) | Pesan resmi memuat pukul `16.00` dan `Rp1.500.000` | `suspicious_domains` kosong dan status tetap `RENDAH` |
 | `UJI-09` | `test_prototipe_api.py` (`GET /` & `/api/*`) | Permintaan halaman web utama, prasetel, dan ringkasan TA | Status HTTP 200 menyajikan *Cek Pesan Pajak*, 3 prasetel, dan tabel evaluasi |
-| `UJI-10` | `test_integritas_dataset.py` & eksperimen | Validasi lima dataset mentah, SHA-256, dan metrik `.joblib` | Seluruh sebelas pengujian data dan model lulus tanpa galat |
+| `UJI-10` | `test_integritas_dataset.py` & eksperimen | Validasi 5 korpus, SHA-256, deduplikasi, Platt `Pipeline`, dan `.joblib` | Seluruh tiga belas pengujian data dan model lulus tanpa galat |
 
 Sumber: Implementasi Pengujian Otomatis `pytest` pada Direktori `tests/` (2026).
 

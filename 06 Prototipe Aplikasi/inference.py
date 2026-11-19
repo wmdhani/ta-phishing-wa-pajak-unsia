@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 
 import joblib
 import numpy as np
+from sklearn.pipeline import Pipeline
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
@@ -547,7 +548,10 @@ def predict_message(
     cleaned = clean_text(text)
     features = vectorizer.transform([cleaned])
 
-    svm_prob = float(svm_calibrated.predict_proba(features)[0, 1])
+    svm_cal_input = (
+        [cleaned] if isinstance(getattr(svm_calibrated, "estimator", None), Pipeline) else features
+    )
+    svm_prob = float(svm_calibrated.predict_proba(svm_cal_input)[0, 1])
     rf_prob = float(random_forest.predict_proba(features)[0, 1])
     label = int(svm_prob >= 0.5)
 

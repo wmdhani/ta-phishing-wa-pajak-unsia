@@ -22,7 +22,7 @@
 - **Tampilan hasil dibuat to-the-point:** Begitu chat dicek, muncul status tegas (`BAHAYA / SCAM`, `WASPADA`, atau `AMAN`), pratinjau chat yang otomatis menandai warna pada file `.apk` atau link, lalu dua kotak singkat: **Kenapa?** dan **Solusi**. Tersedia juga tombol **Copy Alert** / **Share WA** supaya warga bisa langsung memperingatkan grup keluarga.
 - **Sisi keamanan frontend:** Teks yang dikirim user tidak disimpan di database mana pun. Seluruh teks ditampilkan memakai `textContent`, bukan HTML mentah, supaya aman dari serangan *Cross-Site Scripting* (XSS).
 - **Bagian khusus dosen (Modal Info Akademik):** Disembunyikan di tombol footer kanan bawah agar tidak mengganggu orang awam, berisi 3 sub-tab:
-  1. **Summary:** ringkasan dataset (1.164 chat), akurasi utama (`97,42%` *holdout*; `97,73%` khusus chat pajak), dan 6 baris inti perbandingan `LinearSVC` vs `Random Forest` (bisa dibuka semua 19 baris lewat tombol `Show All 19 Rows`).
+  1. **Summary:** ringkasan dataset (1.159 chat unik dari 1.164 baris mentah), *10-Fold CV* `97,74%` (`F1` `97,16%`), akurasi *holdout* (`95,69%` `LinearSVC` Platt dengan *Brier Score* `0,02542` dan *ROC-AUC* `0,9957`; `95,56%` khusus chat pajak *holdout* dan `98,17%` *10-Fold CV* pajak 260 baris), serta 6 baris inti perbandingan `LinearSVC` vs `Random Forest` (bisa dibuka semua 19 baris lewat tombol `Show All 19 Rows`).
   2. **Live XAI Check:** membedah chat yang baru dicek, membandingkan skor `LinearSVC` vs `Random Forest` secara langsung, lengkap dengan 6 kata pemicu terkuat dan hasil pemotongan kata Sastrawi.
   3. **Demo WA Extension:** simulasi cara kerja ekstensi *WhatsApp Web* langsung di dalam modal (plus mode layar penuh di `/simulasi-wa`).
 
@@ -46,7 +46,7 @@
 
 ### E. Deployment Cloud & Pengujian (`Dockerfile`, `railway.json`, `render.yaml`, `tests/test_prototipe_api.py`)
 - **Dockerfile** memakai `python:3.11-slim`, hanya menginstal 8 library inti produksi dari `requirements-deploy.txt`, berjalan sebagai user non-root `appuser`, dan tidak membutuhkan `pandas` saat inferensi sehingga container ringan dan cepat dibangun.
-- **Pengujian Otomatis:** Seluruh fungsi API, deteksi `.apk`, anti-spoofing domain, penjagaan angka jam `17.00`, *rate limiter*, *security header*, dan halaman web terverifikasi lulus lewat **21 skenario `pytest`**.
+- **Pengujian Otomatis:** Seluruh fungsi API, deteksi `.apk`, anti-spoofing domain, penjagaan angka jam `17.00`, *rate limiter*, *security header*, dan halaman web terverifikasi lulus lewat **23 skenario `pytest`**.
 
 ---
 
@@ -54,7 +54,7 @@
 
 | Pertanyaan yang Mungkin Muncul | Jawaban Singkat |
 | :--- | :--- |
-| *"Kenapa pakai LinearSVC, tidak Random Forest saja?"* | *"Pada teks pendek berbahasa Indonesia dengan 3.000 fitur TF-IDF yang banyak nilai nolnya, LinearSVC jauh lebih presisi memisahkan imbauan resmi pajak (`97,73%`) daripada Random Forest (`88,64%`). Random Forest sering salah menuduh chat resmi yang punya link `pajak.go.id`. LinearSVC juga ratusan kali lebih cepat dilatih dan bobot katanya transparan untuk XAI."* |
+| *"Kenapa pakai LinearSVC, tidak Random Forest saja?"* | *"Pada teks pendek berbahasa Indonesia dengan 3.000 fitur TF-IDF yang banyak nilai nolnya, LinearSVC unggul konsisten pada validasi silang 10-lipatan (`F1 97,16%` vs `94,07%` di korpus utama dan `98,17%` vs `93,57%` di korpus pajak 260 baris), korpus diperluas 2.519 baris (`96,03%` vs `92,46%`), uji zero-shot eksternal (`F1 54,27%` vs `45,76%`), serta kalibrasi peluang Brier Score (`0,02542` vs `0,04214`). LinearSVC juga ratusan kali lebih cepat dilatih dan bobot katanya transparan untuk XAI."* |
 | *"Kalau penipu pakai domain mirip seperti `pajak.go.id.verifikasi.xyz` bagaimana?"* | *"Sistem mengecek bagian akhiran host yang benar-benar persis `pajak.go.id` atau `.pajak.go.id`. Karena akhiran domain di contoh itu `.xyz`, sistem langsung menandainya sebagai domain mencurigakan."* |
 | *"Apakah angka jam seperti `17.00` atau uang `Rp1.500.000` bisa salah dianggap link?"* | *"Sudah dicegah, Pak. Pola regex link kami mensyaratkan akhiran huruf domain asli (seperti `.com`, `.id`, `.xyz`), jadi angka dengan titik seperti jam atau rupiah tidak akan terdeteksi sebagai URL."* |
 | *"Apa keterbatasan aplikasi yang sekarang?"* | *"Dua hal, Pak: pertama, ekstensi Chrome saat ini masih diarahkan ke server lokal (`localhost:8000`) sedangkan aplikasi webnya sudah online di Railway; kedua, pembatas spam (*rate limiter*) masih disimpan di memori satu server, jadi kalau suatu saat sistem diperbesar ke banyak server sekaligus, penghitungnya perlu dipindah ke Redis."* |

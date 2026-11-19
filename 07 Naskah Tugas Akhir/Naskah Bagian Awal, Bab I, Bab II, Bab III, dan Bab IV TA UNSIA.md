@@ -67,13 +67,13 @@ Telah berhasil dipertahankan di hadapan Dewan Penguji dan diterima sebagai bagia
 
 # ABSTRAK
 
-Pelaku *phishing* di WhatsApp yang mengaku sebagai Direktorat Jenderal Pajak kerap mengirim berkas `.apk` atau tautan *Coretax* palsu kepada korban. Penelitian ini membandingkan algoritma *Support Vector Machine* (`LinearSVC`) dan *Random Forest* menggunakan fitur *Term Frequency-Inverse Document Frequency* (TF-IDF), lalu menanamkan model terbaik ke aplikasi web *Cek Pesan Pajak* serta ekstensi peramban *WhatsApp Web*. Dataset berjumlah 1.164 teks, terdiri atas 904 pesan umum dan 260 pesan bertema pajak berimbang yang diproses melalui *stopword removal* dan *stemming* Sastrawi. Pada uji dasar (*baseline*), `LinearSVC` mencatat akurasi 98,28% (*recall* 0,98; *F1-Score* 0,98) mengungguli *Random Forest* sebesar 95,28% (*recall* 0,95; *F1-Score* 0,94). Setelah penalaan parameter dan kalibrasi *Platt scaling*, `LinearSVC` mempertahankan akurasi uji 97,42% (*Brier Score* 0,019) serta mencapai akurasi 97,73% pada subset pesan pajak, jauh melampaui *Random Forest* sebesar 88,64%. Integrasi model terbaik ke peladen FastAPI dan ekstensi peramban berfitur alasan berbahasa awam memampukan verifikasi langsung tanpa salin-tempel manual.
+Pelaku *phishing* di WhatsApp yang mengaku sebagai Direktorat Jenderal Pajak kerap mengirim berkas `.apk` atau tautan *Coretax* palsu kepada korban. Penelitian ini membandingkan algoritma *Support Vector Machine* (`LinearSVC`) dan *Random Forest* menggunakan fitur *Term Frequency-Inverse Document Frequency* (TF-IDF), lalu menanamkan model terbaik ke aplikasi web *Cek Pesan Pajak* serta ekstensi peramban *WhatsApp Web*. Dataset induk berjumlah 1.164 teks (904 pesan umum dan 260 pesan pajak berimbang) yang menghasilkan 1.159 teks unik pascadeduplikasi *stopword removal* dan *stemming* Sastrawi. Pada validasi silang sepuluh lipatan (*10-Fold CV*), `LinearSVC` meraih *F1-Score* 97,16% (*Accuracy* 97,74%) mengungguli *Random Forest* sebesar 94,07% (*Accuracy* 95,25%), serta mencapai *F1-Score* 98,17% pada korpus pajak 260 baris. Setelah penalaan parameter dan kalibrasi *Platt scaling* berbasis *Pipeline*, `LinearSVC` mencatat akurasi *holdout* 95,69% (*ROC-AUC* 0,9957; *Brier Score* 0,02542) yang lebih terkalibrasi dibandingkan *Random Forest* (*Brier Score* 0,04214), serta unggul pada korpus diperluas 2.519 baris (96,03% berbanding 92,46%). Integrasi model terkalibrasi bersama penjaga heuristik `.apk` dan domain `pajak.go.id` ke peladen FastAPI serta ekstensi peramban memampukan verifikasi langsung berbahasa awam.
 
 Kata Kunci: Deteksi Phishing, Otoritas Perpajakan, Random Forest, Support Vector Machine, TF-IDF.
 
 # ABSTRACT
 
-Scammers impersonating Indonesia's Directorate General of Taxes on WhatsApp frequently send malicious `.apk` files or fake *Coretax* links. This study compares *Support Vector Machine* (`LinearSVC`) and *Random Forest* classifiers using *Term Frequency-Inverse Document Frequency* (TF-IDF) features, then embeds the superior model into the *Cek Pesan Pajak* web application and a *WhatsApp Web* browser extension. The balanced dataset contains 1,164 Indonesian texts, comprising 904 general messages and 260 tax-related messages preprocessed with Sastrawi stopword removal and stemming. On the baseline test split, `LinearSVC` achieved 98.28% accuracy (0.98 recall, 0.98 *F1-Score*), outperforming *Random Forest* at 95.28% accuracy (0.95 recall, 0.94 *F1-Score*). After hyperparameter tuning and Platt scaling calibration, `LinearSVC` maintained 97.42% holdout accuracy (0.019 *Brier Score*) and reached 97.73% accuracy on tax-specific messages, substantially exceeding *Random Forest* at 88.64%. Integrating the calibrated model into a FastAPI service and a plain-language browser extension enables immediate message verification without manual copy-pasting.
+Scammers impersonating Indonesia's Directorate General of Taxes on WhatsApp frequently send malicious `.apk` files or fake *Coretax* links. This study compares *Support Vector Machine* (`LinearSVC`) and *Random Forest* classifiers using *Term Frequency-Inverse Document Frequency* (TF-IDF) features, then embeds the calibrated model into the *Cek Pesan Pajak* web application and a *WhatsApp Web* browser extension. The primary dataset comprises 1,164 Indonesian texts (904 general messages and 260 balanced tax messages), yielding 1,159 unique texts after Sastrawi stopword removal, stemming, and deduplication. Under stratified 10-fold cross-validation, `LinearSVC` achieved a 97.16% *F1-Score* (97.74% accuracy), outperforming *Random Forest* at 94.07% (95.25% accuracy), while reaching a 98.17% *F1-Score* on the 260-row tax corpus. Following hyperparameter tuning and pipeline-isolated Platt scaling calibration, `LinearSVC` recorded 95.69% holdout accuracy (0.9957 *ROC-AUC*, 0.02542 *Brier Score*) with superior probability calibration over *Random Forest* (0.04214 *Brier Score*), and led on the 2,519-row extended corpus (96.03% versus 92.46%). Integrating the calibrated model with `.apk` and official `pajak.go.id` domain guards into a FastAPI service and browser extension enables instant plain-language verification.
 
 Keywords: Phishing Detection, Random Forest, Support Vector Machine, Tax Authority, TF-IDF.
 
@@ -233,7 +233,7 @@ b) Bahan penelitian hanya berupa data terbuka tanpa informasi rahasia instansi m
 
 c) Pembersihan awal meliputi penghapusan simbol nonalfanumerik, pengubahan huruf kecil, konversi pola `.apk` menjadi `token_apk`, dan penggantian tautan menjadi `token_url`. Teks lalu melewati penyaringan kata henti, pemotongan imbuhan Sastrawi, serta ekstraksi TF-IDF hingga 3.000 token unigram dan bigram.
 
-d) Eksperimen hanya membandingkan *LinearSVC* dengan *Random Forest Classifier*. Data dibagi secara terstratifikasi (*stratified split*) pada rasio 80:20, sehingga diperoleh 931 data latih dan 233 data uji.
+d) Eksperimen hanya membandingkan *LinearSVC* dengan *Random Forest Classifier*. Setelah deduplikasi lima teks identik hasil praproses Sastrawi pada 1.164 baris induk, diperoleh 1.159 teks unik yang dibagi terstratifikasi (*stratified split*) 80:20 menjadi 927 data latih dan 232 data uji.
 
 e) Kualitas prediksi dinilai dengan empat indikator dari tabel *Confusion Matrix*, yaitu *Accuracy*, *Precision*, *Recall*, dan *F1-Score*. Pengamatan difokuskan pada algoritma yang lebih konsisten menekan salah prediksi negatif maupun salah blokir terhadap pesan sah.
 
@@ -281,9 +281,9 @@ Praproses teks bahasa Indonesia mencakup penghapusan karakter asing, pengecilan 
 
 Gambar 1.1 Tahapan Metode Penelitian.
 
-Matriks bobot TF-IDF memiliki ribuan dimensi dengan sebagian besar nilainya nol (*sparse*), sedangkan SVM dikenal mampu menangani data berdimensi tinggi dengan baik [11], [24]. Berdasarkan hal itu, disusun hipotesis kerja [30], [31] bahwa *LinearSVC* menghasilkan *Recall* dan *F1-Score* lebih baik daripada *Random Forest*. Uji *ablation* pada 44 pesan pajak membuktikan pentingnya penyeimbangan korpus.
+Matriks bobot TF-IDF memiliki ribuan dimensi dengan sebagian besar nilainya nol (*sparse*), sedangkan SVM dikenal mampu menangani data berdimensi tinggi dengan baik [11], [24]. Berdasarkan hal itu, disusun hipotesis kerja [30], [31] bahwa *LinearSVC* menghasilkan *Recall* dan *F1-Score* validasi silang serta kalibrasi probabilitas lebih baik daripada *Random Forest*. Uji pada 45 pesan pajak di himpunan uji dan 260 pesan pajak membuktikan pentingnya penyeimbangan korpus.
 
-Pelatihan memakai korpus SMS umum saja hanya meraih akurasi 40,91% pada subset pajak. Tanpa penyeimbangan pesan resmi, akurasinya mencapai 52,27% karena seluruh 21 pengumuman sah terkena *false positive*. Setelah penyeimbangan 1.164 baris, `LinearSVC` mencatat akurasi *baseline* 98,28% (*F1-Score* 0,98) mengungguli *Random Forest* sebesar 95,28% (*F1-Score* 0,94). Pascapenalaan serta kalibrasi *Platt scaling*, `LinearSVC` mempertahankan akurasi uji 97,42% (*Brier Score* 0,019) dan melonjak ke 97,73% pada pesan pajak, melampaui *Random Forest* sebesar 88,64%.
+Pelatihan memakai korpus SMS umum saja hanya meraih akurasi 40,91% pada subset pajak. Tanpa penyeimbangan pesan resmi, akurasinya hanya mencapai 52,27% karena pengumuman sah terkena *false positive*. Setelah penyeimbangan dan deduplikasi 1.159 baris unik, `LinearSVC` meraih rata-rata *F1-Score* validasi silang sepuluh lipatan 97,16% (*Accuracy* 97,74%) mengungguli *Random Forest* sebesar 94,07% (*Accuracy* 95,25%). Pascapenalaan serta kalibrasi *Platt scaling*, `LinearSVC` mencatat akurasi uji 95,69% (*Brier Score* 0,02542; *ROC-AUC* 0,9957) serta *F1-Score* 98,17% pada validasi silang 260 pesan pajak, melampaui *Random Forest* sebesar 93,57%.
 
 ---
 
@@ -315,7 +315,7 @@ Tabel 2.1 Matriks Penelitian Terdahulu
 | Saputra dkk. (2026) [15] | Sebanyak 1.320 pesan WA dan SMS Indonesia memakai *stemming* Sastrawi serta `HashingVectorizer` 5.000 fitur | Linear SVM meraih *Accuracy* 95,45% dan *Macro F1* 0,95 pada pembagian uji 80:20 melalui peladen bot | Menerapkan praproses Sastrawi pada pesan WhatsApp Indonesia, tetapi `HashingVectorizer` menghilangkan keterjelasan fitur |
 | Sembiring dkk. (2026) [16] | Sebanyak 2.320 pesan penipuan Indonesia dengan penyandian token entitas serta TF-IDF kata dan karakter | *Recall* kelas penipuan tertinggi dicapai Linear SVM (0,9859), sedangkan model optimasi XGBoost meraih *Accuracy* 96,34% | Mempertahankan jejak entitas URL dan nominal uang, namun belum menyandikan `.apk` ataupun tema perpajakan |
 | Mishra dan Yadav (2026) [24] serta Suwarno dkk. (2026) [26] | Korpus SMS spam berbasis TF-IDF [24] serta deteksi URL *phishing* pada ekstensi peramban [26] | Kerangka `LinearSVC` menghasilkan bobot fitur yang mudah dijelaskan [24], sementara ekstensi peramban mempercepat verifikasi [26] | Menunjukkan kelayakan `LinearSVC` yang *explainable* dan akses langsung di peramban, namun belum terpadu untuk WhatsApp |
-| Penelitian Ini (2026) | Dataset induk 1.164 pesan (904 SMS umum ditambah 260 pesan pajak seimbang) dan korpus diperluas 2.521 baris | Komparasi `LinearSVC` berkalibrasi *Platt scaling* dan *Random Forest* pada TF-IDF `(1, 2)` dengan penyandian `token_apk` dan `token_url` | Mengatasi *keyword bias* pajak, menguji ablatif serta lintas-korpus, dan menghasilkan purwarupa ekstensi *WhatsApp Web* TKT 6 |
+| Penelitian Ini (2026) | Dataset induk 1.164 pesan (1.159 unik pascadeduplikasi Sastrawi) dan korpus diperluas 2.519 baris unik | Komparasi `LinearSVC` berkalibrasi *Platt scaling* (`Pipeline`) dan *Random Forest* pada TF-IDF `(1, 2)` dengan penyandian `token_apk` dan `token_url` | Mengatasi *keyword bias* pajak, menguji ablatif serta lintas-korpus, dan menghasilkan purwarupa ekstensi *WhatsApp Web* TKT 6 |
 
 Sumber: Hasil Kajian Pustaka (2026).
 
@@ -377,11 +377,11 @@ a) Tahap kurasi korpus menghimpun teks pajak publik dari enam puluh lima sumber 
 
 b) Tahap praproses menyeragamkan huruf kecil, menyandikan ekstensi `.apk` ke `token_apk`, serta mengubah tautan web ke `token_url`. Teks kemudian dibersihkan dari karakter nonalfanumerik, kata henti, lalu dipotong imbuhannya memakai Sastrawi [37].
 
-c) Tahap ekstraksi fitur membagi data induk secara terstratifikasi dengan rasio 80:20 menjadi 931 data latih dan 233 data uji. Vektor bobot TF-IDF *unigram* dan *bigram* maksimal tiga ribu fitur kemudian dihitung hanya di atas data latih [36].
+c) Tahap ekstraksi fitur mendeduplikasi lima baris identik hasil Sastrawi menjadi 1.159 teks unik lalu membaginya terstratifikasi 80:20 menjadi 927 data latih dan 232 data uji. Vektor bobot TF-IDF *unigram* dan *bigram* maksimal tiga ribu fitur dihitung hanya di atas data latih [36].
 
-d) Tahap penalaan dan kalibrasi menjalankan *GridSearchCV* dengan *Stratified 10-Fold Cross-Validation* terisolasi guna mencari parameter optimal `LinearSVC` serta *Random Forest*. Skor `LinearSVC` selanjutnya dikalibrasi memakai *Platt scaling* lima lipatan [33], [38], [42].
+d) Tahap penalaan dan kalibrasi menjalankan *GridSearchCV* dengan *Stratified 10-Fold Cross-Validation* terisolasi guna mencari parameter optimal `LinearSVC` serta *Random Forest*. Skor `LinearSVC` selanjutnya dikalibrasi memakai `Pipeline` TF-IDF dan *Platt scaling* lima lipatan [33], [38], [42].
 
-e) Tahap evaluasi lanjutan membandingkan kedua model memakai *Confusion Matrix*, kurva ROC-PR, *Brier Score*, dan *Log Loss*. Analisis turut mencakup enam studi ablatif, uji bias kata kunci pada 44 pesan pajak, serta uji lintas-korpus 1.362 pesan eksternal [39].
+e) Tahap evaluasi lanjutan membandingkan kedua model memakai *Confusion Matrix*, kurva ROC-PR, *Brier Score*, dan *Log Loss*. Analisis turut mencakup enam studi ablatif, uji bias kata kunci pada 45 pesan pajak, serta uji lintas-korpus 1.360 pesan eksternal unik [39].
 
 f) Tahap pengemasan menyimpan bundel *vectorizer* TF-IDF dan model terkalibrasi ke format `.joblib`. Bundel itu diintegrasikan ke REST API FastAPI, antarmuka web *Cek Pesan Pajak*, serta ekstensi *WhatsApp Web* berfitur *Explainable AI* guna mencapai TKT 6 [24], [26], [41].
 
@@ -412,7 +412,7 @@ Sumber: Rencana Kerja Penelitian (2026).
 
 ## 2.5 Alat dan Bahan Penelitian
 
-Eksperimen pemodelan dan evaluasi komparatif dijalankan pada komputer jinjing lokal bersistem operasi Microsoft Windows 11 Pro 64-bit. Perangkat tersebut memakai prosesor Intel Core i5-12450H dan memori utama 16 GB. Spesifikasi itu memadai untuk mengeksekusi tiga puluh enam kombinasi pencarian *grid*, validasi silang sepuluh lipatan, studi ablatif, serta uji lintas-korpus. Seluruh alur komputasi tuntas dalam waktu terukur 297,57 detik.
+Eksperimen pemodelan dan evaluasi komparatif dijalankan pada komputer jinjing lokal bersistem operasi Microsoft Windows 11 Pro 64-bit. Perangkat tersebut memakai prosesor Intel Core i5-12450H dan memori utama 16 GB. Spesifikasi itu memadai untuk mengeksekusi tiga puluh enam kombinasi pencarian *grid*, validasi silang sepuluh lipatan, studi ablatif, serta uji lintas-korpus. Seluruh alur komputasi tuntas dalam waktu terukur 193,47 detik.
 
 Lingkungan perangkat lunak dibangun di atas bahasa pemrograman Python versi 3.11.9 dalam pengelola paket terpisah agar pustaka komputasi konsisten [40]. Pustaka inti mencakup Scikit-learn 1.9.1 untuk algoritma klasifikasi serta Sastrawi 1.0.1 untuk *stemming* bahasa Indonesia [37]. Pengolahan data, analisis SHAP (*LinearExplainer* serta *TreeExplainer*), dan pengujian memakai Pandas, NumPy, Matplotlib, Joblib, serta Pytest. Rincian spesifikasi perangkat tercantum pada Tabel 2.3.
 
@@ -426,8 +426,8 @@ Tabel 2.3 Spesifikasi Alat dan Bahan Penelitian
 | Rancangan Purwarupa | FastAPI, Web Kustom, Ekstensi Manifest V3 | Rancangan REST API dan antarmuka web *Cek Pesan Pajak* berbasis FastAPI (`HTML`/`CSS`/`JS`), serta ekstensi *WhatsApp Web* TKT 6 [26], [41] |
 | Bahan Korpus SMS Publik | `Rahmi 2016 Korpus SMS Spam Utama v1.csv` | Berisi 904 SMS Indonesia (335 penipuan, 569 normal); 239 promo dieksklusi dari 1.143 baris [6] |
 | Bahan Korpus Pajak | `Dataset Pajak Terkurasi 260 Baris.csv` | Berisi 260 teks pajak seimbang (130 *phishing*, 130 resmi) dari 65/68 sumber publik [2], [5] |
-| Bahan Gabungan Induk | `Dataset Gabungan Utama Biner 1164 Baris.csv` | Gabungan 904 SMS umum dan 260 teks pajak (465 kelas `1`, 699 kelas `0`) berverifikasi SHA-256 |
-| Bahan Diperluas dan Uji Eksternal | `Dataset Gabungan Diperluas Biner 2521 Baris.csv` | Korpus 2.521 baris (822 kelas `1`, 1.699 kelas `0`), memuat 1.362 pesan eksternal Theodorus [7] dan Saragih |
+| Bahan Gabungan Induk | `Dataset Gabungan Utama Biner 1164 Baris.csv` | Gabungan 904 SMS umum dan 260 teks pajak (1.159 baris unik pascadeduplikasi Sastrawi) berverifikasi SHA-256 |
+| Bahan Diperluas dan Uji Eksternal | `Dataset Gabungan Diperluas Biner 2521 Baris.csv` | Korpus 2.521 baris (2.519 unik pasca-Sastrawi), disertai 1.360 pesan eksternal unik Theodorus [7] dan Saragih |
 
 Sumber: Dokumentasi Lingkungan Penelitian (2026).
 
@@ -435,9 +435,9 @@ Sumber: Dokumentasi Lingkungan Penelitian (2026).
 
 Pengumpulan bahan penelitian menerapkan studi dokumentasi dan seleksi data publik terverifikasi tanpa melibatkan data rahasia wajib pajak [29]. Sebanyak enam puluh lima dari enam puluh delapan arsip resmi DJP, media pajak, dan pemeriksa fakta dipilih. Seleksi itu menghasilkan 130 contoh *phishing* dari dua belas modus serta 130 teks resmi dari sepuluh layanan [2], [5]. Tiga sumber berulang dan 239 promo Rahmi disisihkan demi fokus biner pada 1.164 baris [6].
 
-Analisis data komparatif dimulai dari pembagian data induk terstratifikasi 80:20 (`random_state=42`) menjadi 931 data latih dan 233 data uji [30], [31]. Matriks TF-IDF dibangun ulang secara terisolasi di tiap lipatan *Stratified 10-Fold Cross-Validation* (`shuffle=True`, `random_state=42`) [38]. Pencarian *grid* (`GridSearchCV`) selanjutnya mengevaluasi 12 konfigurasi `LinearSVC` (`C` 0,1 sampai 5,0; `class_weight`) serta 24 konfigurasi `RandomForestClassifier` [40].
+Analisis data komparatif dimulai dari deduplikasi lima baris `teks_sastrawi` identik pada korpus induk sehingga diperoleh 1.159 baris unik yang dibagi terstratifikasi 80:20 (`random_state=42`) menjadi 927 data latih dan 232 data uji [30], [31]. Matriks TF-IDF dibangun ulang secara terisolasi di tiap lipatan *Stratified 10-Fold Cross-Validation* (`shuffle=True`, `random_state=42`) [38]. Pencarian *grid* (`GridSearchCV`) mengevaluasi 12 konfigurasi `LinearSVC` serta 24 konfigurasi `RandomForestClassifier` [40].
 
-Tahap lanjutan menguji kalibrasi *Platt scaling* lima lipatan, enam skenario studi ablatif, dan ketahanan bias kata kunci pada 44 sampel pajak. Uji *zero-shot* dijalankan pada 1.362 pesan eksternal Theodorus dkk. serta Saragih, sedangkan uji korpus diperluas memakai 2.521 baris unik. Angka tersebut merupakan hasil penyaringan duplikat `clean_text` atas 4.255 baris biner awal yang menyisihkan 1.734 duplikat, meliputi 5 duplikat internal Rahmi dan 1.729 duplikat internal maupun lintas sumber [7]. Keterjelasan model turut dievaluasi melalui bobot `LinearSVC`, nilai *SHapley Additive exPlanations* (SHAP), dan analisis kesalahan prediksi [24], [25], [39].
+Tahap lanjutan menguji kalibrasi *Platt scaling* lima lipatan berbasis `Pipeline`, enam skenario studi ablatif, dan ketahanan bias kata kunci pada 45 sampel pajak. Uji *zero-shot* dijalankan langsung terhadap 3.091 baris biner mentah eksternal Theodorus dkk. serta Saragih yang menghasilkan 1.360 pesan uji unik setelah menyisihkan 1.483 duplikat internal dan 248 tumpang tindih terhadap korpus utama, sedangkan uji korpus diperluas memakai 2.519 baris unik pasca-Sastrawi [7]. Keterjelasan model turut dievaluasi melalui bobot `LinearSVC`, nilai *SHapley Additive exPlanations* (SHAP), dan analisis kesalahan prediksi [24], [25], [39].
 
 ## 2.7 Definisi Operasional Variabel dan Parameter
 
@@ -490,7 +490,7 @@ Tabel 3.1 Pemetaan Modul Kode Sumber terhadap Tahapan Metodologi Penelitian
 | `06 Prototipe Aplikasi/api.py` & `Jalankan Server.bat` | Layanan *Backend*, Web, & Peluncur | Menyajikan antarmuka web *Cek Pesan Pajak* (`/`) serta *endpoint* API `/health`, `/api/*`, `/predict`, dan `/predict/batch` |
 | `06 Prototipe Aplikasi/web/` | Antarmuka Web Pengguna Awam | Menyediakan halaman web responsif (`index.html`, `styles.css`, `app.js`) dengan pratinjau chat WA, sorotan bahaya, panduan darurat `.apk`, dan modal evaluasi TA |
 | `06 Prototipe Aplikasi/extension/` | Ekstensi Peramban *WhatsApp Web* | Memindai pesan di `web.whatsapp.com`, meneruskan lewat `background.js`, dan menampilkan lencana risiko berbahasa awam (*Manifest V3*) |
-| `tests/` | Verifikasi Otomatis Sistem | Menjalankan dua puluh pengujian `pytest` untuk integritas korpus, reproduksi metrik, serta pengujian *black-box* API dan web |
+| `tests/` | Verifikasi Otomatis Sistem | Menjalankan dua puluh tiga pengujian `pytest` untuk integritas korpus, deduplikasi, reproduksi metrik, serta pengujian *black-box* API dan web |
 
 Sumber: Dokumentasi Rekayasa Perangkat Lunak Penelitian (2026).
 
@@ -520,26 +520,26 @@ Guna mendukung studi ablatif pada tahap evaluasi, modul `src/eksperimen_komparas
 
 ## 3.3 Implementasi Pelatihan Model, Penyetelan Hiperparameter, dan Kalibrasi
 
-Tahap pelatihan dan evaluasi komparatif diimplementasikan dalam berkas `src/eksperimen_komparasi.py` dengan menstandarkan `RANDOM_STATE` sebesar empat puluh dua demi keterulangan hasil [40]. Data induk sebanyak 1.164 baris dipisahkan terstratifikasi 80:20 menjadi 931 data latih dan 233 data uji. Pada tahap *baseline*, `LinearSVC` bawaan dan `RandomForestClassifier` dua ratus pohon dilatih pada vektor TF-IDF unigram-bigram maksimal tiga ribu fitur data latih [36].
+Tahap pelatihan dan evaluasi komparatif diimplementasikan dalam berkas `src/eksperimen_komparasi.py` dengan menstandarkan `RANDOM_STATE` sebesar empat puluh dua demi keterulangan hasil [40]. Fungsi `load_datasets` mendeduplikasi lima baris `teks_sastrawi` identik pada korpus induk 1.164 baris menjadi 1.159 teks unik (697 aman dan 462 penipuan), lalu memisahkannya terstratifikasi 80:20 menjadi 927 data latih dan 232 data uji. Pada tahap *baseline*, `LinearSVC` bawaan dan `RandomForestClassifier` dua ratus pohon dilatih pada vektor TF-IDF tiga ribu fitur [36].
 
 Untuk mencegah kebocoran informasi pembobotan kata selama validasi silang sepuluh lipatan (`StratifiedKFold` dengan `shuffle=True` dan `random_state=42`), diimplementasikan fungsi `_precompute_tfidf_folds` [38]. Fungsi tersebut membangun objek `TfidfVectorizer(ngram_range=(1, 2), max_features=3000)` yang terpisah di dalam setiap lipatan latih sebelum mengubah data validasi lipatan bersangkutan. Selanjutnya, fungsi `_run_grid_over_folds` mengevaluasi seluruh kombinasi hiperparameter secara menyeluruh di atas sepuluh lipatan yang sudah terisolasi tersebut lalu mengurutkan kandidat berdasarkan nilai rata-rata *F1-Score*, akurasi, dan *ROC-AUC*.
 
-Sebanyak tiga puluh enam konfigurasi parameter diuji dalam pencarian *grid*, terdiri atas dua belas kombinasi untuk `LinearSVC` (`max_iter=5000`) dan dua puluh empat kombinasi untuk `RandomForestClassifier`. Pencarian *grid* tersebut memilih `C=5.0` tanpa pembobotan kelas seimbang pada `LinearSVC`, serta dua ratus pohon tanpa batas kedalaman maksimum dengan syarat pemecahan simpul minimum lima sampel pada `RandomForestClassifier`. Rincian lengkap ruang pencarian dan parameter terpilih tercantum pada Tabel 3.2.
+Sebanyak tiga puluh enam konfigurasi parameter diuji dalam pencarian *grid*, terdiri atas dua belas kombinasi untuk `LinearSVC` (`max_iter=5000`) dan dua puluh empat kombinasi untuk `RandomForestClassifier`. Pencarian *grid* tersebut memilih `C=2.0` tanpa pembobotan kelas seimbang pada `LinearSVC`, serta seratus pohon tanpa batas kedalaman maksimum dengan syarat pemecahan simpul minimum dua sampel pada `RandomForestClassifier`. Rincian lengkap ruang pencarian dan parameter terpilih tercantum pada Tabel 3.2.
 
 Tabel 3.2 Konfigurasi Ruang Pencarian Hiperparameter dan Parameter Terpilih
 
 | Algoritma Klasifikasi | Ruang Pencarian Parameter (`_run_grid_over_folds`) | Konfigurasi Terpilih |
 | :--- | :--- | :--- |
-| `LinearSVC` | `C`: `0.1, 0.25, 0.5, 1.0, 2.0, 5.0`; `class_weight`: `None, balanced`; `max_iter=5000` | `C=5.0`, `class_weight=None` |
-| `RandomForestClassifier` | `n_estimators`: `100, 200, 300`; `max_depth`: `None, 30`; `min_samples_split`: `2, 5`; `class_weight`: `None, balanced` | `n_estimators=200`, `max_depth=None`, `min_samples_split=5`, `class_weight=None` |
+| `LinearSVC` | `C`: `0.1, 0.25, 0.5, 1.0, 2.0, 5.0`; `class_weight`: `None, balanced`; `max_iter=5000` | `C=2.0`, `class_weight=None` |
+| `RandomForestClassifier` | `n_estimators`: `100, 200, 300`; `max_depth`: `None, 30`; `min_samples_split`: `2, 5`; `class_weight`: `None, balanced` | `n_estimators=100`, `max_depth=None`, `min_samples_split=2`, `class_weight=None` |
 
 Sumber: Implementasi Penalaan Parameter pada `src/eksperimen_komparasi.py` (2026).
 
-Oleh karena keluaran fungsi keputusan `LinearSVC` berupa jarak terhadap bidang pemisah dan belum berwujud peluang probabilitas, diterapkan kalibrasi sigmoid Platt memakai `CalibratedClassifierCV(method="sigmoid", cv=5)` [33], [34], [42]. Kalibrasi lima lipatan tersebut mengubah nilai margin linear menjadi probabilitas kelas penipuan pada rentang nol hingga satu sehingga setara untuk dibandingkan dengan `predict_proba` milik *Random Forest*. Mutu kesesuaian peluang selanjutnya dinilai melalui perhitungan *Brier Score* dan *Log Loss* pada himpunan uji dua ratus tiga puluh tiga pesan [39].
+Oleh karena keluaran fungsi keputusan `LinearSVC` berupa jarak terhadap bidang pemisah dan belum berwujud peluang probabilitas, fungsi `_make_calibrated_svm_pipeline` membungkus `TfidfVectorizer` bersama `LinearSVC` ke dalam `Pipeline` sebelum dikalibrasi memakai `CalibratedClassifierCV(method="sigmoid", cv=5)` [33], [34], [42]. Isolasi `Pipeline` lima lipatan tersebut mencegah bocornya bobot IDF antar-lipatan kalibrasi sekaligus mengubah margin linear menjadi probabilitas kelas penipuan. Mutu kesesuaian peluang selanjutnya dinilai melalui *Brier Score* dan *Log Loss* pada 232 data uji [39].
 
-Setelah penalaan dan kalibrasi selesai, fungsi `_run_stage4_domain_and_cross_corpus` menjalankan tiga uji ketahanan tambahan. Pertama, kinerja model diukur pada empat puluh empat sampel pajak di data uji serta validasi silang sepuluh lipatan atas dua ratus enam puluh teks pajak (`Stage 4A`). Kedua, model produksi pada 1.164 baris diuji secara *zero-shot* pada 1.362 pesan eksternal (`Stage 4B`). Pengujian kemudian diulang pada korpus diperluas 2.521 baris (`Stage 4C`) [7].
+Setelah penalaan dan kalibrasi selesai, fungsi `_run_stage4_domain_and_cross_corpus` menjalankan tiga uji ketahanan tambahan. Pertama, kinerja model diukur pada empat puluh lima sampel pajak di data uji serta validasi silang sepuluh lipatan atas dua ratus enam puluh teks pajak (`Stage 4A`). Kedua, model produksi pada 1.159 baris unik diuji secara *zero-shot* pada 1.360 pesan eksternal unik dari 3.091 baris biner mentah (`Stage 4B`). Pengujian kemudian diulang pada korpus diperluas 2.519 baris unik (`Stage 4C`) [7].
 
-Pada tahap akhir jalur luring, vektorizer TF-IDF, `LinearSVC` linear murni, `LinearSVC` terkalibrasi Platt, dan `RandomForestClassifier` yang telah dilatih penuh pada 1.164 baris dikemas ke satu kamus Python lalu disimpan memakai Joblib 1.6.0 (`compress=3`) ke `06 Prototipe Aplikasi/model_phishing_pajak.joblib`. Selanjutnya, fungsi `_build_feature_and_error_tables` dan `_compute_shap_table` mengekstrak koefisien fitur teratas, merangkum sampel salah prediksi, serta menghitung nilai SHAP (`LinearExplainer` dan `TreeExplainer`) pada 233 data uji [24], [25].
+Pada tahap akhir jalur luring, vektorizer TF-IDF, `LinearSVC` linear murni, `LinearSVC` terkalibrasi Platt berbasis `Pipeline`, dan `RandomForestClassifier` yang telah dilatih penuh pada 1.159 baris unik dikemas ke satu kamus Python lalu disimpan memakai Joblib 1.6.0 (`compress=3`) ke `06 Prototipe Aplikasi/model_phishing_pajak.joblib`. Selanjutnya, fungsi `_build_feature_and_error_tables` dan `_compute_shap_table` mengekstrak koefisien fitur teratas, merangkum sampel salah prediksi, serta menghitung nilai SHAP (`LinearExplainer` dan `TreeExplainer`) terkondisi fitur aktif pada 232 data uji [24], [25].
 
 ## 3.4 Implementasi Purwarupa Sistem Terpadu Tingkat Kesiapan Teknologi 6
 
@@ -579,11 +579,11 @@ Integrasi langsung pada peramban diwujudkan melalui ekstensi Chrome berarsitektu
 
 ## 3.5 Skenario Pengujian Sistem dan Kesiapan Evaluasi
 
-Keandalan seluruh jalur data, eksperimen pemodelan, dan antarmuka purwarupa diverifikasi otomatis memakai kerangka kerja Pytest 9.2.0 lewat dua puluh kasus uji pada empat berkas terpisah guna mencegah regresi kode. Berkas `test_integritas_dataset.py` menguji jumlah baris lima korpus mentah, validitas enam puluh delapan hasil *scraping*, serta keseimbangan dua ratus enam puluh data pajak. Pengujian juga memastikan kecocokan gabungan biner 1.164 maupun 2.521 baris serta sepuluh *hash* SHA-256.
+Keandalan seluruh jalur data, eksperimen pemodelan, dan antarmuka purwarupa diverifikasi otomatis memakai kerangka kerja Pytest 9.2.0 lewat dua puluh tiga kasus uji pada empat berkas terpisah guna mencegah regresi kode. Berkas `test_integritas_dataset.py` menguji jumlah baris lima korpus mentah, validitas enam puluh delapan hasil *scraping*, serta keseimbangan dua ratus enam puluh data pajak. Pengujian juga memastikan kecocokan gabungan biner 1.164 maupun 2.521 baris, konsistensi deduplikasi Sastrawi (1.159 dan 2.519 baris unik), serta sepuluh *hash* SHA-256.
 
-Pengujian pipeline pembelajaran mesin diwakili dua kasus uji dalam `test_eksperimen_baseline.py` dan empat kasus uji dalam `test_eksperimen_komparasi.py`. Pengujian itu memvalidasi pelestarian `token_apk` serta `token_url` pada `clean_text` dan mengunci reproduksi metrik dasar `LinearSVC` maupun `RandomForestClassifier`. Skrip turut memastikan kelayakan *Brier Score* di bawah `0.05`, sifat penjumlahan probabilitas Platt, serta keandalan bundel `model_phishing_pajak.joblib` memprediksi penipuan pajak. Peluang prediksinya disyaratkan melebihi delapan puluh persen.
+Pengujian pipeline pembelajaran mesin diwakili dua kasus uji dalam `test_eksperimen_baseline.py` dan lima kasus uji dalam `test_eksperimen_komparasi.py`. Pengujian itu memvalidasi pelestarian `token_apk` serta `token_url` pada `clean_text`, memastikan isolasi `Pipeline` kalibrasi Platt, dan mengunci reproduksi metrik `LinearSVC` maupun `RandomForestClassifier`. Skrip turut memastikan kelayakan *Brier Score* di bawah `0.05`, konsistensi arah SHAP terkondisi, serta keandalan bundel `model_phishing_pajak.joblib` memprediksi penipuan pajak dengan peluang melebihi delapan puluh persen.
 
-Khusus lapisan purwarupa TKT 6, berkas `tests/test_prototipe_api.py` menjalankan sembilan pengujian *black-box* memakai `TestClient` FastAPI. Skenario tersebut mencakup uji kesehatan layanan, deteksi `.apk`, identifikasi domain tiruan, validasi domain `pajak.go.id`, serta penolakan domain pengecoh. Pengujian turut memeriksa penjagaan pola angka jam maupun nominal, penolakan masukan kosong, pemrosesan *batch*, serta ketersediaan antarmuka web. Matriks pengujian lengkapnya tercantum pada Tabel 3.4.
+Khusus lapisan purwarupa TKT 6, berkas `tests/test_prototipe_api.py` menjalankan sepuluh pengujian *black-box* memakai `TestClient` FastAPI. Skenario tersebut mencakup uji kesehatan layanan, deteksi `.apk`, identifikasi domain tiruan, validasi domain `pajak.go.id`, serta penolakan domain pengecoh. Pengujian turut memeriksa penjagaan pola angka jam maupun nominal, penolakan masukan kosong, pemrosesan *batch*, ketersediaan antarmuka web, serta *security headers* dan pembatas laju permintaan (*rate limiter*). Matriks pengujian lengkapnya tercantum pada Tabel 3.4.
 
 Tabel 3.4 Matriks Skenario Pengujian Otomatis Purwarupa dan Integritas Sistem
 
@@ -598,7 +598,7 @@ Tabel 3.4 Matriks Skenario Pengujian Otomatis Purwarupa dan Integritas Sistem
 | `UJI-07` | `test_prototipe_api.py` (`POST /predict/batch`) | Pengiriman dua teks campuran *phishing* dan resmi | Status HTTP 200 dengan `total=2` dan dua objek hasil |
 | `UJI-08` | `test_prototipe_api.py` (penjagaan pola angka) | Pesan resmi memuat pukul `16.00` dan `Rp1.500.000` | `suspicious_domains` kosong dan status tetap `RENDAH` |
 | `UJI-09` | `test_prototipe_api.py` (`GET /` & `/api/*`) | Permintaan halaman web utama, prasetel, dan ringkasan TA | Status HTTP 200 menyajikan *Cek Pesan Pajak*, 3 prasetel, dan tabel evaluasi |
-| `UJI-10` | `test_integritas_dataset.py` & eksperimen | Validasi lima dataset mentah, SHA-256, dan metrik `.joblib` | Seluruh sebelas pengujian data dan model lulus tanpa galat |
+| `UJI-10` | `test_integritas_dataset.py` & eksperimen | Validasi 5 korpus, SHA-256, deduplikasi, Platt `Pipeline`, dan `.joblib` | Seluruh tiga belas pengujian data dan model lulus tanpa galat |
 
 Sumber: Implementasi Pengujian Otomatis `pytest` pada Direktori `tests/` (2026).
 
@@ -610,35 +610,35 @@ Bersamaan dengan verifikasi fungsional, skrip `eksperimen_komparasi.py` menjalan
 
 ## 4.1 Hasil Eksperimen Komparasi Klasifikasi dan Penyetelan Hiperparameter
 
-Seluruh rangkaian eksperimen komparatif dieksekusi secara otomatis oleh skrip `src/eksperimen_komparasi.py` dengan pengacak tetap `random_state=42` selama 297,57 detik. Pembagian terstratifikasi 80:20 terhadap korpus induk 1.164 baris menghasilkan 931 data latih dan 233 data uji bagi `LinearSVC` serta `RandomForestClassifier` [33], [35]. Pengujian awal mengonfirmasi ketajaman pemisah linear pada matriks TF-IDF tiga ribu fitur.
+Seluruh rangkaian eksperimen komparatif dieksekusi secara otomatis oleh skrip `src/eksperimen_komparasi.py` dengan pengacak tetap `random_state=42` selama 193,47 detik. Deduplikasi lima baris identik hasil Sastrawi pada korpus induk 1.164 baris menghasilkan 1.159 teks unik yang dibagi terstratifikasi 80:20 menjadi 927 data latih dan 232 data uji bagi `LinearSVC` serta `RandomForestClassifier` [33], [35]. Penyaringan pra-pembagian ini mencegah kebocoran sampel identik lintas himpunan uji.
 
-Pada uji *baseline* himpunan tetap (`n = 233`), `LinearSVC` bawaan meraih *Accuracy* 98,28% dengan *Precision*, *Recall*, dan *F1-Score* seragam 97,85%. Kesalahannya hanya dua positif palsu dan dua negatif palsu. Pembanding *Random Forest* (`n_estimators=200`) mencatat *Accuracy* 95,28%, *Precision* 93,62%, *Recall* 94,62%, serta *F1-Score* 94,12%. Hutan pohon menyisakan enam positif palsu dan lima negatif palsu [13], [32].
+Pada uji *baseline* himpunan tetap (`n = 232`), `LinearSVC` bawaan meraih *Accuracy* 96,12%, *Precision* 97,70%, *Recall* 92,39%, dan *F1-Score* 94,97% (`TN = 138`, `FP = 2`, `FN = 7`, `TP = 85`). Pembanding *Random Forest* (`n_estimators=200`) mencatat *Accuracy* 96,12%, *Precision* 96,63%, *Recall* 93,48%, serta *F1-Score* 95,03% (`TN = 137`, `FP = 3`, `FN = 6`, `TP = 86`) [13], [32]. Kedua algoritma memulai evaluasi dengan sembilan kesalahan prediksi.
 
-Evaluasi berlanjut dengan *Stratified 10-Fold Cross-Validation* pada 931 data latih menggunakan kosakata TF-IDF yang terisolasi tiap lipatan guna mencegah kebocoran data [38]. Sebelum penalaan, `LinearSVC` mencatat rata-rata *F1-Score* 96,64% (± 2,68%), *Accuracy* 97,31%, dan *ROC-AUC* 0,9956 dalam waktu latih 0,0036 detik per lipatan. Pada lipatan sama, *Random Forest* meraih *F1-Score* 93,81% (± 2,30%) dan *Accuracy* 95,06% dalam 0,6860 detik.
+Evaluasi berlanjut dengan *Stratified 10-Fold Cross-Validation* pada 927 data latih menggunakan kosakata TF-IDF yang terisolasi tiap lipatan guna mencegah kebocoran data [38]. Sebelum penalaan, `LinearSVC` mencatat rata-rata *F1-Score* 97,04% (± 2,71%), *Accuracy* 97,63%, dan *ROC-AUC* 0,9956 dalam waktu latih 0,0026 detik per lipatan. Pada lipatan sama, *Random Forest* meraih *F1-Score* 93,68% (± 3,20%) dan *Accuracy* 94,93% dalam 0,6010 detik.
 
-Proses penalaan melalui `GridSearchCV` mengevaluasi tiga puluh enam kandidat, terdiri atas dua belas konfigurasi `LinearSVC` dan dua puluh empat konfigurasi *Random Forest* [40]. Kandidat terbaik `LinearSVC` terpilih pada `C=5.0` dan `class_weight=None` dengan rata-rata *F1-Score* 97,18% (± 2,56%), *Accuracy* 97,74%, serta *ROC-AUC* 0,9951 dalam 0,0065 detik per lipatan. Penaikan `C` dari 1,0 ke 5,0 memperketat margin agar frasa penipuan spesifik lebih tertangkap.
+Proses penalaan melalui `GridSearchCV` mengevaluasi tiga puluh enam kandidat, terdiri atas dua belas konfigurasi `LinearSVC` dan dua puluh empat konfigurasi *Random Forest* [40]. Kandidat terbaik `LinearSVC` terpilih pada `C=2.0` dan `class_weight=None` dengan rata-rata *F1-Score* 97,16% (± 2,41%), *Accuracy* 97,74%, serta *ROC-AUC* 0,9956 dalam 0,0027 detik per lipatan. Nilai `mean_train_f1` mencapai 1,0000 sehingga regularisasi `C=2.0` menjaga keseimbangan margin terhadap kejenuhan data latih.
 
-Pencarian *grid* pada *Random Forest* memilih kombinasi `n_estimators=200`, `max_depth=None`, `min_samples_split=5`, dan `class_weight=None` sebagai setelan terbaik. Konfigurasi tersebut mengangkat *F1-Score* sepuluh lipatan menjadi 94,19% (± 2,13%), *Accuracy* 95,27%, *Recall* 95,72%, serta *ROC-AUC* 0,9914 dalam 0,6272 detik per lipatan. Pembatasan pemecahan simpul memang memperbaiki generalisasi, tetapi waktu pelatihannya tetap sekitar 96,9 kali lebih lambat dibandingkan `LinearSVC` per lipatan [33], [35].
+Pencarian *grid* pada *Random Forest* memilih kombinasi `n_estimators=100`, `max_depth=None`, `min_samples_split=2`, dan `class_weight=None` sebagai setelan terbaik. Konfigurasi tersebut menghasilkan rata-rata *F1-Score* sepuluh lipatan sebesar 94,07% (± 2,92%), *Accuracy* 95,25%, *Recall* 93,78%, serta *ROC-AUC* 0,9901 dalam 0,2841 detik per lipatan. Walaupun jumlah pohon berkurang separuh dibandingkan setelan awal, waktu pelatihannya tetap sekitar 106,6 kali lebih lambat daripada `LinearSVC` per lipatan [33], [35].
 
-Pada himpunan uji tetap (`n = 233`), akurasi `LinearSVC` bergeser dari 98,28% (`C=1,0`) menjadi 97,85% pascapenalaan (`C=5,0`) lalu 97,42% sesudah kalibrasi *Platt scaling* lima lipatan [34], [42]. Perubahan ini mencerminkan imbal balik alami antara ketegasan margin dan ketepatan skor probabilitas. Meski positif palsu bertambah menjadi empat (`FP = 4`, `FN = 2`), model terkalibrasi menjaga *Recall* 97,85% dan meraih *ROC-AUC* tertinggi 0,9982. Capaian tersebut mengungguli *Random Forest* yang mencatat *Accuracy* 96,57% serta *Precision* 93,81%.
+Pada himpunan uji tetap (`n = 232`), `LinearSVC` terpenala (`C=2.0`) mempertahankan *Accuracy* 96,12% lalu bergeser ke 95,69% (`FP = 3`, `FN = 7`) sesudah kalibrasi *Platt scaling* berbasis `Pipeline` lima lipatan, sementara *Random Forest* mencatat *Accuracy* 96,55% (`FP = 2`, `FN = 6`) [34], [42]. Selisih satu hingga dua sampel (`0,43%` sampai `0,86%`) pada ambang diskrit `0,5` berada dalam simpangan baku validasi silang (± 2,41%), sedangkan `LinearSVC` Platt tetap unggul pada *ROC-AUC* 0,9957 dan *PR-AUC* 0,9943.
 
 Tabel 4.1 Hasil Komparasi Kinerja Klasifikasi pada Berbagai Tahap Evaluasi
 
 | Tahap Evaluasi dan Himpunan Uji | Model Klasifikasi | *Accuracy* | *Precision* | *Recall* | *F1-Score* | *ROC-AUC* |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| *Baseline Holdout* (`n = 233`) | `LinearSVC` (Default) | 98,28% | 97,85% | 97,85% | 97,85% | 0,9980 |
-| *Baseline Holdout* (`n = 233`) | *Random Forest* (Default) | 95,28% | 93,62% | 94,62% | 94,12% | 0,9959 |
-| *10-Fold CV* Default (`n = 931`) | `LinearSVC` (Default) | 97,31% | 97,15% | 96,25% | 96,64% | 0,9956 |
-| *10-Fold CV* Default (`n = 931`) | *Random Forest* (Default) | 95,06% | 93,74% | 94,10% | 93,81% | 0,9907 |
-| *10-Fold CV Tuned* (`n = 931`) | `LinearSVC` (`C=5.0`) | 97,74% | 97,69% | 96,79% | 97,18% | 0,9951 |
-| *10-Fold CV Tuned* (`n = 931`) | *Random Forest* (Tuned) | 95,27% | 92,96% | 95,72% | 94,19% | 0,9914 |
-| *Holdout Tuned* (`n = 233`) | `LinearSVC` (Tuned) | 97,85% | 96,81% | 97,85% | 97,33% | 0,9979 |
-| *Holdout* Final (`n = 233`) | `LinearSVC` (Platt Sigmoid) | 97,42% | 95,79% | 97,85% | 96,81% | 0,9982 |
-| *Holdout* Final (`n = 233`) | *Random Forest* (Tuned) | 96,57% | 93,81% | 97,85% | 95,79% | 0,9973 |
+| *Baseline Holdout* (`n = 232`) | `LinearSVC` (Default) | 96,12% | 97,70% | 92,39% | 94,97% | 0,9955 |
+| *Baseline Holdout* (`n = 232`) | *Random Forest* (Default) | 96,12% | 96,63% | 93,48% | 95,03% | 0,9939 |
+| *10-Fold CV* Default (`n = 927`) | `LinearSVC` (Default) | 97,63% | 97,37% | 96,76% | 97,04% | 0,9956 |
+| *10-Fold CV* Default (`n = 927`) | *Random Forest* (Default) | 94,93% | 93,69% | 93,78% | 93,68% | 0,9905 |
+| *10-Fold CV Tuned* (`n = 927`) | `LinearSVC` (`C=2.0`) | 97,74% | 97,61% | 96,76% | 97,16% | 0,9956 |
+| *10-Fold CV Tuned* (`n = 927`) | *Random Forest* (Tuned) | 95,25% | 94,46% | 93,78% | 94,07% | 0,9901 |
+| *Holdout Tuned* (`n = 232`) | `LinearSVC` (Tuned) | 96,12% | 97,70% | 92,39% | 94,97% | 0,9950 |
+| *Holdout* Final (`n = 232`) | `LinearSVC` (Platt Sigmoid) | 95,69% | 96,59% | 92,39% | 94,44% | 0,9957 |
+| *Holdout* Final (`n = 232`) | *Random Forest* (Tuned) | 96,55% | 97,73% | 93,48% | 95,56% | 0,9936 |
 
 Sumber: Pengolahan Hasil Eksperimen `src/eksperimen_komparasi.py` (2026).
 
-Sebagaimana dirangkum pada Tabel 4.1, pengemasan `LinearSVC` bersama *Platt scaling* mempertahankan daya pisah peringkat tertinggi sekaligus menyeimbangkan risiko salah blokir dan lolosnya penipuan. Perbandingan sebaran prediksi empat kuadran *Confusion Matrix* pada himpunan uji `n = 233` tampak jelas pada Gambar 4.1. Selanjutnya, ketajaman kurva diskriminatif *Receiver Operating Characteristic* dan *Precision-Recall* disajikan pada Gambar 4.2 [39].
+Sebagaimana dirangkum pada Tabel 4.1, pengemasan `LinearSVC` bersama `Pipeline` *Platt scaling* unggul konsisten sebesar 3,09 poin *F1-Score* pada validasi silang sepuluh lipatan sekaligus meraih daya pisah peringkat tertinggi. Perbandingan sebaran prediksi empat kuadran *Confusion Matrix* pada himpunan uji `n = 232` tampak jelas pada Gambar 4.1. Selanjutnya, ketajaman kurva diskriminatif *Receiver Operating Characteristic* dan *Precision-Recall* disajikan pada Gambar 4.2 [39].
 
 ![Gambar 4.1](Aset Gambar/Gambar 4.1 Perbandingan Confusion Matrix Uji Holdout.png)
 
@@ -648,13 +648,13 @@ Gambar 4.1 Perbandingan *Confusion Matrix* Uji *Holdout*.
 
 Gambar 4.2 Evaluasi Diskriminatif Kurva ROC dan *Precision-Recall*.
 
-Visualisasi pada Gambar 4.1 mengonfirmasi bahwa kedua model hanya melewatkan dua pesan penipuan umum (`FN = 2`, sensitivitas kelas penipuan 97,8%). Namun, `LinearSVC` terkalibrasi unggul menjaga spesifisitas kelas normal sebesar 97,1% (`TN = 136`, `FP = 4`) dibanding *Random Forest* pada angka 95,7% (`TN = 134`, `FP = 6`). Pada Gambar 4.2, kurva *LinearSVC* hampir menempel sudut kiri atas dengan *ROC-AUC* 0,9982 dan *PR-AUC* 0,9975, yang menunjukkan keandalan pemeringkatan pesan berisiko tinggi di berbagai ambang keputusan.
+Visualisasi pada Gambar 4.1 menunjukkan bahwa pergeseran satu sampel antara `LinearSVC` murni (`TN = 138`, `FP = 2`) dan `LinearSVC` Platt (`TN = 137`, `FP = 3`) terjadi pada `idx=1082` (`p = 0,5506`) akibat perataan lima submodel `CalibratedClassifierCV` yang masing-masing dilatih pada delapan puluh persen data latih. Sebagai kompensasi, pada Gambar 4.2 kurva `LinearSVC` Platt mencapai *ROC-AUC* 0,9957 dan *PR-AUC* 0,9943, melampaui *Random Forest* (*ROC-AUC* 0,9936; *PR-AUC* 0,9909) di seluruh rentang ambang keputusan.
 
 ## 4.2 Analisis Kalibrasi Probabilitas dan Studi Ablatif Fitur
 
-Pemanfaatan skor risiko probabilistik di antarmuka pengguna menuntut kesesuaian antara nilai peluang keluaran model dan frekuensi kejadian aktual di lapangan [34], [42]. Pengujian kalibrasi pada 233 data uji membuktikan bahwa *Platt scaling* lima lipatan atas `LinearSVC` menghasilkan *Brier Score* sebesar 0,01900 dan *Log Loss* sebesar 0,06883. Nilai galat kalibrasi tersebut terpaut jauh di bawah kinerja *Random Forest* yang mencatat *Brier Score* sebesar 0,03555 dan *Log Loss* sebesar 0,14426.
+Pemanfaatan skor risiko probabilistik di antarmuka pengguna menuntut kesesuaian antara nilai peluang keluaran model dan frekuensi kejadian aktual di lapangan [34], [42]. Pengujian kalibrasi pada 232 data uji membuktikan bahwa *Platt scaling* lima lipatan terisolasi `Pipeline` atas `LinearSVC` menghasilkan *Brier Score* sebesar 0,02542 dan *Log Loss* sebesar 0,09186. Nilai galat kalibrasi tersebut terpaut jauh di bawah kinerja *Random Forest* yang mencatat *Brier Score* sebesar 0,04214 dan *Log Loss* sebesar 0,15870.
 
-Penerapan kalibrasi sigmoid pada `LinearSVC` menekan galat probabilitas kuadratik *Brier Score* sebesar 46,55% daripada pemungutan suara dua ratus pohon *Random Forest* sekaligus memangkas *Log Loss* sebesar 52,29%. Perbedaan mutu penyelarasan skor peluang kedua algoritma tampak jelas pada kurva reliabilitas sepuluh interval dan histogram sebaran di Gambar 4.3. Sebaran skor menjadi terpusat.
+Penerapan kalibrasi sigmoid pada `LinearSVC` menekan galat probabilitas kuadratik *Brier Score* sebesar 39,68% daripada pemungutan suara seratus pohon *Random Forest* sekaligus memangkas *Log Loss* sebesar 42,12%. Perbedaan mutu penyelarasan skor peluang kedua algoritma tampak jelas pada kurva reliabilitas sepuluh interval dan histogram sebaran di Gambar 4.3. Sebaran skor menjadi terpusat.
 
 ![Gambar 4.3](Aset Gambar/Gambar 4.3 Evaluasi Kalibrasi Probabilitas Model.png)
 
@@ -668,48 +668,48 @@ Tabel 4.2 Hasil Studi Ablatif Praproses dan Representasi Fitur TF-IDF
 
 | Skenario Konfigurasi | Model | CV10 *Accuracy* | CV10 *F1-Score* | *Holdout Accuracy* | *Holdout F1-Score* |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| `1_Tanpa_Token_Entitas` | `LinearSVC` | 97,10% | 96,36% | 96,57% | 95,79% |
-| `1_Tanpa_Token_Entitas` | *Random Forest* | 93,77% | 92,20% | 95,28% | 94,18% |
-| `2_Tanpa_Sastrawi` | `LinearSVC` | 97,64% | 97,06% | 98,28% | 97,89% |
-| `2_Tanpa_Sastrawi` | *Random Forest* | 96,24% | 95,28% | 97,42% | 96,74% |
-| `3_Unigram_Saja` | `LinearSVC` | 96,35% | 95,43% | 97,00% | 96,30% |
-| `3_Unigram_Saja` | *Random Forest* | 95,49% | 94,35% | 96,14% | 95,24% |
-| `4_Utama_MaxFeatures_1500` | `LinearSVC` | 96,99% | 96,24% | 96,57% | 95,79% |
-| `4_Utama_MaxFeatures_1500` | *Random Forest* | 94,85% | 93,71% | 96,14% | 95,24% |
-| `5_Konfigurasi_Utama_3000` | `LinearSVC` | 97,74% | 97,18% | 97,85% | 97,33% |
-| `5_Konfigurasi_Utama_3000` | *Random Forest* | 95,27% | 94,19% | 96,57% | 95,79% |
-| `6_Utama_MaxFeatures_5000` | `LinearSVC` | 96,67% | 95,88% | 97,00% | 96,30% |
-| `6_Utama_MaxFeatures_5000` | *Random Forest* | 94,95% | 93,72% | 95,71% | 94,74% |
+| `1_Tanpa_Token_Entitas` | `LinearSVC` | 96,66% | 95,81% | 97,84% | 97,27% |
+| `1_Tanpa_Token_Entitas` | *Random Forest* | 93,96% | 92,42% | 95,26% | 93,99% |
+| `2_Tanpa_Sastrawi` | `LinearSVC` | 97,74% | 97,16% | 96,12% | 95,08% |
+| `2_Tanpa_Sastrawi` | *Random Forest* | 95,69% | 94,55% | 96,55% | 95,60% |
+| `3_Unigram_Saja` | `LinearSVC` | 96,77% | 95,94% | 96,12% | 95,08% |
+| `3_Unigram_Saja` | *Random Forest* | 95,68% | 94,59% | 96,12% | 95,03% |
+| `4_Utama_MaxFeatures_1500` | `LinearSVC` | 97,30% | 96,61% | 96,12% | 95,03% |
+| `4_Utama_MaxFeatures_1500` | *Random Forest* | 95,58% | 94,52% | 96,55% | 95,56% |
+| `5_Konfigurasi_Utama_3000` | `LinearSVC` | 97,74% | 97,16% | 96,12% | 94,97% |
+| `5_Konfigurasi_Utama_3000` | *Random Forest* | 95,25% | 94,07% | 96,55% | 95,56% |
+| `6_Utama_MaxFeatures_5000` | `LinearSVC` | 97,41% | 96,79% | 96,98% | 96,13% |
+| `6_Utama_MaxFeatures_5000` | *Random Forest* | 94,72% | 93,34% | 96,55% | 95,60% |
 
 Sumber: Hasil Studi Ablatif `05 Hasil Evaluasi/studi_ablatif_fitur.csv` (2026).
 
-Data pada Tabel 4.2 menyingkap tiga temuan penting mengenai desain fitur teks Indonesia. Penghapusan penyandian `token_apk` dan `token_url` (`1_Tanpa_Token_Entitas`) menurunkan *F1-Score* validasi silang `LinearSVC` ke 96,36% serta menjatuhkan *Random Forest* ke 92,20%, yang menegaskan perlunya pelestarian penanda lampiran [16]. Pembatasan kosakata menjadi unigram saja (`3_Unigram_Saja`) memangkas *F1-Score* `LinearSVC` sebesar 1,75 poin akibat hilangnya bigram seperti `klik token_url`.
+Data pada Tabel 4.2 menunjukkan bahwa pemilihan `5_Konfigurasi_Utama_3000` didasarkan pada rata-rata *F1-Score* validasi silang sepuluh lipatan tertinggi untuk `LinearSVC` (`97,16%`, *Accuracy* `97,74%`). Penghapusan penyandian `token_apk` dan `token_url` (`1_Tanpa_Token_Entitas`) menurunkan *F1-Score* validasi silang `LinearSVC` sebesar 1,35 poin ke 95,81% serta menjatuhkan *Random Forest* ke 92,42% [16]. Pembatasan kosakata menjadi unigram saja (`3_Unigram_Saja`) turut memangkas *F1-Score* validasi silang `LinearSVC` sebesar 1,22 poin ke 95,94%.
 
-Variasi kapasitas kosakata memperlihatkan bahwa dimensi 3.000 fitur pada `5_Konfigurasi_Utama_3000` paling kokoh menjaga generalisasi `LinearSVC` (97,18%) dibandingkan batas 1.500 fitur (96,24%) maupun 5.000 fitur (95,88%) yang memicu *overfitting*. Walau skenario `2_Tanpa_Sastrawi` sempat menyentuh akurasi *holdout* tunggal tertinggi sebesar 98,28%, rata-rata validasi silang sepuluh lipatannya (97,06%) tetap tertinggal sehingga penyatuan akar kata lebih konsisten secara umum [9], [37].
+Dua temuan metodologis pada Tabel 4.2 perlu dicermati secara objektif. Pertama, selisih validasi silang `LinearSVC` antara `5_Konfigurasi_Utama_3000` (`97,1596%`) dan `2_Tanpa_Sastrawi` (`97,1589%`) hanya `0,0007%`, sehingga Sastrawi terutama berfungsi menyeragamkan variasi morfologi kata berimbuhan [9], [37]. Kedua, tingginya akurasi *holdout* tunggal `1_Tanpa_Token_Entitas` (`97,84%`) terjadi karena penyamaran seluruh tautan ke satu fitur generik `token_url` pada konfigurasi utama memberi bobot positif pada siaran resmi DJP bertautan `www.pajak.go.id` (`idx=1082`) sebelum lapisan penjaga domain diterapkan.
 
 ## 4.3 Analisis Ketahanan Bias Kata Kunci Pajak dan Generalisasi Lintas Korpus
 
-Pengujian khusus ketahanan bias kata kunci pajak dijalankan pada `Tahap 4A` menggunakan irisan 44 pesan bertema pajak di himpunan uji (`21` pesan layanan resmi dan `23` penipuan). Pada pengujian tersebut, `LinearSVC` terkalibrasi meraih *Accuracy* 97,73%, *Precision* 95,83%, *Recall* 100,00%, *F1-Score* 97,87%, *ROC-AUC* 1,0000, dan *Brier Score* 0,02712. Hanya muncul satu positif palsu dan nol negatif palsu, sehingga surat resmi DJP tetap lolos meski mengandung kosakata pajak [2], [5].
+Pengujian khusus ketahanan bias kata kunci pajak dijalankan pada `Tahap 4A` menggunakan irisan 45 pesan bertema pajak di himpunan uji (`21` pesan layanan resmi dan `24` penipuan). Pada ambang diskrit `0,5`, `LinearSVC` terkalibrasi dan *Random Forest* sama-sama mencatat *Accuracy* 95,56%, *Precision* 95,83%, *Recall* 95,83%, dan *F1-Score* 95,83% (`TN = 20`, `FP = 1`, `FN = 1`, `TP = 23`). Sebanyak dua puluh dari dua puluh satu pengumuman resmi DJP lolos tanpa salah blokir [2], [5].
 
-Sebaliknya, kinerja *Random Forest* menurun tajam pada subset pajak dengan *Accuracy* 88,64%, *Precision* 82,14%, *F1-Score* 90,20%, serta *Brier Score* 0,09289. Lima pesan pengumuman resmi otoritas pajak keliru ditandai sebagai *phishing* (`FP = 5`, `FN = 0`). Kesenjangan serupa berulang pada validasi silang sepuluh lipatan atas 260 rekaman pajak, dengan *F1-Score* `LinearSVC` 98,17% (*Accuracy* 98,08%) dibandingkan 92,92% (*Accuracy* 92,69%) milik *Random Forest*.
+Meskipun hasil prediksi diskrit pada 45 sampel uji seri, kualitas probabilitas dan stabilitas lintas-lipatan `LinearSVC` jauh melampaui *Random Forest*. Pada subset uji pajak tersebut, `LinearSVC` Platt meraih *ROC-AUC* 0,9960, *PR-AUC* 0,9968, dan *Brier Score* 0,03289, mengungguli *Random Forest* yang mencatat *ROC-AUC* 0,9752 serta *Brier Score* 0,10914. Pada validasi silang sepuluh lipatan atas seluruh 260 rekaman pajak, `LinearSVC` mencapai *F1-Score* 98,17% (*Recall* 100,00%; *Accuracy* 98,08%) dibanding *Random Forest* sebesar 93,57% (*Accuracy* 93,46%).
 
-Pengujian `Tahap 4B` mengevaluasi model produksi pada 1.362 pesan unik eksternal dari Theodorus dkk. (`1.268` baris) dan Saragih (`94` baris) tanpa pelatihan ulang [7]. Pada skenario *zero-shot* ini, `LinearSVC` mencatat *Accuracy* 64,17%, *Precision* 41,14%, *Recall* 82,50%, *F1-Score* 54,90%, dan *ROC-AUC* 0,7930. *Random Forest* merosot ke *Accuracy* 60,87%, *Recall* 63,33%, dan *F1-Score* 46,11%. Presisi turun karena 421 pesan normal Theodorus berisi kosakata SMS 2021 (*domain shift* leksikal).
+Pengujian `Tahap 4B` mengevaluasi model produksi terhadap 3.091 baris biner mentah eksternal Theodorus dkk. (`2.743`) dan Saragih (`348`), yang menghasilkan 1.360 pesan uji unik pascadeduplikasi 1.483 duplikat internal serta 248 irisan korpus utama [7]. Pada uji *zero-shot*, `LinearSVC` meraih *Accuracy* 64,19%, *Recall* 80,28%, *F1-Score* 54,27%, dan *ROC-AUC* 0,7875, mengungguli *Random Forest* (*Accuracy* 62,35%; *Recall* 60,00%; *F1-Score* 45,76%). Penurunan presisi dipicu 416 positif palsu (*spesifisitas* 58,40%) akibat *domain shift* SMS normal, sedangkan 94 baris sisa Saragih timpang (`90` penipuan berbanding `4` normal).
 
-Guna membuktikan bahwa keterbatasan *zero-shot* bersumber dari pergeseran ragam kosakata korpus dan bukan kelemahan arsitektur model, `Tahap 4C` melatih ulang kedua algoritma pada korpus diperluas 2.521 baris. Hasil *holdout* (`n = 505`) memulihkan kinerja `LinearSVC` terkalibrasi secara signifikan hingga *Accuracy* 94,65%, *Precision* 92,07%, *Recall* 91,52%, *F1-Score* 91,79%, *ROC-AUC* 0,9818, dan *Brier Score* 0,04352. Sementara itu, *Random Forest* mencatat *Accuracy* 92,87%, *Recall* 86,67%, dan *F1-Score* 88,82%, serta pada validasi silang 2.521 baris kedua model mencapai *F1-Score* masing-masing 91,81% dan 91,53%. Perbandingan seluruh skenario ketahanan domain ditampilkan pada Gambar 4.5.
+Guna membuktikan bahwa keterbatasan *zero-shot* bersumber dari pergeseran ragam kosakata korpus dan bukan kelemahan arsitektur model, `Tahap 4C` melatih ulang kedua algoritma pada korpus diperluas 2.519 baris unik pascadeduplikasi Sastrawi. Hasil *holdout* (`n = 504`) memulihkan kinerja `LinearSVC` terkalibrasi secara signifikan hingga *Accuracy* 96,03%, *Precision* 96,75%, *Recall* 90,85%, *F1-Score* 93,71%, *ROC-AUC* 0,9883, dan *Brier Score* 0,03578. Sementara itu, *Random Forest* mencatat *Accuracy* 92,46% (*F1-Score* 87,90%), serta pada validasi silang 2.519 baris kedua model mencapai *F1-Score* 91,81% dan 91,11%. Perbandingan seluruh skenario ketahanan domain ditampilkan pada Gambar 4.5.
 
 ![Gambar 4.5](Aset Gambar/Gambar 4.5 Komparasi Generalisasi Lintas Korpus dan Subset Pajak.png)
 
 Gambar 4.5 Komparasi Generalisasi Lintas Korpus dan Subset Pajak.
 
-Temuan pada Gambar 4.5 memberi implikasi praktis bagi perancangan sistem deteksi penipuan berbahasa Indonesia. Meski `LinearSVC` tangguh menjaga *Recall* 82,50% di luar distribusi serta akurasi 97,73% pada domain pajak, pembaruan korpus latih tetap wajib dijalankan secara berkala agar ragam pesan normal baru tidak keliru terblokir. Adaptasi kosakata mencegah galat presisi.
+Temuan pada Gambar 4.5 memberi implikasi praktis bagi perancangan sistem deteksi penipuan berbahasa Indonesia. Meski `LinearSVC` tangguh menjaga *Recall* 80,28% di luar distribusi serta *F1-Score* validasi silang 98,17% pada domain pajak, pembaruan korpus latih tetap wajib dijalankan secara berkala agar ragam pesan normal baru tidak keliru terblokir. Adaptasi kosakata mencegah galat presisi.
 
 ## 4.4 Analisis Interpretabilitas Fitur dan Kesalahan Prediksi
 
 Transparansi keputusan model merupakan salah satu kontribusi utama purwarupa ini untuk menjawab celah riset pada literatur sebelumnya [24], [25]. Pemeriksaan vektor koefisien *hyperplane* pada `LinearSVC` menunjukkan pemisahan arah polaritas yang sangat intuitif antara token penanda penipuan (koefisien positif) dan token penanda pesan resmi atau percakapan normal (koefisien negatif). Sebaliknya, ukuran *Mean Decrease in Impurity* (*Gini importance*) pada *Random Forest* hanya menilai seberapa kuat suatu token memecah simpul pohon tanpa membedakan arah kelasnya.
 
-Pada sisi positif `LinearSVC`, fitur penanda *phishing* terkuat berturut-turut ditempati `no` (+2,338), `sms` (+1,876), `hub` (+1,774), `token_apk` (+1,764), `info` (+1,604), `rekening` (+1,575), `klik` (+1,562), `hp` (+1,507), serta frasa `klik token_url` (+1,101). Masuknya `token_apk` pada empat besar fitur positif membuktikan bahwa penyandian khusus ekstensi aplikasi Android menjadi sinyal deterministik penipuan Coretax palsu. Bobot tersebut langsung menaikkan skor risiko.
+Pada sisi positif `LinearSVC`, fitur penanda *phishing* terkuat berturut-turut ditempati `no` (+2,241), `sms` (+1,694), `rekening` (+1,508), `info` (+1,405), `segera` (+1,378), `pin` (+1,373), `token_apk` (+1,358), `token_url` (+1,355), `hub` (+1,322), serta `klik` (+1,292). Masuknya `token_apk` dan `token_url` pada delapan besar fitur positif membuktikan bahwa penyandian khusus ekstensi aplikasi Android dan tautan menjadi sinyal pembeda utama penipuan. Bobot tersebut langsung menaikkan skor risiko.
 
-Pada sisi negatif `LinearSVC`, koefisien penahan kelas normal dan resmi diisi oleh `nama1` (-1,431), pronomina percakapan `aku` (-1,167), `terimakasih` (-1,093), `maupun` (-1,085), dan `resmi` (-1,067). Token pengaman kelembagaan lain meliputi `guna` (-0,999), `pratama` (-0,809), `laman` (-0,803), `kp2kp` (-0,773), `resmi pajak` (-0,743), serta `edukasi` (-0,681). Daftar fitur teratas kedua algoritma dibandingkan pada Gambar 4.4 dan dirinci pada Tabel 4.3.
+Pada sisi negatif `LinearSVC`, koefisien penahan kelas normal dan resmi diisi oleh `nama1` (-1,272), pronomina percakapan `aku` (-1,221), `resmi` (-1,071), `maupun` (-0,963), `terimakasih` (-0,913), `yg` (-0,894), `nya` (-0,874), dan `pernah` (-0,842). Token pengaman kelembagaan lain meliputi `laman` (-0,766), `pratama` (-0,759), `kp2kp` (-0,750), `resmi token_url` (-0,676), `kpp pratama` (-0,642), serta `edukasi` (-0,619). Daftar fitur teratas kedua algoritma dibandingkan pada Gambar 4.4 dan dirinci pada Tabel 4.3.
 
 ![Gambar 4.4](Aset Gambar/Gambar 4.4 Analisis Interpretabilitas Fitur TF-IDF Terbaik.png)
 
@@ -719,92 +719,92 @@ Tabel 4.3 Perbandingan Fitur Teratas `LinearSVC` dan *Random Forest*
 
 | Peringkat | Fitur Positif *Phishing* (`LinearSVC`) | Bobot *w* (+) | Fitur Penahan Resmi/Normal (`LinearSVC`) | Bobot *w* (-) | Fitur Terpenting *Random Forest* | Skor Gini |
 | :---: | :--- | :---: | :--- | :---: | :--- | :---: |
-| 1 | `no` | +2,3382 | `nama1` | -1,4306 | `info` | 0,0362 |
-| 2 | `sms` | +1,8762 | `aku` | -1,1666 | `no` | 0,0350 |
-| 3 | `hub` | +1,7742 | `terimakasih` | -1,0925 | `token_url` | 0,0318 |
-| 4 | `token_apk` | +1,7642 | `maupun` | -1,0846 | `hadiah` | 0,0248 |
-| 5 | `info` | +1,6044 | `resmi` | -1,0668 | `sms` | 0,0241 |
-| 6 | `rekening` | +1,5749 | `guna` | -0,9991 | `pin` | 0,0232 |
-| 7 | `klik` | +1,5621 | `kalau` | -0,9711 | `hub` | 0,0228 |
-| 8 | `hp` | +1,5073 | `lanjut` | -0,9616 | `klik` | 0,0193 |
+| 1 | `no` | +2,2405 | `nama1` | -1,2720 | `no` | 0,0424 |
+| 2 | `sms` | +1,6940 | `aku` | -1,2206 | `hub` | 0,0349 |
+| 3 | `rekening` | +1,5083 | `resmi` | -1,0706 | `info` | 0,0319 |
+| 4 | `info` | +1,4054 | `maupun` | -0,9633 | `sms` | 0,0227 |
+| 5 | `segera` | +1,3778 | `terimakasih` | -0,9134 | `token_url` | 0,0226 |
+| 6 | `pin` | +1,3729 | `yg` | -0,8942 | `hadiah` | 0,0200 |
+| 7 | `token_apk` | +1,3582 | `nya` | -0,8738 | `pin` | 0,0175 |
+| 8 | `token_url` | +1,3550 | `pernah` | -0,8417 | `rekening` | 0,0174 |
 
 Sumber: Ekstraksi Bobot Model `05 Hasil Evaluasi/fitur_teratas_svm_vs_rf.csv` (2026).
 
-Ketiadaan penanda polaritas pada skor Gini di Tabel 4.3 menjelaskan mengapa *Random Forest* lebih rentan terkena bias kata kunci pajak dibandingkan `LinearSVC`. Kata `token_url` menempati peringkat ketiga skor Gini terbesar (0,0318) di *Random Forest* tanpa bobot penyeimbang negatif dari kata `resmi`, `laman`, maupun `kp2kp`. Akibatnya, pengumuman resmi DJP yang menyertakan tautan sah `www.pajak.go.id` mudah terdorong menuju kelas penipuan ketika pohon-pohon keputusan bercabang pada keberadaan `token_url`.
+Interpretasi Tabel 4.3 memerlukan pembedaan antara fitur bahasa alami dan artefak korpus dasar. Kemunculan token `nama1` (-1,2720) dan tahun `2016` (-0,6664) pada sisi negatif merupakan artefak anonimisasi nama penerima dari korpus SMS normal Rahmi dan Wibisono yang menyumbang 899 dari 1.159 baris. Oleh sebab itu, pada lapisan penjelas purwarupa (`inference.py`), token netral atau artefak korpus tidak ditampilkan kepada pengguna, melainkan difokuskan pada kata pemicu desakan, ancaman, dan ajakan berisiko.
 
-Untuk memvalidasi dampak fitur pada keputusan aktual himpunan uji *holdout* (`n = 233`), dijalankan analisis *SHapley Additive exPlanations* (SHAP) memakai `LinearExplainer` untuk `LinearSVC` dan `TreeExplainer` (*interventional*) untuk *Random Forest* [25]. Berbeda dari bobot statis atau skor Gini global, nilai `mean(|SHAP|)` mengukur rata-rata pergeseran prediksi tiap pesan beserta arah dorongannya terhadap kelas *phishing* ataupun resmi. Ringkasan hasilnya tampak pada Gambar 4.8.
+Untuk memvalidasi dampak fitur pada keputusan aktual himpunan uji *holdout* (`n = 232`), dijalankan analisis *SHapley Additive exPlanations* (SHAP) memakai `LinearExplainer` untuk `LinearSVC` (satuan margin *hyperplane*) dan `TreeExplainer` (*interventional*) untuk *Random Forest* (satuan probabilitas) [25]. Karena perbedaan skala numerik kedua *explainer*, pembandingan lintas model dilakukan berdasarkan peringkat `mean(|SHAP|)` dan arah dorongan rata-rata saat fitur aktif (`x_test > 0`). Ringkasan hasilnya tampak pada Gambar 4.8.
 
 ![Gambar 4.8](Aset Gambar/Gambar 4.8 Analisis Interpretabilitas Model Berbasis SHAP.png)
 
-Gambar 4.8 Analisis Interpretabilitas Model Berbasis SHAP (*Holdout* `n = 233`).
+Gambar 4.8 Analisis Interpretabilitas Model Berbasis SHAP (*Holdout* `n = 232`).
 
-Hasil SHAP pada Gambar 4.8 memperlihatkan fitur berimpak absolut terbesar pada `LinearSVC`, mencakup `no` (0,0727; *Phishing*), `aku` (0,0551; *Resmi/Normal*), `info` (0,0512; *Phishing*), `nama1` (0,0474; *Phishing*), dan `yg` (0,0436; *Resmi/Normal*). Fitur berpengaruh berikutnya meliputi `pin` (0,0433; *Phishing*), `token_url` (0,0404; *Phishing*), `klik` (0,0374; *Phishing*), `resmi` (0,0341; *Resmi/Normal*), serta `token_apk` (0,0264; *Phishing*). Arah dorongan fitur tetap terpisah tegas.
+Hasil SHAP pada Gambar 4.8 memperlihatkan fitur berimpak absolut terbesar pada `LinearSVC`, mencakup `no` (0,0677; *Phishing*), `aku` (0,0575; *Resmi/Normal*), `token_url` (0,0461; *Phishing*), `info` (0,0440; *Phishing*), `pin` (0,0395; *Phishing*), `nama1` (0,0395; *Resmi/Normal*), `yg` (0,0388; *Resmi/Normal*), dan `resmi` (0,0341; *Resmi/Normal*). Fitur penting berikutnya meliputi `klik` (0,0316; *Phishing*), `sms` (0,0302; *Phishing*), `token_apk` (0,0202; *Phishing*), serta `segera` (0,0192; *Phishing*). Arah dorongan fitur selaras penuh dengan tanda koefisien *hyperplane*.
 
-Pada *Random Forest*, fitur `token_url` menempati dampak tertinggi (`0,0363`; *Phishing*), diikuti `no` (`0,0318`), `sms` (`0,0271`), `info` (`0,0268`), `pin` (`0,0208`), `hadiah` (`0,0155`), `klik` (`0,0145`), serta `token_apk` (`0,0114`). Temuan SHAP itu membuktikan bahwa `LinearSVC` memisahkan sinyal instruktif berbahaya (`klik`, `token_url`, `token_apk`) dari konteks pengumuman resmi (`yg`, `resmi`) secara jauh lebih konsisten dibanding *Random Forest*.
+Pada *Random Forest*, seluruh sepuluh fitur SHAP teratas didominasi penanda kelas positif (*Phishing*), dipimpin `info` (0,0323), `no` (0,0323), `hub` (0,0260), `token_url` (0,0242), `sms` (0,0212), `segera` (0,0155), `pin` (0,0147), `klik` (0,0142), `token_apk` (0,0139), dan `rekening` (0,0121). Kata `wajib` (0,0092) dan `wajib pajak` (0,0069) turut condong ke arah *Phishing* pada korpus gabungan karena mayoritas kelas normal berasal dari SMS umum non-pajak, namun bias ini telah teredam pada evaluasi khusus 260 teks pajak seimbang.
 
-Penelusuran atas seluruh prediksi yang meleset di himpunan uji `n = 233` menemukan tepat tiga belas sampel salah prediksi. Lima kasus hanya meleset di `LinearSVC` terkalibrasi, mencakup tiga positif palsu umum dan dua negatif palsu promosi penipuan. Tujuh kasus lain hanya terjadi pada *Random Forest*, yakni satu positif palsu operator, empat pengumuman resmi pajak, serta dua penipuan umum. Satu kasus sulit meleset bersamaan pada kedua model. Rincian lengkap ketigabelas sampel terangkum pada Tabel 4.4.
+Penelusuran atas seluruh prediksi yang meleset di himpunan uji `n = 232` menemukan tiga belas sampel salah prediksi gabungan (`10` kesalahan pada `LinearSVC` Platt dan `8` kesalahan pada *Random Forest*, dengan `5` sampel beririsan pada kedua model). Lima sampel hanya meleset pada `LinearSVC` (keduanya di *baseline* maupun terkalibrasi), tiga sampel hanya meleset pada *Random Forest*, dan lima sampel sulit meleset bersamaan pada kedua model. Rincian ketigabelas sampel terangkum pada Tabel 4.4.
 
 Tabel 4.4 Ringkasan Analisis Kesalahan Prediksi pada Himpunan Uji *Holdout*
 
 | Indeks | Sumber dan Kategori | Aktual | Probabilitas SVM | Probabilitas RF | Lokasi Galat | Ringkasan Konten dan Penyebab Leksikal |
 | :---: | :--- | :---: | :---: | :---: | :--- | :--- |
-| 334 | Rahmi (Penipuan) | 1 | 0,718 | 0,425 | RF Saja (FN) | Ajakan kirim format SMS ke nomor seluler tanpa kata `hadiah`/`rekening` |
-| 52 | Rahmi (Penipuan) | 1 | 0,964 | 0,438 | RF Saja (FN) | Iming-iming bonus internet 5MB dengan istilah informal singkat |
-| 50 | Rahmi (Penipuan) | 1 | 0,208 | 0,772 | SVM Saja (FN) | Tawaran gratis telepon dan kuota operator dengan banyak angka satuan |
-| 97 | Rahmi (Penipuan) | 1 | 0,394 | 0,522 | SVM Saja (FN) | Promosi situs perjudian daring memuat `token_url` tanpa kata desakan |
-| 839 | Rahmi (Normal) | 0 | 0,523 | 0,249 | SVM Saja (FP) | Kalimat konfirmasi pesanan singkat minim fitur penahan kelas resmi |
-| 495 | Rahmi (Normal) | 0 | 0,743 | 0,136 | SVM Saja (FP) | Teks sangat pendek berbunyi "Dimulai dari angka 0" tanpa konteks |
-| 463 | Rahmi (Normal) | 0 | 0,529 | 0,084 | SVM Saja (FP) | Cuplikan jalur `localhost` rumah sakit tanpa kosakata percakapan umum |
-| 753 | Rahmi (Normal) | 0 | 0,370 | 0,502 | RF Saja (FP) | Promo FUP operator memuat `token_url` dan kode `info838` |
-| 1126 | Pajak (KP2KP Bandarjaya) | 0 | 0,408 | 0,590 | RF Saja (FP) | Apresiasi wajib pajak melapor lampiran PDF curiga memicu fitur `wajib` |
-| 1122 | Pajak (KP2KP Sinjai) | 0 | 0,065 | 0,529 | RF Saja (FP) | Imbauan konfirmasi WA/email `kp2kp.sinjai@pajak.go.id` terseret `token_url` |
-| 943 | Pajak (Kring Pajak) | 0 | 0,103 | 0,515 | RF Saja (FP) | Arahan konsultasi KPP dan `1500200` terdorong kata `sila` dan `hubung` |
-| 1065 | Pajak (WA Blast Coretax) | 0 | 0,070 | 0,516 | RF Saja (FP) | Imbauan merujuk laman resmi `www.pajak.go.id` terseret token tautan |
-| 1087 | Pajak (Pemadanan NIK) | 0 | 0,712 | 0,637 | Keduanya (FP) | Imbauan pemadanan NIK-NPWP memuat `sila`, `login`, `token_url`, tanpa `resmi` kuat |
+| 118 | Rahmi (Penipuan) | 1 | 0,566 | 0,420 | RF Saja (FN) | Modus jual rumah di bandara mengajak hubungi nomor seluler tanpa kata `hadiah` |
+| 50 | Rahmi (Penipuan) | 1 | 0,218 | 0,750 | SVM Baseline & Platt (FN) | Tawaran gratis telepon dan kuota operator dengan banyak angka satuan |
+| 491 | Rahmi (Normal) | 0 | 0,543 | 0,170 | SVM Baseline & Platt (FP) | Teks sangat pendek berbunyi "Dimulai dari angka 0" tanpa konteks normal |
+| 898 | Rahmi (Normal) | 0 | 0,608 | 0,640 | Keduanya (FP) | Pertanyaan singkat "No bri atas nama kamu mana" memuat kata pemicu `no` |
+| 960 | Pajak (`Phishing_APK_MPajak`) | 1 | 0,424 | 0,730 | SVM Baseline & Platt (FN) | Gaya pengumuman formal DJP mengajak unduh `MPajak_Aktivasi_KSWP.apk` tanpa kata spam umum |
+| 293 | Rahmi (Penipuan) | 1 | 0,347 | 0,250 | Keduanya (FN) | Notifikasi isi ulang pulsa palsu menyerupai struk transaksi normal |
+| 1003 | Pajak (`Phishing_Link_NIK_NPWP`) | 1 | 0,787 | 0,340 | RF Saja (FN) | Instruksi pembaruan KTP/KK via `form-wajibpajak-djp.com` lolos di RF tapi tertangkap SVM |
+| 52 | Rahmi (Penipuan) | 1 | 0,819 | 0,350 | RF Saja (FN) | Iming-iming bonus internet 5MB dengan istilah informal singkat |
+| 228 | Rahmi (Penipuan) | 1 | 0,494 | 0,610 | SVM Baseline & Platt (FN) | Pesan undian hadiah *event* bergaya percakapan santai mendekati ambang `0,5` |
+| 314 | Rahmi (Penipuan) | 1 | 0,033 | 0,230 | Keduanya (FN) | Instruksi singkat transfer rekening Mandiri tanpa tautan maupun ancaman |
+| 102 | Rahmi (Penipuan) | 1 | 0,392 | 0,470 | Keduanya (FN) | Permintaan transfer rekening Mandiri singkat bergaya pesan keluarga |
+| 1082 | Pajak (Pemadanan NIK Resmi) | 0 | 0,551 | 0,600 | Keduanya (FP) | Imbauan resmi login ke `www.pajak.go.id` terseret bobot positif `token_url` dan `login` |
+| 165 | Rahmi (Penipuan) | 1 | 0,493 | 0,550 | SVM Baseline & Platt (FN) | Tagihan jatuh tempo mengajak lapor ke nomor telepon (`p = 0,493` tepat di bawah `0,5`) |
 
 Sumber: Analisis Kesalahan `05 Hasil Evaluasi/analisis_kesalahan_prediksi.csv` (2026).
 
-Pengamatan atas Tabel 4.4 menunjukkan bahwa empat pengumuman resmi otoritas pajak (`idx=1126`, `idx=1122`, `idx=943`, dan `idx=1065`) lolos aman di `LinearSVC` Platt berkat penanda resmi `kp2kp`, `resmi`, dan `laman`. Sebaliknya, *Random Forest* keliru memblokirnya dengan skor tipis (`0,515` hingga `0,590`). Satu-satunya pesan pajak yang meleset di kedua model (`idx=1087`) berisi siaran pemadanan NIK-NPWP dengan kata `sila`, `login`, dan `token_url`. Heuristik `is_official_djp_domain` melengkapinya lewat validasi domain sah `pajak.go.id`.
+Pengamatan atas Tabel 4.4 menyingkap dua kasus kunci pada domain perpajakan yang menjadi landasan arsitektural purwarupa hibrida. Pada `idx=960`, pesan penipuan `MPajak_Aktivasi_KSWP.apk` ditulis dengan kalimat birokratis formal sehingga peluang `LinearSVC` murni tertahan di `0,424` (`FN`), sementara pada `idx=1082` pesan resmi pemadanan NIK yang memuat `www.pajak.go.id` terkena positif palsu di kedua model (`0,551` dan `0,600`) karena penyamaran `token_url` menyamakan domain sah dengan tautan penipu. Kedua kelemahan representasi TF-IDF murni ini teratasi sepenuhnya oleh lapisan heuristik `has_apk` dan `is_official_djp_domain` pada `inference.py`.
 
 ## 4.5 Hasil Pengujian Purwarupa Sistem Terpadu dan Evaluasi Kesiapterapan Teknologi
 
-Pengujian fungsional purwarupa TKT Level 6 berjalan otomatis memakai Pytest 9.2.0 terhadap dua puluh kasus uji beserta tolok ukur latensi `src/benchmark_purwarupa.py` pada 233 sampel *holdout*. Seluruh dua puluh pengujian (`UJI-01` sampai `UJI-10`) lulus seratus persen dalam waktu eksekusi total 5,17 detik. Hasil ini membuktikan integritas SHA-256 dataset, reproduksi metrik `.joblib`, kontrak API, web *Cek Pesan Pajak*, serta penjagaan domain pengecoh dan angka jam.
+Pengujian fungsional purwarupa TKT Level 6 berjalan otomatis memakai Pytest 9.2.0 terhadap dua puluh tiga kasus uji beserta tolok ukur latensi `src/benchmark_purwarupa.py` pada 232 sampel *holdout*. Seluruh dua puluh tiga pengujian (`UJI-01` sampai `UJI-10`) lulus seratus persen dalam waktu eksekusi total 6,30 detik. Hasil ini membuktikan integritas SHA-256 dataset, deduplikasi Sastrawi, isolasi `Pipeline` kalibrasi Platt, reproduksi `.joblib`, kontrak API, web *Cek Pesan Pajak*, serta penjagaan domain pengecoh dan angka jam.
 
-Pengukuran waktu nyata menunjukkan pemuatan awal bundel `.joblib` ke memori hanya memerlukan 61,255 ms berkat mekanisme `lru_cache`. Setelah termuat, fungsi `predict_message` pada `inference.py` memproses satu pesan berikut analisis heuristik, sorotan teks, dan alasan awam dalam rata-rata 14,371 ms (*P95* 17,829 ms). Melalui antarmuka HTTP `POST /predict` FastAPI, latensi penuh tercatat 23,217 ms/pesan (*P95* 27,998 ms), sedangkan pemrosesan massal `POST /predict/batch` lima puluh pesan tuntas dalam 708,565 ms (14,171 ms/pesan). Rekapitulasi pengujian disajikan pada Tabel 4.5.
+Pengukuran waktu nyata menunjukkan pemuatan awal bundel `.joblib` ke memori memerlukan 258,167 ms dan selanjutnya ditahan di memori melalui `lru_cache`. Setelah termuat, fungsi `predict_message` pada `inference.py` memproses satu pesan berikut analisis heuristik, sorotan teks, dan alasan awam dalam rata-rata 25,005 ms (*median* 20,638 ms; *P95* 45,643 ms). Melalui antarmuka HTTP `POST /predict` FastAPI, latensi penuh tercatat 27,211 ms/pesan (*median* 25,271 ms; *P95* 37,566 ms), sedangkan pemrosesan massal `POST /predict/batch` lima puluh pesan tuntas dalam 750,066 ms (15,001 ms/pesan). Rekapitulasi pengujian disajikan pada Tabel 4.5.
 
 Tabel 4.5 Hasil Pengujian Fungsional Otomatis dan Latensi Inferensi Purwarupa
 
 | Kode / Metrik | Subjek dan Kondisi Uji | Jumlah Uji / Sampel | Hasil / Waktu Terukur | Status |
 | :--- | :--- | :---: | :---: | :---: |
-| `UJI-01` | `GET /health` kesiapan peladen FastAPI & bundel model | 1 | HTTP 200 (`LinearSVC+Platt` aktif) | Lulus (60 ms) |
-| `UJI-02` | `POST /predict` pesan modus `Coretax_DJP_Update.apk` | 1 | Label `1`, `has_apk=True`, risiko `TINGGI` | Lulus (70 ms) |
+| `UJI-01` | `GET /health` kesiapan peladen FastAPI & bundel model | 1 | HTTP 200 (`LinearSVC+Platt` aktif) | Lulus (140 ms) |
+| `UJI-02` | `POST /predict` pesan modus `Coretax_DJP_Update.apk` | 1 | Label `1`, `has_apk=True`, risiko `TINGGI` | Lulus (130 ms) |
 | `UJI-03` | `POST /predict` domain palsu `pajak-djp-verifikasi.xyz` | 1 | Label `1`, domain curiga tercatat tanpa `17.00` | Lulus (20 ms) |
-| `UJI-04` | `POST /predict` pengumuman resmi `djponline.pajak.go.id` | 1 | Label `0`, risiko `RENDAH`, `official_domains` terisi | Lulus (20 ms) |
+| `UJI-04` | `POST /predict` pengumuman resmi `djponline.pajak.go.id` | 1 | Label `0`, risiko `RENDAH`, `official_domains` terisi | Lulus (30 ms) |
 | `UJI-05` | `is_official_djp_domain` uji pengecoh `pajak.go.id.evil.com` | 1 | Mengembalikan `False` untuk tiruan | Lulus (<1 ms) |
 | `UJI-06` | `POST /predict` pengiriman teks spasi kosong | 1 | Ditolak dengan status HTTP 422 | Lulus (10 ms) |
-| `UJI-07` | `POST /predict/batch` dua teks campuran *phishing* dan resmi | 1 | HTTP 200 dengan `total=2` | Lulus (30 ms) |
+| `UJI-07` | `POST /predict/batch` dua teks campuran *phishing* dan resmi | 1 | HTTP 200 dengan `total=2` | Lulus (40 ms) |
 | `UJI-08` | Penjagaan angka pukul `16.00` dan nominal `Rp1.500.000` | 1 | `suspicious_domains` kosong, status `RENDAH` | Lulus (20 ms) |
-| `UJI-09` | `GET /`, `/api/presets`, dan `/api/academic-summary` | 1 | HTTP 200 antarmuka web *Cek Pesan Pajak* | Lulus (180 ms) |
-| `UJI-10` | Suite integritas 5 korpus, SHA-256, baseline, Platt, dan `.joblib` | 11 | Seluruh 11 pengujian data/model valid | Lulus (380 ms) |
-| `LAT-01` | Latensi lokal `inference.py::predict_message` (*Mean* / *P95*) | 233 | 14,371 ms/pesan (*P95* = 17,829 ms) | Memenuhi (<100 ms) |
-| `LAT-02` | Latensi REST API `FastAPI POST /predict` (*Mean* / *P95*) | 233 | 23,217 ms/pesan (*P95* = 27,998 ms) | Memenuhi (<100 ms) |
-| `LAT-03` | Latensi massal `FastAPI POST /predict/batch` (50 pesan) | 50 | 708,565 ms total (14,171 ms/pesan) | Memenuhi (<100 ms) |
+| `UJI-09` | `GET /`, `/api/presets`, dan `/api/academic-summary` | 1 | HTTP 200 antarmuka web *Cek Pesan Pajak* | Lulus (290 ms) |
+| `UJI-10` | Suite integritas 5 korpus, SHA-256, deduplikasi, Platt, dan `.joblib` | 13 | Seluruh 13 pengujian data/model valid | Lulus (820 ms) |
+| `LAT-01` | Latensi lokal `inference.py::predict_message` (*Mean* / *P95*) | 232 | 25,005 ms/pesan (*P95* = 45,643 ms) | Memenuhi (<100 ms) |
+| `LAT-02` | Latensi REST API `FastAPI POST /predict` (*Mean* / *P95*) | 232 | 27,211 ms/pesan (*P95* = 37,566 ms) | Memenuhi (<100 ms) |
+| `LAT-03` | Latensi massal `FastAPI POST /predict/batch` (50 pesan) | 50 | 750,066 ms total (15,001 ms/pesan) | Memenuhi (<100 ms) |
 
 Sumber: Eksekusi `src/benchmark_purwarupa.py` dan `05 Hasil Evaluasi/tabel_pengujian_purwarupa.csv` (2026).
 
-Demonstrasi antarmuka aplikasi diverifikasi pada tiga prasetel skenario nyata lewat web *Cek Pesan Pajak* (`GET /`), respons JSON FastAPI, serta simulasi ekstensi *WhatsApp Web* berarsitektur *Manifest V3*. Pada prasetel berkas berbahaya `Pembaruan_Coretax_DJP.apk`, sistem menetapkan status berisiko tinggi *Berbahaya* dengan indikasi scam 99% (skor internal `LinearSVC` 98,73% vs *Random Forest* 93,43%). Sistem menyoroti langsung berkas `.apk` di gelembung WhatsApp dan menampilkan chip kata pemicu (*segera*, *unduh*, *instal*, *verifikasi*) beserta respons JSON FastAPI pada Gambar 4.6.
+Demonstrasi antarmuka aplikasi diverifikasi pada tiga prasetel skenario nyata lewat web *Cek Pesan Pajak* (`GET /`), respons JSON FastAPI, serta simulasi ekstensi *WhatsApp Web* berarsitektur *Manifest V3*. Pada prasetel berkas berbahaya `Pembaruan_Coretax_DJP.apk`, sistem menetapkan status berisiko tinggi *BAHAYA / SCAM* dengan indikasi scam 92% (skor internal `LinearSVC` Platt 92,49% dan *Random Forest* 95,00%). Sistem menyoroti langsung berkas `.apk` di gelembung WhatsApp dan menampilkan chip kata pemicu (*segera*, *unduh*, *instal*, *verifikasi*) beserta respons JSON FastAPI pada Gambar 4.6.
 
 ![Gambar 4.6](Aset Gambar/Gambar 4.6 Tangkapan Layar Antarmuka Web Cek Pesan Pajak dan Respons API.png)
 
 Gambar 4.6 Tangkapan Layar Antarmuka Web *Cek Pesan Pajak* dan Respons API.
 
-Pengujian pada antarmuka ekstensi *Manifest V3* memakai halaman `simulasi_whatsapp_web.html` yang menampilkan tiga gelembung percakapan beserta jendela *popup* ekstensi pada Gambar 4.7. Prasetel domain palsu `djp-coretax-verifikasi.xyz` ditandai berisiko tinggi *Berbahaya* (indikasi scam 89%), sedangkan pengumuman resmi `djponline.pajak.go.id` diloloskan aman (skor penipuan 9,63%). Pemindaian `content.js` melalui *service worker* `background.js` serta penyempurnaan `URL_PATTERN` bersyarat *top-level domain* alfabetis terbukti mencegah salah penandaan pukul `17.00` dan nominal `Rp1.500.000`.
+Pengujian pada antarmuka ekstensi *Manifest V3* memakai halaman `simulasi_whatsapp_web.html` yang menampilkan tiga gelembung percakapan beserta jendela *popup* ekstensi pada Gambar 4.7. Prasetel domain palsu `djp-coretax-verifikasi.xyz` ditandai berisiko tinggi *BAHAYA / SCAM* (indikasi scam 84%, skor `LinearSVC` 84,28%), sedangkan pengumuman resmi `djponline.pajak.go.id` diloloskan aman (skor penipuan 10,23%, keyakinan aman 90%). Pemindaian `content.js` melalui *service worker* `background.js` serta penyempurnaan `URL_PATTERN` bersyarat *top-level domain* alfabetis terbukti mencegah salah penandaan pukul `17.00` dan nominal `Rp1.500.000`.
 
 ![Gambar 4.7](Aset Gambar/Gambar 4.7 Tangkapan Layar Ekstensi Chrome pada Simulasi WhatsApp Web.png)
 
 Gambar 4.7 Tangkapan Layar Ekstensi Chrome pada Simulasi *WhatsApp Web*.
 
-Mengacu pada indikator Tingkat Kesiapan Teknologi Peraturan Menteri Riset, Teknologi, dan Pendidikan Tinggi Nomor 42 Tahun 2016 [41], purwarupa telah memenuhi kriteria **TKT Level 6**. Penilaian tersebut didasarkan pada demonstrasi subsistem terintegrasi meliputi bundel `.joblib`, API FastAPI, web *Cek Pesan Pajak*, serta ekstensi *Manifest V3* pada simulasi *WhatsApp Web* dengan dua puluh uji otomatis lulus serta latensi persentil ke-95 di bawah tiga puluh milidetik. Purwarupa siap diterapkan.
+Mengacu pada indikator Tingkat Kesiapan Teknologi Peraturan Menteri Riset, Teknologi, dan Pendidikan Tinggi Nomor 42 Tahun 2016 [41], purwarupa telah memenuhi kriteria **TKT Level 6**. Penilaian tersebut didasarkan pada demonstrasi subsistem terintegrasi meliputi bundel `.joblib`, API FastAPI, web *Cek Pesan Pajak*, serta ekstensi *Manifest V3* pada simulasi *WhatsApp Web* dengan dua puluh tiga uji otomatis lulus serta latensi persentil ke-95 di bawah lima puluh milidetik. Purwarupa siap diterapkan.
 
 Sebagai penutup analisis hasil, capaian penelitian ini dibandingkan langsung dengan studi terdahulu yang telah dipetakan pada Bab II [6], [7], [9], [10], [11], [13], [15], [16], [24], [26]. Pembandingan tersebut menyoroti perbedaan karakteristik korpus bahasa Indonesia, jenis fitur teks, pemilihan algoritma, serta keberadaan purwarupa terpakai. Ringkasan kinerja model dan mekanisme mitigasi bias dirinci pada Tabel 4.6.
 
@@ -821,11 +821,11 @@ Tabel 4.6 Komparasi Hasil Penelitian terhadap Studi Terdahulu
 | Saputra dkk. (2026) [15] | 1.320 pesan WA/SMS Indo, Sastrawi + *Hashing* | Linear SVM (*Acc* 95,45%, *Macro F1* 0,95) | `HashingVectorizer` menghilangkan keterjelasan fitur XAI |
 | Sembiring dkk. (2026) [16] | 2.320 pesan penipuan Indo, token entitas | XGBoost (*Acc* 96,34%), Linear SVM (*Rec* 98,59%) | Belum menyandikan `.apk`, tanpa domain pajak & ekstensi |
 | Mishra dan Yadav (2026) [24]; Suwarno dkk. (2026) [26] | SMS TF-IDF [24]; URL *phishing* [26] | `LinearSVC` terjelaskan [24]; Ekstensi *LogReg* [26] | Belum terpadu untuk WhatsApp Indonesia tema otoritas pajak |
-| **Penelitian Ini (2026)** | **1.164 teks (904 SMS + 260 pajak) & 2.521 diperluas, TF-IDF `(1, 2)` + Sastrawi** | **`LinearSVC` Platt (*Acc* 97,42% *holdout*, 98,28% *baseline*, 97,73% pajak, *Brier* 0,019)** | **Mitigasi *keyword bias* pajak, XAI koefisien, *guard* `.apk`/domain sah, purwarupa TKT 6 (23,22 ms)** |
+| **Penelitian Ini (2026)** | **1.159 teks unik (dari 1.164 induk) & 2.519 diperluas, TF-IDF `(1, 2)` + Sastrawi** | **`LinearSVC` Platt (*10-Fold CV* 97,74%, *F1* pajak 98,17%, *Holdout* 95,69%, *Brier* 0,02542)** | **Mitigasi *keyword bias* pajak, XAI koefisien & SHAP, *guard* `.apk`/domain sah, purwarupa TKT 6 (27,21 ms)** |
 
 Sumber: Sintesis Perbandingan Eksperimen dan Literatur (2026).
 
-Secara keseluruhan, hasil pada Tabel 4.6 memperlihatkan keunggulan rancangan sistem yang memadukan korpus pajak seimbang 260 baris, penyandian `token_apk` dan `token_url`, kalibrasi Platt, serta heuristik `pajak.go.id`. Kombinasi tersebut melampaui keterbatasan penyaring teks konvensional yang kerap salah memblokir imbauan pajak resmi. Akurasi tinggi, presisi pesan DJP, kejelasan kata pemicu, dan latensi persentil ke-95 di bawah 30 ms menjadi pijakan empiris perumusan Bab V.
+Secara keseluruhan, hasil pada Tabel 4.6 memperlihatkan keunggulan rancangan sistem yang memadukan korpus pajak seimbang 260 baris, penyandian `token_apk` dan `token_url`, kalibrasi Platt terisolasi `Pipeline`, serta heuristik `pajak.go.id`. Kombinasi tersebut melampaui keterbatasan penyaring teks konvensional yang kerap salah memblokir imbauan pajak resmi ataupun meloloskan pesan `.apk` bergaya birokratis. Keunggulan validasi silang, kalibrasi peluang, kejelasan kata pemicu, dan latensi di bawah 50 ms menjadi pijakan empiris perumusan Bab V.
 
 ---
 

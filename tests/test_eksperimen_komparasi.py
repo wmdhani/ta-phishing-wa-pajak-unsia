@@ -1,12 +1,21 @@
 import json
+import os
 from pathlib import Path
 
 import joblib
 import numpy as np
+import pandas as pd
 import pytest
+from sklearn.pipeline import Pipeline
 
 from src.eksperimen_baseline import clean_text
-from src.eksperimen_komparasi import EVALUATION_DIR, MODEL_PATH, run_all_experiments
+from src.eksperimen_komparasi import (
+    EVALUATION_DIR,
+    MODEL_PATH,
+    _make_calibrated_svm_pipeline,
+    load_datasets,
+    run_all_experiments,
+)
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
@@ -34,9 +43,27 @@ EXPECTED_PLOT_FILES = (
 @pytest.fixture(scope="module")
 def experiment_results() -> dict:
     summary_path = EVALUATION_DIR / "ringkasan_eksperimen_lengkap.json"
-    if summary_path.is_file() and MODEL_PATH.is_file():
+    force_fresh = os.environ.get("RUN_FRESH_EXPERIMENTS") == "1"
+    if not force_fresh and summary_path.is_file() and MODEL_PATH.is_file():
         return json.loads(summary_path.read_text(encoding="utf-8"))
     return run_all_experiments(save_outputs=True)
+
+
+def test_load_datasets_deduplicates_and_pipeline_calibration() -> None:
+    df_primary, df_extended, df_tax = load_datasets()
+    assert len(df_primary) == 1159
+    assert df_primary.attrs["raw_rows"] == 1164
+    assert df_primary.attrs["duplicates_removed"] == 5
+    assert not df_primary["teks_sastrawi"].duplicated().any()
+
+    assert len(df_extended) == 2519
+    assert not df_extended["teks_sastrawi"].duplicated().any()
+    assert len(df_tax) == 260
+    assert not df_tax["teks_sastrawi"].duplicated().any()
+
+    cal = _make_calibrated_svm_pipeline({"C": 2.0, "class_weight": None})
+    assert isinstance(cal.estimator, Pipeline)
+    assert list(cal.estimator.named_steps.keys()) == ["tfidf", "svm"]
 
 
 def test_baseline_reproduction_matches_locked_metrics(experiment_results: dict) -> None:
@@ -44,16 +71,26 @@ def test_baseline_reproduction_matches_locked_metrics(experiment_results: dict) 
     svm = baseline["svm_linear"]
     rf = baseline["random_forest"]
 
-    assert round(svm["accuracy"], 4) == 0.9828
+    assert svm["n_samples"] == 232
+    assert round(svm["accuracy"], 4) == 0.9612
     assert svm["tn"] == 138
     assert svm["fp"] == 2
-    assert svm["fn"] == 2
-    assert svm["tp"] == 91
-    assert round(rf["accuracy"], 4) == 0.9528
+    assert svm["fn"] == 7
+    assert svm["tp"] == 85
+    assert round(rf["accuracy"], 4) == 0.9612
 
 
 def test_multistage_sections_and_calibration_validity(experiment_results: dict) -> None:
-    for key in ("cv_10fold", "tuning", "calibration", "ablation", "tax_subset", "external_cross_corpus", "extended_2521", "shap_top_features"):
+    for key in (
+        "cv_10fold",
+        "tuning",
+        "calibration",
+        "ablation",
+        "tax_subset",
+        "external_cross_corpus",
+        "extended_2521",
+        "shap_top_features",
+    ):
         assert key in experiment_results
         assert experiment_results[key]
 
@@ -62,9 +99,15 @@ def test_multistage_sections_and_calibration_validity(experiment_results: dict) 
     assert svm_cal["brier_score"] < 0.05
 
     probas = np.asarray(calibration["holdout_proba_svm_calibrated"])
-    assert probas.shape == (233, 2)
+    assert probas.shape == (232, 2)
     assert np.all((probas >= 0.0) & (probas <= 1.0))
     assert np.allclose(probas.sum(axis=1), 1.0, atol=1e-6)
+
+    ext = experiment_results["external_cross_corpus"]
+    assert ext["raw_external_rows"] == 3091
+    assert ext["internal_duplicates_removed"] == 1483
+    assert ext["overlap_with_primary_removed"] == 248
+    assert ext["unseen_external_rows"] == 1360
 
 
 def test_expected_artifacts_and_plots_exist(experiment_results: dict) -> None:
@@ -81,6 +124,24 @@ def test_expected_artifacts_and_plots_exist(experiment_results: dict) -> None:
         assert plot_path.stat().st_size > 20_000
 
     assert MODEL_PATH.is_file()
+
+    df_tbl = pd.read_csv(EVALUATION_DIR / "tabel_komparasi_utama.csv")
+    row_cal = df_tbl[
+        (df_tbl["tahap_evaluasi"] == "Tahap 3: Holdout Tuned & Kalibrasi")
+        & (df_tbl["model"] == "SVM Linear (Platt Sigmoid)")
+    ].iloc[0]
+    assert row_cal["accuracy"] == round(experiment_results["calibration"]["svm_calibrated"]["accuracy"], 4)
+
+    df_err = pd.read_csv(EVALUATION_DIR / "analisis_kesalahan_prediksi.csv")
+    assert len(df_err) == experiment_results["error_analysis_count"]
+
+    df_shap = pd.read_csv(EVALUATION_DIR / "shap_fitur_teratas_svm_vs_rf.csv")
+    svm_nama1 = df_shap[(df_shap["model"] == "SVM_Linear_SHAP") & (df_shap["fitur"] == "nama1")]
+    assert not svm_nama1.empty
+    assert svm_nama1.iloc[0]["arah_dominan"] == "Resmi/Normal"
+    rf_no = df_shap[(df_shap["model"] == "Random_Forest_SHAP") & (df_shap["fitur"] == "no")]
+    assert not rf_no.empty
+    assert rf_no.iloc[0]["arah_dominan"] == "Phishing"
 
 
 def test_exported_joblib_bundle_predicts_tax_phishing_and_official_messages(experiment_results: dict) -> None:
@@ -99,16 +160,19 @@ def test_exported_joblib_bundle_predicts_tax_phishing_and_official_messages(expe
 
     vec = bundle["vectorizer"]
     cal_svm = bundle["svm_calibrated"]
+    assert isinstance(cal_svm.estimator, Pipeline)
 
-    x_phishing = vec.transform([clean_text(phishing_msg)])
-    pred_phishing = int(cal_svm.predict(x_phishing)[0])
-    prob_phishing = float(cal_svm.predict_proba(x_phishing)[0, 1])
+    clean_phishing = clean_text(phishing_msg)
+    pred_phishing = int(cal_svm.predict([clean_phishing])[0])
+    prob_phishing = float(cal_svm.predict_proba([clean_phishing])[0, 1])
 
-    x_official = vec.transform([clean_text(official_msg)])
-    pred_official = int(cal_svm.predict(x_official)[0])
-    prob_official = float(cal_svm.predict_proba(x_official)[0, 1])
+    clean_official = clean_text(official_msg)
+    pred_official = int(cal_svm.predict([clean_official])[0])
+    prob_official = float(cal_svm.predict_proba([clean_official])[0, 1])
 
     assert pred_phishing == 1
     assert prob_phishing > 0.80
     assert pred_official == 0
     assert prob_official < 0.20
+
+    assert vec.transform([clean_phishing]).shape[1] == 3000

@@ -35,6 +35,8 @@ if str(PROTOTYPE_DIR) not in sys.path:
 from api import app
 from inference import PRESETS, load_model_bundle, predict_message
 
+from src.eksperimen_baseline import clean_text as sastrawi_clean_text
+
 CHROME_CANDIDATES = (
     Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe"),
     Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"),
@@ -61,6 +63,10 @@ FIGURE_COPIES = (
         "Gambar_Evaluasi_5_Komparasi_Lintas_Korpus.png",
         "Gambar 4.5 Komparasi Generalisasi Lintas Korpus dan Subset Pajak.png",
     ),
+    (
+        "Gambar_Evaluasi_6_SHAP_Komparasi.png",
+        "Gambar 4.8 Analisis Interpretabilitas Model Berbasis SHAP.png",
+    ),
 )
 
 UJI_MATRIX_SPEC = (
@@ -81,7 +87,7 @@ UJI_MATRIX_SPEC = (
         "test_prototipe_api.py::test_web_ui_and_supporting_endpoints",
         "GET / web Cek Pesan Pajak, /api/presets, dan /api/academic-summary",
     ),
-    ("UJI-10", "suite integritas data & model (11 kasus)", "Validasi 5 korpus, SHA-256, baseline, Platt, joblib"),
+    ("UJI-10", "suite integritas data & model (13 kasus)", "Validasi 5 korpus, SHA-256, deduplikasi, baseline, Platt, joblib"),
 )
 
 
@@ -101,7 +107,9 @@ def _summarize_ms(samples_ms: list[float]) -> dict[str, float]:
 
 
 def _load_holdout_texts() -> list[str]:
-    df = pd.read_csv(PRIMARY_CORPUS_PATH)
+    df_raw = pd.read_csv(PRIMARY_CORPUS_PATH)
+    df_raw["teks_sastrawi"] = df_raw["Teks"].fillna("").astype(str).apply(sastrawi_clean_text)
+    df = df_raw.drop_duplicates(subset=["teks_sastrawi"], keep="first").reset_index(drop=True)
     _, idx_test = train_test_split(
         df.index.to_numpy(),
         test_size=0.2,
@@ -154,8 +162,8 @@ def measure_latency() -> tuple[dict[str, Any], dict[str, Any]]:
     latency_data = {
         "cold_bundle_load_ms": cold_load_ms,
         "bundle_metadata": bundle.get("metadata", {}),
-        "direct_inference_holdout_233": _summarize_ms(direct_ms),
-        "fastapi_post_predict_holdout_233": _summarize_ms(api_ms),
+        "direct_inference_holdout_232": _summarize_ms(direct_ms),
+        "fastapi_post_predict_holdout_232": _summarize_ms(api_ms),
         "fastapi_post_predict_batch_50": {
             "batch_size": len(batch_texts),
             "total_ms": round(batch_total_ms, 3),
@@ -224,7 +232,7 @@ def save_test_summary_csv(
             jumlah_uji = 1
         else:
             other_cases = {k: v for k, v in cases.items() if not k.startswith("tests/test_prototipe_api.py")}
-            all_passed = len(other_cases) == 11 and all(v["status"] == "PASSED" for v in other_cases.values())
+            all_passed = len(other_cases) == 13 and all(v["status"] == "PASSED" for v in other_cases.values())
             status = "PASSED" if all_passed else "FAILED"
             dur_ms = round(sum(v["duration_sec"] for v in other_cases.values()) * 1000.0, 2)
             jumlah_uji = len(other_cases)
@@ -241,15 +249,16 @@ def save_test_summary_csv(
             }
         )
 
-    direct = latency_info["direct_inference_holdout_233"]
-    api = latency_info["fastapi_post_predict_holdout_233"]
+    direct = latency_info["direct_inference_holdout_232"]
+    api = latency_info["fastapi_post_predict_holdout_232"]
     batch = latency_info["fastapi_post_predict_batch_50"]
+    n_holdout = direct["n_calls"]
 
     latency_rows = (
-        ("LAT-01", "inference.py::predict_message (Mean)", "Rata-rata inferensi lokal per pesan", 233, direct["mean_ms"], "ms/pesan"),
-        ("LAT-02", "inference.py::predict_message (P50/P95/P99)", f"Median={direct['median_p50_ms']} | P95={direct['p95_ms']} | P99={direct['p99_ms']}", 233, direct["p95_ms"], "ms/pesan (P95)"),
-        ("LAT-03", "FastAPI POST /predict (Mean)", "Rata-rata inferensi REST API per pesan", 233, api["mean_ms"], "ms/pesan"),
-        ("LAT-04", "FastAPI POST /predict (P50/P95/P99)", f"Median={api['median_p50_ms']} | P95={api['p95_ms']} | P99={api['p99_ms']}", 233, api["p95_ms"], "ms/pesan (P95)"),
+        ("LAT-01", "inference.py::predict_message (Mean)", "Rata-rata inferensi lokal per pesan", n_holdout, direct["mean_ms"], "ms/pesan"),
+        ("LAT-02", "inference.py::predict_message (P50/P95/P99)", f"Median={direct['median_p50_ms']} | P95={direct['p95_ms']} | P99={direct['p99_ms']}", n_holdout, direct["p95_ms"], "ms/pesan (P95)"),
+        ("LAT-03", "FastAPI POST /predict (Mean)", "Rata-rata inferensi REST API per pesan", n_holdout, api["mean_ms"], "ms/pesan"),
+        ("LAT-04", "FastAPI POST /predict (P50/P95/P99)", f"Median={api['median_p50_ms']} | P95={api['p95_ms']} | P99={api['p99_ms']}", n_holdout, api["p95_ms"], "ms/pesan (P95)"),
         ("LAT-05", "FastAPI POST /predict/batch", f"Total 50 pesan = {batch['total_ms']} ms", 50, batch["avg_per_message_ms"], "ms/pesan (batch)"),
     )
     for kode, subjek, desc, n_smp, val, unit in latency_rows:
@@ -327,7 +336,7 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
     web_css = (PROTOTYPE_DIR / "web" / "styles.css").read_text(encoding="utf-8")
     apk_case = presets_out["Phishing APK (Coretax Palsu)"]
     r = apk_case["response"]
-    api_lat = latency_info["fastapi_post_predict_holdout_233"]
+    api_lat = latency_info["fastapi_post_predict_holdout_232"]
 
     highlighted_msg_html = _render_highlighted_bubble_html(
         apk_case["input_text"], r.get("highlights", [])
@@ -1020,7 +1029,7 @@ def _build_architecture_diagram_html() -> str:
     </div>
     <div class="box slate">
       <h2>Klasifikasi &amp; Penjelasan</h2>
-      <p>LinearSVC (Platt, C=5.0) + Random Forest<br/>Penerjemah alasan awam &amp; sorotan teks</p>
+      <p>LinearSVC (Platt Pipeline, C=2.0) + Random Forest<br/>Penerjemah alasan awam &amp; sorotan teks</p>
     </div>
     <div class="box red">
       <h2>Pemeriksa Heuristik</h2>
@@ -1030,7 +1039,7 @@ def _build_architecture_diagram_html() -> str:
   <div class="arrow-single"><span class="arrow-sym">&uarr;</span>Load Joblib (lru_cache)</div>
   <div class="box model">
     <h2>Bundel Model Terlatih (model_phishing_pajak.joblib)</h2>
-    <p>Vectorizer TF-IDF + LinearSVC + CalibratedClassifierCV + RandomForest (1.164 korpus)</p>
+    <p>Vectorizer TF-IDF + LinearSVC + CalibratedClassifierCV + RandomForest (1.159 teks unik)</p>
   </div>
 </body>
 </html>
@@ -1109,19 +1118,19 @@ def main() -> None:
     copy_evaluation_figures()
     generate_prototype_screenshots(presets_out, latency_info)
 
-    direct = latency_info["direct_inference_holdout_233"]
-    api = latency_info["fastapi_post_predict_holdout_233"]
+    direct = latency_info["direct_inference_holdout_232"]
+    api = latency_info["fastapi_post_predict_holdout_232"]
     batch = latency_info["fastapi_post_predict_batch_50"]
     print(
         f"Pytest: {pytest_info['passed']}/{pytest_info['total_collected']} PASSED "
         f"({pytest_info['pytest_reported_seconds']}s)"
     )
     print(
-        f"Latensi inference.py (n=233): mean={direct['mean_ms']} ms, "
+        f"Latensi inference.py (n={direct['n_calls']}): mean={direct['mean_ms']} ms, "
         f"p50={direct['median_p50_ms']} ms, p95={direct['p95_ms']} ms, p99={direct['p99_ms']} ms"
     )
     print(
-        f"Latensi POST /predict (n=233): mean={api['mean_ms']} ms, "
+        f"Latensi POST /predict (n={api['n_calls']}): mean={api['mean_ms']} ms, "
         f"p50={api['median_p50_ms']} ms, p95={api['p95_ms']} ms, p99={api['p99_ms']} ms"
     )
     print(

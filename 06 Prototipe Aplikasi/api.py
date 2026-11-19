@@ -9,7 +9,7 @@ from collections import defaultdict, deque
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -66,11 +66,12 @@ def _resolve_client_ip(request: Request) -> str:
     host = request.client.host if request.client else "unknown"
     if host == "testclient":
         return host
-    forwarded = request.headers.get("x-forwarded-for", "")
-    if forwarded:
-        first_hop = forwarded.split(",")[0].strip()
-        if first_hop:
-            return first_hop
+    if os.getenv("TRUST_PROXY_HEADERS", "").strip().lower() in {"1", "true", "yes"}:
+        forwarded = request.headers.get("x-forwarded-for", "")
+        if forwarded:
+            first_hop = forwarded.split(",")[0].strip()
+            if first_hop:
+                return first_hop
     return host
 
 
@@ -155,7 +156,7 @@ class PredictRequest(BaseModel):
 
 
 class BatchPredictRequest(BaseModel):
-    texts: list[str] = Field(..., min_length=1, max_length=200)
+    texts: list[Annotated[str, Field(max_length=5000)]] = Field(..., min_length=1, max_length=200)
     top_k: int = Field(default=5, ge=1, le=20)
 
 
@@ -251,7 +252,13 @@ def predict_batch(req: BatchPredictRequest) -> dict[str, Any]:
         if not cleaned_input:
             results.append({"index": idx, "error": "Teks kosong dilewati."})
             continue
-        item = predict_message(cleaned_input, top_k=req.top_k)
+        try:
+            item = predict_message(cleaned_input, top_k=req.top_k)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        except ValueError as exc:
+            results.append({"index": idx, "error": str(exc)})
+            continue
         item["index"] = idx
         results.append(item)
     return {"total": len(req.texts), "results": results}

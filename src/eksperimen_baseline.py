@@ -63,7 +63,7 @@ def clean_text(text: str) -> str:
     return " ".join(processed)
 
 
-def load_combined_dataset() -> pd.DataFrame:
+def load_combined_dataset(deduplicate: bool = True) -> pd.DataFrame:
     import pandas as pd
 
     dataset_dir = Path(__file__).resolve().parent.parent / "04 Dataset"
@@ -80,6 +80,8 @@ def load_combined_dataset() -> pd.DataFrame:
 
     df = pd.concat([df_base, df_tax], ignore_index=True)
     df["clean_text"] = df["Teks"].apply(clean_text)
+    if deduplicate:
+        df = df.drop_duplicates(subset=["clean_text"], keep="first").reset_index(drop=True)
     return df
 
 

@@ -122,14 +122,19 @@ def test_predict_batch_endpoint() -> None:
         json={
             "texts": [
                 "Segera instal pajak_update.apk sekarang",
+                "   ",
                 "Lapor SPT melalui https://djponline.pajak.go.id",
             ]
         },
     )
     assert resp.status_code == 200
     data = resp.json()
-    assert data["total"] == 2
-    assert len(data["results"]) == 2
+    assert data["total"] == 3
+    assert len(data["results"]) == 3
+    assert "error" in data["results"][1]
+
+    oversized_resp = client.post("/predict/batch", json={"texts": ["a" * 5001]})
+    assert oversized_resp.status_code == 422
 
 
 def test_web_ui_and_supporting_endpoints() -> None:

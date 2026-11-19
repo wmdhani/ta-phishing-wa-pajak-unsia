@@ -430,8 +430,8 @@
       "Tahap 4A: Subset Pajak Holdout": "Khusus Chat Pajak",
       "Tahap 4A: 10-Fold CV Korpus Pajak 260": "CV Korpus Pajak (260)",
       "Tahap 4B: Zero-Shot Eksternal (Unseen)": "Zero-Shot Eksternal",
-      "Tahap 4C: Holdout Korpus 2.521 (80:20)": "Holdout 2.521 Teks",
-      "Tahap 4C: 10-Fold CV Korpus 2.521": "10-Fold CV 2.521",
+      "Tahap 4C: Holdout Korpus Diperluas 2519 (80:20)": "Holdout 2.519 Teks",
+      "Tahap 4C: 10-Fold CV Korpus Diperluas 2519": "10-Fold CV 2.519",
     };
     return map[rawStage] || rawStage || "-";
   }
@@ -468,16 +468,27 @@
 
     const statsGrid = document.createElement("div");
     statsGrid.className = "acad-meta-grid";
-    const svmAcc = meta.holdout_accuracy_svm ? formatIdDecimal(meta.holdout_accuracy_svm, 2, true) : "97,42%";
-    const rfAcc = meta.holdout_accuracy_rf ? formatIdDecimal(meta.holdout_accuracy_rf, 2, true) : "96,57%";
+    const svmAcc = meta.holdout_accuracy_svm ? formatIdDecimal(meta.holdout_accuracy_svm, 2, true) : "95,69%";
+    const rfAcc = meta.holdout_accuracy_rf ? formatIdDecimal(meta.holdout_accuracy_rf, 2, true) : "96,55%";
     const brierVal = meta.holdout_brier_svm_calibrated
       ? formatIdDecimal(meta.holdout_brier_svm_calibrated, 4, false)
-      : "0,0190";
+      : "0,0254";
+    const taxSvmRow = allRows.find(
+      (r) => r.tahap_evaluasi === "Tahap 4A: Subset Pajak Holdout" && (r.model || "").includes("Platt")
+    );
+    const taxRfRow = allRows.find(
+      (r) => r.tahap_evaluasi === "Tahap 4A: Subset Pajak Holdout" && (r.model || "").includes("Random Forest")
+    );
+    const taxAccDisplay = taxSvmRow ? formatIdDecimal(taxSvmRow.accuracy, 2, true) : "95,56%";
+    const taxAucSub =
+      taxSvmRow && taxRfRow
+        ? `AUC ${formatIdDecimal(taxSvmRow.roc_auc, 4, false)} vs RF ${formatIdDecimal(taxRfRow.roc_auc, 4, false)}`
+        : "AUC 0,9960 vs RF 0,9752";
     const stats = [
-      ["Dataset", `${(meta.n_samples ?? 1164).toLocaleString("id-ID")} Chat`, "904 umum + 260 pajak"],
+      ["Dataset", `${(meta.n_samples ?? 1159).toLocaleString("id-ID")} Chat`, "899 umum + 260 pajak"],
       ["Accuracy (Holdout)", svmAcc, `LinearSVC vs RF ${rfAcc}`],
-      ["Khusus Chat Pajak", "97,73%", "LinearSVC vs RF 88,64%"],
-      ["Speed & Calibration", "~14 ms", `Brier ${brierVal} • Platt Scaling`],
+      ["Khusus Chat Pajak", taxAccDisplay, taxAucSub],
+      ["Speed & Calibration", "~25 ms", `Brier ${brierVal} • Platt Scaling`],
     ];
     stats.forEach(([label, val, sub]) => {
       const box = document.createElement("div");
@@ -650,7 +661,7 @@
         winner: true,
       },
       {
-        name: "Random Forest (200 Trees)",
+        name: "Random Forest (100 Trees)",
         tag: "Benchmark",
         prob: rfProb,
         note: `Gap: ${formatIdDecimal(Math.abs(svmProb - rfProb), 2, true)}`,

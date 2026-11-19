@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.eksperimen_baseline import clean_text as sastrawi_clean_text
 from src.korpus_pajak import SOURCE_METADATA
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -77,3 +78,21 @@ def test_provenance_catalog_sha256_matches_files() -> None:
         assert file_path.exists()
         actual_sha = hashlib.sha256(file_path.read_bytes()).hexdigest()
         assert actual_sha == row["sha256"]
+
+
+def test_sastrawi_deduplication_consistency() -> None:
+    df_tax = pd.read_csv(PROCESSED_DIR / "Dataset Pajak Terkurasi 260 Baris.csv")
+    df_tax["teks_sastrawi"] = df_tax["Teks"].fillna("").astype(str).apply(sastrawi_clean_text)
+    assert not df_tax["teks_sastrawi"].duplicated().any()
+
+    df_primary = pd.read_csv(PROCESSED_DIR / "Dataset Gabungan Utama Biner 1164 Baris.csv")
+    df_primary["teks_sastrawi"] = df_primary["Teks"].fillna("").astype(str).apply(sastrawi_clean_text)
+    dups_pri = df_primary[df_primary["teks_sastrawi"].duplicated(keep=False)]
+    assert (dups_pri.groupby("teks_sastrawi")["label"].nunique() == 1).all()
+    assert len(df_primary.drop_duplicates(subset=["teks_sastrawi"], keep="first")) == 1159
+
+    df_ext = pd.read_csv(PROCESSED_DIR / "Dataset Gabungan Diperluas Biner 2521 Baris.csv")
+    df_ext["teks_sastrawi"] = df_ext["Teks"].fillna("").astype(str).apply(sastrawi_clean_text)
+    dups_ext = df_ext[df_ext["teks_sastrawi"].duplicated(keep=False)]
+    assert (dups_ext.groupby("teks_sastrawi")["label"].nunique() == 1).all()
+    assert len(df_ext.drop_duplicates(subset=["teks_sastrawi"], keep="first")) == 2519

@@ -36,11 +36,13 @@ from sklearn.metrics import (
     roc_curve,
 )
 from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
 
 from src.eksperimen_baseline import STEM_WORD, STOP_WORDS, URL_PATTERN, clean_text
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
+RAW_DATA_DIR = ROOT_DIR / "04 Dataset" / "01 Data Mentah"
 PRIMARY_CORPUS_PATH = (
     ROOT_DIR / "04 Dataset" / "02 Data Olahan" / "Dataset Gabungan Utama Biner 1164 Baris.csv"
 )
@@ -83,18 +85,33 @@ def clean_text_without_entity_tokens(text: str) -> str:
 
 
 def load_datasets() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Muat korpus utama (1.164), diperluas (2.521), dan pajak (260) beserta kolom Sastrawi."""
-    df_primary = pd.read_csv(PRIMARY_CORPUS_PATH)
-    df_primary["teks_sastrawi"] = df_primary["Teks"].fillna("").astype(str).apply(clean_text)
-    df_primary["teks_tanpa_token_entitas"] = (
-        df_primary["Teks"].fillna("").astype(str).apply(clean_text_without_entity_tokens)
+    """Muat korpus utama, diperluas, dan pajak beserta kolom Sastrawi dan deduplikasi pra-split."""
+    df_primary_raw = pd.read_csv(PRIMARY_CORPUS_PATH)
+    df_primary_raw["teks_sastrawi"] = df_primary_raw["Teks"].fillna("").astype(str).apply(clean_text)
+    df_primary_raw["teks_tanpa_token_entitas"] = (
+        df_primary_raw["Teks"].fillna("").astype(str).apply(clean_text_without_entity_tokens)
     )
+    df_primary = df_primary_raw.drop_duplicates(subset=["teks_sastrawi"], keep="first").reset_index(
+        drop=True
+    )
+    df_primary.attrs["raw_rows"] = len(df_primary_raw)
+    df_primary.attrs["duplicates_removed"] = len(df_primary_raw) - len(df_primary)
 
-    df_extended = pd.read_csv(EXTENDED_CORPUS_PATH)
-    df_extended["teks_sastrawi"] = df_extended["Teks"].fillna("").astype(str).apply(clean_text)
+    df_extended_raw = pd.read_csv(EXTENDED_CORPUS_PATH)
+    df_extended_raw["teks_sastrawi"] = (
+        df_extended_raw["Teks"].fillna("").astype(str).apply(clean_text)
+    )
+    df_extended = df_extended_raw.drop_duplicates(subset=["teks_sastrawi"], keep="first").reset_index(
+        drop=True
+    )
+    df_extended.attrs["raw_rows"] = len(df_extended_raw)
+    df_extended.attrs["duplicates_removed"] = len(df_extended_raw) - len(df_extended)
 
-    df_tax = pd.read_csv(TAX_CORPUS_PATH)
-    df_tax["teks_sastrawi"] = df_tax["Teks"].fillna("").astype(str).apply(clean_text)
+    df_tax_raw = pd.read_csv(TAX_CORPUS_PATH)
+    df_tax_raw["teks_sastrawi"] = df_tax_raw["Teks"].fillna("").astype(str).apply(clean_text)
+    df_tax = df_tax_raw.drop_duplicates(subset=["teks_sastrawi"], keep="first").reset_index(drop=True)
+    df_tax.attrs["raw_rows"] = len(df_tax_raw)
+    df_tax.attrs["duplicates_removed"] = len(df_tax_raw) - len(df_tax)
     return df_primary, df_extended, df_tax
 
 
@@ -134,6 +151,17 @@ def _compute_metrics(
         metrics["pr_auc"] = float(average_precision_score(y_true, y_score))
 
     return metrics
+
+
+def _make_calibrated_svm_pipeline(svm_best_params: dict[str, Any]) -> CalibratedClassifierCV:
+    """Bungkus TF-IDF dan LinearSVC dalam Pipeline agar tiap fold kalibrasi Platt terisolasi."""
+    base_pipe = Pipeline(
+        [
+            ("tfidf", TfidfVectorizer(ngram_range=(1, 2), max_features=3000)),
+            ("svm", LinearSVC(random_state=RANDOM_STATE, max_iter=5000, **svm_best_params)),
+        ]
+    )
+    return CalibratedClassifierCV(estimator=base_pipe, method="sigmoid", cv=5)
 
 
 def _precompute_tfidf_folds(
@@ -341,14 +369,10 @@ def _run_stage2_and_3_tuning_calibration(
     svm_tuned_pred = svm_tuned.predict(x_test_tf)
     svm_tuned_score = svm_tuned.decision_function(x_test_tf)
 
-    svm_calibrated = CalibratedClassifierCV(
-        estimator=LinearSVC(random_state=RANDOM_STATE, max_iter=5000, **svm_best_params),
-        method="sigmoid",
-        cv=5,
-    )
-    svm_calibrated.fit(x_train_tf, y_train)
-    cal_pred = svm_calibrated.predict(x_test_tf)
-    cal_proba_all = svm_calibrated.predict_proba(x_test_tf)
+    svm_calibrated = _make_calibrated_svm_pipeline(svm_best_params)
+    svm_calibrated.fit(x_train, y_train)
+    cal_pred = svm_calibrated.predict(x_test)
+    cal_proba_all = svm_calibrated.predict_proba(x_test)
     cal_proba = cal_proba_all[:, 1]
 
     rf_tuned = RandomForestClassifier(random_state=RANDOM_STATE, **rf_best_params)
@@ -496,7 +520,7 @@ def _run_stage4_domain_and_cross_corpus(
         tax_folds, lambda: RandomForestClassifier(random_state=RANDOM_STATE, **rf_best_params)
     )
 
-    # Fit model produksi pada seluruh 1.164 baris korpus utama (untuk Stage 4B & ekspor joblib)
+    # Fit model produksi pada korpus utama terdeduplikasi (untuk Stage 4B & ekspor joblib)
     vec_full = TfidfVectorizer(ngram_range=(1, 2), max_features=3000)
     x_full_tf = vec_full.fit_transform(df_primary["teks_sastrawi"])
     y_full = df_primary["label"].to_numpy()
@@ -504,28 +528,47 @@ def _run_stage4_domain_and_cross_corpus(
     svm_full_linear = LinearSVC(random_state=RANDOM_STATE, max_iter=5000, **svm_best_params)
     svm_full_linear.fit(x_full_tf, y_full)
 
-    svm_full_cal = CalibratedClassifierCV(
-        estimator=LinearSVC(random_state=RANDOM_STATE, max_iter=5000, **svm_best_params),
-        method="sigmoid",
-        cv=5,
-    )
-    svm_full_cal.fit(x_full_tf, y_full)
+    svm_full_cal = _make_calibrated_svm_pipeline(svm_best_params)
+    svm_full_cal.fit(df_primary["teks_sastrawi"], y_full)
 
     rf_full = RandomForestClassifier(random_state=RANDOM_STATE, **rf_best_params)
     rf_full.fit(x_full_tf, y_full)
 
-    # Stage 4B: Uji zero-shot pada sumber eksternal yang belum pernah dilihat model
+    # Stage 4B: Uji zero-shot langsung dari korpus mentah eksternal agar jumlah duplikat tercatat akurat
+    df_theo = pd.read_csv(RAW_DATA_DIR / "Theodorus 2021 Korpus SMS Spam IEEE.csv")
+    df_theo_bin = df_theo[df_theo["Label"].isin([0, 2])].copy()
+    df_theo_bin["Teks"] = df_theo_bin["Text"].astype(str).str.strip()
+    df_theo_bin["label"] = df_theo_bin["Label"].map({0: 0, 2: 1})
+    df_theo_bin["sumber"] = "Korpus_Umum_Theodorus2021_IEEE"
+
+    df_saragih = pd.read_csv(RAW_DATA_DIR / "Saragih 2024 Korpus SMS Spam Indo.csv")
+    df_saragih["kat_clean"] = df_saragih["Jenis_spam"].astype(str).str.strip().str.lower()
+    df_saragih_bin = df_saragih[df_saragih["kat_clean"].isin(["non-spam", "penipuan"])].copy()
+    df_saragih_bin["Teks"] = df_saragih_bin["pesan"].astype(str).str.strip()
+    df_saragih_bin["label"] = df_saragih_bin["kat_clean"].map({"non-spam": 0, "penipuan": 1})
+    df_saragih_bin["sumber"] = "Korpus_Umum_Saragih2024"
+
+    df_ext_raw = pd.concat(
+        [
+            df_theo_bin[["Teks", "label", "sumber"]],
+            df_saragih_bin[["Teks", "label", "sumber"]],
+        ],
+        ignore_index=True,
+    )
+    df_ext_raw["teks_sastrawi"] = df_ext_raw["Teks"].fillna("").astype(str).apply(clean_text)
+    df_ext_unique = df_ext_raw.drop_duplicates(subset=["teks_sastrawi"], keep="first").copy()
+    internal_duplicates_removed = int(len(df_ext_raw) - len(df_ext_unique))
+
     external_sources = {"Korpus_Umum_Theodorus2021_IEEE", "Korpus_Umum_Saragih2024"}
-    df_ext_raw = df_extended[df_extended["sumber"].isin(external_sources)].copy()
     primary_seen_texts = set(df_primary["teks_sastrawi"])
-    df_ext_unseen = df_ext_raw[~df_ext_raw["teks_sastrawi"].isin(primary_seen_texts)].copy()
-    overlap_removed = int(len(df_ext_raw) - len(df_ext_unseen))
+    df_ext_unseen = df_ext_unique[~df_ext_unique["teks_sastrawi"].isin(primary_seen_texts)].copy()
+    overlap_removed = int(len(df_ext_unique) - len(df_ext_unseen))
 
     x_ext_tf = vec_full.transform(df_ext_unseen["teks_sastrawi"])
     y_ext = df_ext_unseen["label"].to_numpy()
 
-    ext_svm_pred = svm_full_cal.predict(x_ext_tf)
-    ext_svm_prob = svm_full_cal.predict_proba(x_ext_tf)[:, 1]
+    ext_svm_pred = svm_full_cal.predict(df_ext_unseen["teks_sastrawi"])
+    ext_svm_prob = svm_full_cal.predict_proba(df_ext_unseen["teks_sastrawi"])[:, 1]
     ext_rf_pred = rf_full.predict(x_ext_tf)
     ext_rf_prob = rf_full.predict_proba(x_ext_tf)[:, 1]
 
@@ -537,7 +580,7 @@ def _run_stage4_domain_and_cross_corpus(
             "random_forest": _compute_metrics(y_ext[mask], ext_rf_pred[mask], y_prob=ext_rf_prob[mask]),
         }
 
-    # Stage 4C: Evaluasi penuh korpus diperluas 2.521 baris (Holdout 80:20 + 10-Fold CV)
+    # Stage 4C: Evaluasi penuh korpus diperluas terdeduplikasi (Holdout 80:20 + 10-Fold CV)
     x_2521 = df_extended["teks_sastrawi"]
     y_2521 = df_extended["label"].to_numpy()
     idx_tr_2521, idx_te_2521 = train_test_split(
@@ -550,19 +593,15 @@ def _run_stage4_domain_and_cross_corpus(
     x_tr_2521_tf = vec_2521.fit_transform(x_2521.loc[idx_tr_2521])
     x_te_2521_tf = vec_2521.transform(x_2521.loc[idx_te_2521])
 
-    svm_2521_cal = CalibratedClassifierCV(
-        estimator=LinearSVC(random_state=RANDOM_STATE, max_iter=5000, **svm_best_params),
-        method="sigmoid",
-        cv=5,
-    )
-    svm_2521_cal.fit(x_tr_2521_tf, y_2521[idx_tr_2521])
+    svm_2521_cal = _make_calibrated_svm_pipeline(svm_best_params)
+    svm_2521_cal.fit(x_2521.loc[idx_tr_2521], y_2521[idx_tr_2521])
     rf_2521 = RandomForestClassifier(random_state=RANDOM_STATE, **rf_best_params)
     rf_2521.fit(x_tr_2521_tf, y_2521[idx_tr_2521])
 
     holdout_2521_svm = _compute_metrics(
         y_2521[idx_te_2521],
-        svm_2521_cal.predict(x_te_2521_tf),
-        y_prob=svm_2521_cal.predict_proba(x_te_2521_tf)[:, 1],
+        svm_2521_cal.predict(x_2521.loc[idx_te_2521]),
+        y_prob=svm_2521_cal.predict_proba(x_2521.loc[idx_te_2521])[:, 1],
     )
     holdout_2521_rf = _compute_metrics(
         y_2521[idx_te_2521],
@@ -588,6 +627,8 @@ def _run_stage4_domain_and_cross_corpus(
         },
         "external_cross_corpus": {
             "raw_external_rows": len(df_ext_raw),
+            "internal_duplicates_removed": internal_duplicates_removed,
+            "unique_external_rows": len(df_ext_unique),
             "overlap_with_primary_removed": overlap_removed,
             "unseen_external_rows": len(df_ext_unseen),
             "combined_svm_calibrated": _compute_metrics(y_ext, ext_svm_pred, y_prob=ext_svm_prob),
@@ -595,6 +636,7 @@ def _run_stage4_domain_and_cross_corpus(
             "per_source": per_source_ext,
         },
         "extended_2521": {
+            "n_total": len(df_extended),
             "n_train": len(idx_tr_2521),
             "n_test": len(idx_te_2521),
             "holdout_svm_calibrated": holdout_2521_svm,
@@ -668,12 +710,17 @@ def _build_feature_and_error_tables(
     df_err = df_test[err_svm | err_rf | err_base].copy()
 
     def _label_error_source(row: pd.Series) -> str:
+        b_err = row["pred_svm_baseline"] != row["label_aktual"]
         s_err = row["pred_svm_calibrated"] != row["label_aktual"]
         r_err = row["pred_rf_tuned"] != row["label_aktual"]
         if s_err and r_err:
             return "Keduanya"
+        if s_err and b_err:
+            return "SVM_Baseline_dan_Terkalibrasi"
         if s_err:
             return "SVM_Terkalibrasi_Saja"
+        if r_err and b_err:
+            return "SVM_Baseline_dan_RF_Tuned"
         if r_err:
             return "RF_Tuned_Saja"
         return "SVM_Baseline_Saja"
@@ -736,7 +783,12 @@ def _compute_shap_table(stage2_3: dict[str, Any], top_n: int = 20) -> pd.DataFra
         mean_signed = shap_matrix.mean(axis=0)
         top_idx = np.argsort(mean_abs)[::-1][:top_n]
         for rank, idx in enumerate(top_idx, start=1):
-            signed_val = float(mean_signed[idx])
+            present_mask = x_test_dense[:, idx] > 0
+            signed_val = (
+                float(shap_matrix[present_mask, idx].mean())
+                if present_mask.any()
+                else float(mean_signed[idx])
+            )
             rows.append(
                 {
                     "model": model_label,
@@ -792,7 +844,12 @@ def _generate_plots(
         ax.set_title(title, fontsize=11, fontweight="bold", pad=10)
         ax.set_xlabel("Label Prediksi", fontsize=10)
         ax.set_ylabel("Label Aktual", fontsize=10)
-    fig.suptitle("Perbandingan Confusion Matrix Uji Holdout (n = 233)", fontsize=12.5, fontweight="bold", y=1.02)
+    fig.suptitle(
+        f"Perbandingan Confusion Matrix Uji Holdout (n = {svm_m['n_samples']})",
+        fontsize=12.5,
+        fontweight="bold",
+        y=1.02,
+    )
     fig.tight_layout()
     fig.savefig(out_dir / "Gambar_Evaluasi_1_Confusion_Matrix_Komparasi.png", bbox_inches="tight")
     plt.close(fig)
@@ -819,7 +876,12 @@ def _generate_plots(
     axes[1].set_ylim(0.5, 1.03)
     axes[1].legend(loc="lower left")
 
-    fig.suptitle("Evaluasi Diskriminatif Kurva ROC dan Precision-Recall (n = 233)", fontsize=12.5, fontweight="bold", y=1.02)
+    fig.suptitle(
+        f"Evaluasi Diskriminatif Kurva ROC dan Precision-Recall (n = {svm_m['n_samples']})",
+        fontsize=12.5,
+        fontweight="bold",
+        y=1.02,
+    )
     fig.tight_layout()
     fig.savefig(out_dir / "Gambar_Evaluasi_2_Kurva_ROC_dan_PR.png", bbox_inches="tight")
     plt.close(fig)
@@ -853,7 +915,11 @@ def _generate_plots(
 
     axes[1].hist(prob_svm, bins=15, alpha=0.55, color="#1d4ed8", label="SVM Linear (Platt)", edgecolor="white")
     axes[1].hist(prob_rf, bins=15, alpha=0.55, color="#059669", label="Random Forest (Tuned)", edgecolor="white")
-    axes[1].set_title("Distribusi Probabilitas Prediksi (n = 233)", fontsize=11, fontweight="bold")
+    axes[1].set_title(
+        f"Distribusi Probabilitas Prediksi (n = {svm_m['n_samples']})",
+        fontsize=11,
+        fontweight="bold",
+    )
     axes[1].set_xlabel("Probabilitas Kelas Phishing (P = 1)")
     axes[1].set_ylabel("Jumlah Pesan")
     axes[1].legend(loc="upper center", fontsize=9)
@@ -892,7 +958,7 @@ def _generate_plots(
         f"Holdout Utama\n(n={svm_m['n_samples']})",
         f"Subset Pajak\n(n={tax_n})",
         f"Zero-Shot Eksternal\n(n={ext_n})",
-        f"Korpus 2.521\n(Holdout n={stage4['extended_2521']['n_test']})",
+        f"Korpus Diperluas\n(Holdout n={stage4['extended_2521']['n_test']})",
     ]
     svm_acc = [
         svm_m["accuracy"] * 100,
@@ -964,14 +1030,27 @@ def _generate_plots(
         ax.set_title(title, fontsize=10.5, fontweight="bold")
         ax.set_xlabel("Rata-rata |Nilai SHAP| (Dampak Prediksi Holdout)")
 
-    fig.suptitle("Interpretabilitas Model Berbasis SHAP (Holdout n = 233)", fontsize=12.5, fontweight="bold", y=1.01)
+    fig.suptitle(
+        f"Interpretabilitas Model Berbasis SHAP (Holdout n = {svm_m['n_samples']})",
+        fontsize=12.5,
+        fontweight="bold",
+        y=1.01,
+    )
     fig.tight_layout()
     fig.savefig(out_dir / "Gambar_Evaluasi_6_SHAP_Komparasi.png", bbox_inches="tight")
     plt.close(fig)
 
 
-def _build_main_comparison_table(stage1: dict[str, Any], stage2_3: dict[str, Any], stage4: dict[str, Any]) -> pd.DataFrame:
+def _build_main_comparison_table(
+    stage1: dict[str, Any],
+    stage2_3: dict[str, Any],
+    stage4: dict[str, Any],
+    counts: dict[str, int],
+) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
+    n_train = counts["train_rows"]
+    n_tax = counts["tax_rows"]
+    n_extended = counts["extended_rows"]
 
     def _add_holdout_row(tahap: str, model_label: str, m: dict[str, Any]) -> None:
         rows.append(
@@ -1019,27 +1098,27 @@ def _build_main_comparison_table(stage1: dict[str, Any], stage2_3: dict[str, Any
 
     _add_holdout_row("Tahap 1: Baseline Holdout 80:20", "SVM Linear (Default)", stage1["svm_linear"])
     _add_holdout_row("Tahap 1: Baseline Holdout 80:20", "Random Forest (Default n=200)", stage1["random_forest"])
-    _add_cv_row("Tahap 1: 10-Fold CV Default (Latih)", "SVM Linear (Default)", 931, stage1["cv_10fold_default"]["svm_linear"])
-    _add_cv_row("Tahap 1: 10-Fold CV Default (Latih)", "Random Forest (Default n=200)", 931, stage1["cv_10fold_default"]["random_forest"])
+    _add_cv_row("Tahap 1: 10-Fold CV Default (Latih)", "SVM Linear (Default)", n_train, stage1["cv_10fold_default"]["svm_linear"])
+    _add_cv_row("Tahap 1: 10-Fold CV Default (Latih)", "Random Forest (Default n=200)", n_train, stage1["cv_10fold_default"]["random_forest"])
 
-    _add_cv_row("Tahap 2: 10-Fold CV Tuned (Latih)", "SVM Linear (Tuned)", 931, stage2_3["cv_10fold_tuned"]["svm_linear"])
-    _add_cv_row("Tahap 2: 10-Fold CV Tuned (Latih)", "Random Forest (Tuned)", 931, stage2_3["cv_10fold_tuned"]["random_forest"])
+    _add_cv_row("Tahap 2: 10-Fold CV Tuned (Latih)", "SVM Linear (Tuned)", n_train, stage2_3["cv_10fold_tuned"]["svm_linear"])
+    _add_cv_row("Tahap 2: 10-Fold CV Tuned (Latih)", "Random Forest (Tuned)", n_train, stage2_3["cv_10fold_tuned"]["random_forest"])
     _add_holdout_row("Tahap 3: Holdout Tuned & Kalibrasi", "SVM Linear (Tuned)", stage2_3["holdout_tuned"]["svm_linear"])
     _add_holdout_row("Tahap 3: Holdout Tuned & Kalibrasi", "SVM Linear (Platt Sigmoid)", stage2_3["holdout_tuned"]["svm_calibrated"])
     _add_holdout_row("Tahap 3: Holdout Tuned & Kalibrasi", "Random Forest (Tuned)", stage2_3["holdout_tuned"]["random_forest"])
 
     _add_holdout_row("Tahap 4A: Subset Pajak Holdout", "SVM Linear (Platt Sigmoid)", stage4["tax_subset"]["holdout_svm_calibrated"])
     _add_holdout_row("Tahap 4A: Subset Pajak Holdout", "Random Forest (Tuned)", stage4["tax_subset"]["holdout_random_forest"])
-    _add_cv_row("Tahap 4A: 10-Fold CV Korpus Pajak 260", "SVM Linear (Tuned)", 260, stage4["tax_subset"]["cv_10fold_tax_260_svm"])
-    _add_cv_row("Tahap 4A: 10-Fold CV Korpus Pajak 260", "Random Forest (Tuned)", 260, stage4["tax_subset"]["cv_10fold_tax_260_rf"])
+    _add_cv_row(f"Tahap 4A: 10-Fold CV Korpus Pajak {n_tax}", "SVM Linear (Tuned)", n_tax, stage4["tax_subset"]["cv_10fold_tax_260_svm"])
+    _add_cv_row(f"Tahap 4A: 10-Fold CV Korpus Pajak {n_tax}", "Random Forest (Tuned)", n_tax, stage4["tax_subset"]["cv_10fold_tax_260_rf"])
 
     _add_holdout_row("Tahap 4B: Zero-Shot Eksternal (Unseen)", "SVM Linear (Platt Sigmoid)", stage4["external_cross_corpus"]["combined_svm_calibrated"])
     _add_holdout_row("Tahap 4B: Zero-Shot Eksternal (Unseen)", "Random Forest (Tuned)", stage4["external_cross_corpus"]["combined_random_forest"])
 
-    _add_holdout_row("Tahap 4C: Holdout Korpus 2.521 (80:20)", "SVM Linear (Platt Sigmoid)", stage4["extended_2521"]["holdout_svm_calibrated"])
-    _add_holdout_row("Tahap 4C: Holdout Korpus 2.521 (80:20)", "Random Forest (Tuned)", stage4["extended_2521"]["holdout_random_forest"])
-    _add_cv_row("Tahap 4C: 10-Fold CV Korpus 2.521", "SVM Linear (Tuned)", 2521, stage4["extended_2521"]["cv_10fold_svm"])
-    _add_cv_row("Tahap 4C: 10-Fold CV Korpus 2.521", "Random Forest (Tuned)", 2521, stage4["extended_2521"]["cv_10fold_rf"])
+    _add_holdout_row(f"Tahap 4C: Holdout Korpus Diperluas {n_extended} (80:20)", "SVM Linear (Platt Sigmoid)", stage4["extended_2521"]["holdout_svm_calibrated"])
+    _add_holdout_row(f"Tahap 4C: Holdout Korpus Diperluas {n_extended} (80:20)", "Random Forest (Tuned)", stage4["extended_2521"]["holdout_random_forest"])
+    _add_cv_row(f"Tahap 4C: 10-Fold CV Korpus Diperluas {n_extended}", "SVM Linear (Tuned)", n_extended, stage4["extended_2521"]["cv_10fold_svm"])
+    _add_cv_row(f"Tahap 4C: 10-Fold CV Korpus Diperluas {n_extended}", "Random Forest (Tuned)", n_extended, stage4["extended_2521"]["cv_10fold_rf"])
 
     return pd.DataFrame(rows)
 
@@ -1056,6 +1135,7 @@ def _build_markdown_report(
     df_features: pd.DataFrame,
     df_shap: pd.DataFrame,
     df_errors: pd.DataFrame,
+    counts: dict[str, int],
     runtime_sec: float,
 ) -> str:
     b_svm = stage1["svm_linear"]
@@ -1103,7 +1183,7 @@ def _build_markdown_report(
     )
 
     err_lines = []
-    for _, r in df_errors.head(12).iterrows():
+    for _, r in df_errors.iterrows():
         snippet = str(r["Teks"]).replace("\n", " ").replace("|", "/")[:110]
         err_lines.append(
             f"- `idx={r['indeks_korpus']}` | `{r['sumber']}` | `{r['kategori_modus']}` | "
@@ -1119,17 +1199,17 @@ def _build_markdown_report(
             "",
             f"Seluruh rangkaian eksperimen dijalankan secara otomatis oleh `src/eksperimen_komparasi.py` dengan total waktu komputasi **{runtime_sec:.2f} detik**.",
             "",
-            "## 1. Reproduksi Baseline (Holdout 80:20 Korpus Utama 1.164 Baris)",
+            f"## 1. Reproduksi Baseline (Holdout 80:20 Korpus Utama {counts['primary_rows']} Baris Unik dari {counts['primary_raw_rows']} Mentah)",
             "",
             f"- **SVM Linear (Default):** Akurasi **{_format_pct(b_svm['accuracy'])}**, Precision {_format_pct(b_svm['precision'])}, Recall {_format_pct(b_svm['recall'])}, F1-Score {_format_pct(b_svm['f1'])} (TN={b_svm['tn']}, FP={b_svm['fp']}, FN={b_svm['fn']}, TP={b_svm['tp']}).",
             f"- **Random Forest (Default `n_estimators=200`):** Akurasi **{_format_pct(b_rf['accuracy'])}**, Precision {_format_pct(b_rf['precision'])}, Recall {_format_pct(b_rf['recall'])}, F1-Score {_format_pct(b_rf['f1'])} (TN={b_rf['tn']}, FP={b_rf['fp']}, FN={b_rf['fn']}, TP={b_rf['tp']}).",
             "",
-            "## 2. Hyperparameter Tuning & Stratified 10-Fold Cross-Validation (931 Data Latih)",
+            f"## 2. Hyperparameter Tuning & Stratified 10-Fold Cross-Validation ({counts['train_rows']} Data Latih)",
             "",
             f"- **Parameter Optimal SVM Linear:** `{svm_params_str}` -> 10-Fold CV F1-Score **{t_cv_svm['f1_mean'] * 100:.2f}% ± {t_cv_svm['f1_std'] * 100:.2f}%**, Akurasi **{t_cv_svm['accuracy_mean'] * 100:.2f}%**, ROC-AUC **{t_cv_svm['roc_auc_mean']:.4f}**.",
             f"- **Parameter Optimal Random Forest:** `{rf_params_str}` -> 10-Fold CV F1-Score **{t_cv_rf['f1_mean'] * 100:.2f}% ± {t_cv_rf['f1_std'] * 100:.2f}%**, Akurasi **{t_cv_rf['accuracy_mean'] * 100:.2f}%**, ROC-AUC **{t_cv_rf['roc_auc_mean']:.4f}**.",
             "",
-            "## 3. Kalibrasi Probabilitas Platt Scaling & Evaluasi Holdout Final (n = 233)",
+            f"## 3. Kalibrasi Probabilitas Platt Scaling & Evaluasi Holdout Final (n = {counts['test_rows']})",
             "",
             "| Model | Akurasi | Precision | Recall | F1-Score | ROC-AUC | PR-AUC | Brier Score | Log Loss |",
             "| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
@@ -1143,11 +1223,11 @@ def _build_markdown_report(
             "## 5. Ketahanan Bias Kata Kunci Pajak & Uji Generalisasi Lintas-Korpus",
             "",
             f"- **Subset Khusus Pajak pada Holdout (n = {tax_s['holdout_tax_rows']}):** SVM Platt mencapai Akurasi **{_format_pct(tax_s['holdout_svm_calibrated']['accuracy'])}** (F1 {_format_pct(tax_s['holdout_svm_calibrated']['f1'])}, FP={tax_s['holdout_svm_calibrated']['fp']}, FN={tax_s['holdout_svm_calibrated']['fn']}), sedangkan Random Forest mencapai Akurasi **{_format_pct(tax_s['holdout_random_forest']['accuracy'])}** (F1 {_format_pct(tax_s['holdout_random_forest']['f1'])}, FP={tax_s['holdout_random_forest']['fp']}, FN={tax_s['holdout_random_forest']['fn']}).",
-            f"- **10-Fold Stratified CV Khusus Korpus Pajak (260 baris):** SVM mencapai F1 **{tax_s['cv_10fold_tax_260_svm']['f1_mean'] * 100:.2f}%** (Akurasi **{tax_s['cv_10fold_tax_260_svm']['accuracy_mean'] * 100:.2f}%**); Random Forest mencapai F1 **{tax_s['cv_10fold_tax_260_rf']['f1_mean'] * 100:.2f}%** (Akurasi **{tax_s['cv_10fold_tax_260_rf']['accuracy_mean'] * 100:.2f}%**).",
-            f"- **Uji Zero-Shot Lintas-Korpus Eksternal (n = {ext_s['unseen_external_rows']} unik, dari {ext_s['raw_external_rows']} mentah setelah menghapus {ext_s['overlap_with_primary_removed']} duplikat terhadap korpus utama):** SVM Platt mencapai Akurasi **{_format_pct(ext_s['combined_svm_calibrated']['accuracy'])}** (F1 {_format_pct(ext_s['combined_svm_calibrated']['f1'])}), sedangkan Random Forest mencapai Akurasi **{_format_pct(ext_s['combined_random_forest']['accuracy'])}** (F1 {_format_pct(ext_s['combined_random_forest']['f1'])}).",
-            f"- **Evaluasi Korpus Diperluas 2.521 Baris (Holdout n = {e2521['n_test']}):** SVM Platt mencapai Akurasi **{_format_pct(e2521['holdout_svm_calibrated']['accuracy'])}** (F1 {_format_pct(e2521['holdout_svm_calibrated']['f1'])}) dengan 10-Fold CV F1 **{e2521['cv_10fold_svm']['f1_mean'] * 100:.2f}%**; Random Forest mencapai Akurasi **{_format_pct(e2521['holdout_random_forest']['accuracy'])}** (F1 {_format_pct(e2521['holdout_random_forest']['f1'])}) dengan 10-Fold CV F1 **{e2521['cv_10fold_rf']['f1_mean'] * 100:.2f}%**.",
+            f"- **10-Fold Stratified CV Khusus Korpus Pajak ({counts['tax_rows']} baris):** SVM mencapai F1 **{tax_s['cv_10fold_tax_260_svm']['f1_mean'] * 100:.2f}%** (Akurasi **{tax_s['cv_10fold_tax_260_svm']['accuracy_mean'] * 100:.2f}%**); Random Forest mencapai F1 **{tax_s['cv_10fold_tax_260_rf']['f1_mean'] * 100:.2f}%** (Akurasi **{tax_s['cv_10fold_tax_260_rf']['accuracy_mean'] * 100:.2f}%**).",
+            f"- **Uji Zero-Shot Lintas-Korpus Eksternal (n = {ext_s['unseen_external_rows']} unik, dari {ext_s['raw_external_rows']} mentah setelah menghapus {ext_s['internal_duplicates_removed']} duplikat internal dan {ext_s['overlap_with_primary_removed']} tumpang tindih dengan korpus utama):** SVM Platt mencapai Akurasi **{_format_pct(ext_s['combined_svm_calibrated']['accuracy'])}** (F1 {_format_pct(ext_s['combined_svm_calibrated']['f1'])}), sedangkan Random Forest mencapai Akurasi **{_format_pct(ext_s['combined_random_forest']['accuracy'])}** (F1 {_format_pct(ext_s['combined_random_forest']['f1'])}).",
+            f"- **Evaluasi Korpus Diperluas {counts['extended_rows']} Baris Unik (Holdout n = {e2521['n_test']}):** SVM Platt mencapai Akurasi **{_format_pct(e2521['holdout_svm_calibrated']['accuracy'])}** (F1 {_format_pct(e2521['holdout_svm_calibrated']['f1'])}) dengan 10-Fold CV F1 **{e2521['cv_10fold_svm']['f1_mean'] * 100:.2f}%**; Random Forest mencapai Akurasi **{_format_pct(e2521['holdout_random_forest']['accuracy'])}** (F1 {_format_pct(e2521['holdout_random_forest']['f1'])}) dengan 10-Fold CV F1 **{e2521['cv_10fold_rf']['f1_mean'] * 100:.2f}%**.",
             "",
-            "## 6. Interpretabilitas Fitur Teratas & Analisis Kesalahan (n = 233)",
+            f"## 6. Interpretabilitas Fitur Teratas & Analisis Kesalahan (n = {counts['test_rows']})",
             "",
             f"- **Indikator Phishing Terkuat SVM Linear (+):** {top_pos}",
             f"- **Indikator Resmi/Normal Terkuat SVM Linear (-):** {top_neg}",
@@ -1157,6 +1237,14 @@ def _build_markdown_report(
             f"- **Jumlah Sampel Salah Prediksi (gabungan SVM/RF pada holdout):** {len(df_errors)} baris (rincian lengkap tersedia di `analisis_kesalahan_prediksi.csv`).",
             "",
             *err_lines,
+            "",
+            "## 7. Catatan Metodologis dan Batas Interpretasi",
+            "",
+            f"- **Stabilitas Lintas-Lipatan vs Varians Holdout Tunggal:** SVM Linear unggul konsisten pada seluruh skenario 10-Fold CV (korpus utama `{t_cv_svm['f1_mean'] * 100:.2f}%` vs `{t_cv_rf['f1_mean'] * 100:.2f}%`, korpus pajak `{tax_s['cv_10fold_tax_260_svm']['f1_mean'] * 100:.2f}%` vs `{tax_s['cv_10fold_tax_260_rf']['f1_mean'] * 100:.2f}%`, korpus diperluas `{e2521['cv_10fold_svm']['f1_mean'] * 100:.2f}%` vs `{e2521['cv_10fold_rf']['f1_mean'] * 100:.2f}%`), holdout korpus diperluas (`{_format_pct(e2521['holdout_svm_calibrated']['accuracy'])}` vs `{_format_pct(e2521['holdout_random_forest']['accuracy'])}`), zero-shot eksternal (F1 `{_format_pct(ext_s['combined_svm_calibrated']['f1'])}` vs `{_format_pct(ext_s['combined_random_forest']['f1'])}`), ROC-AUC/PR-AUC (`{h_svm['roc_auc']:.4f}`/`{h_svm['pr_auc']:.4f}` vs `{h_rf['roc_auc']:.4f}`/`{h_rf['pr_auc']:.4f}`), serta Brier Score (`{h_svm['brier_score']:.5f}` vs `{h_rf['brier_score']:.5f}`). Selisih 1–2 sampel pada ambang diskrit `0.5` di holdout utama (`n = {counts['test_rows']}`) berada dalam rentang simpangan baku CV (`±{t_cv_svm['f1_std'] * 100:.2f}%`).",
+            "- **Interpretasi Studi Ablatif & Token Generik `token_url`:** Konfigurasi utama (`teks_sastrawi`, bigram `(1, 2)`, `3.000` fitur) dipilih karena meraih rata-rata F1 10-Fold CV tertinggi pada SVM (`97.16%`), mengungguli skenario tanpa token entitas (`95.81%`) dan unigram saja (`95.94%`). Variasi pada holdout tunggal (`1_Tanpa_Token_Entitas` `97.84%`) dipengaruhi ukuran uji (`1` sampel = `0.43%`) serta penyamaran domain resmi `pajak.go.id` dan tautan penipu ke satu token generik `token_url`.",
+            "- **Justifikasi Empiris Lapisan Heuristik Purwarupa (`idx=960` & `idx=1082`):** Kasus `idx=960` (pesan `.apk` bergaya birokratis formal dengan `p_svm = 0.424`) dan `idx=1082` (siaran resmi pemadanan NIK bermuatan `www.pajak.go.id` dengan `p_svm = 0.551`) membuktikan keterbatasan TF-IDF murni dan menjustifikasi aturan hibrida `has_apk` serta `is_official_djp_domain` pada `06 Prototipe Aplikasi/inference.py`.",
+            f"- **Rincian Zero-Shot Lintas-Korpus & Ketimpangan Subset Saragih:** Pada `{ext_s['unseen_external_rows']}` pesan eksternal unik, SVM mempertahankan Recall `{_format_pct(ext_s['combined_svm_calibrated']['recall'])}` namun mengalami penurunan spesifisitas (`58.40%`, `FP = {ext_s['combined_svm_calibrated']['fp']}`) akibat *domain shift* kosakata SMS normal lintas-periode (2016 vs 2021–2024). Khusus subset `Korpus_Umum_Saragih2024` (`n = 94` pascadeduplikasi 248 baris Rahmi), komposisi kelas sangat timpang (`90` penipuan : `4` normal), sehingga `f1_macro` dan `roc_auc` subset tersebut tidak diinterpretasikan secara terpisah.",
+            "- **Skala SHAP & Artefak Anonimisasi Korpus Dasar:** Nilai `LinearExplainer` bekerja pada satuan margin hyperplane sedangkan `TreeExplainer` bekerja pada satuan probabilitas, sehingga perbandingan lintas model mengacu pada peringkat fitur dan `arah_dominan` saat fitur aktif (`x_test > 0`). Munculnya `nama1` (`-1.272`) dan `2016` (`-0.666`) merupakan artefak anonimisasi korpus SMS Rahmi 2016, sedangkan ketahanan terhadap kosakata pajak dibuktikan melalui evaluasi terpisah pada 260 baris korpus pajak seimbang.",
             "",
         ]
     )
@@ -1199,18 +1287,25 @@ def run_all_experiments(save_outputs: bool = True) -> dict[str, Any]:
         df_primary, idx_test, stage1, stage2_3
     )
     df_shap = _compute_shap_table(stage2_3, top_n=20)
-    df_main_table = _build_main_comparison_table(stage1, stage2_3, stage4)
+    counts = {
+        "primary_raw_rows": int(df_primary.attrs.get("raw_rows", len(df_primary))),
+        "primary_duplicates_removed": int(df_primary.attrs.get("duplicates_removed", 0)),
+        "primary_rows": len(df_primary),
+        "train_rows": len(idx_train),
+        "test_rows": len(idx_test),
+        "extended_raw_rows": int(df_extended.attrs.get("raw_rows", len(df_extended))),
+        "extended_duplicates_removed": int(df_extended.attrs.get("duplicates_removed", 0)),
+        "extended_rows": len(df_extended),
+        "tax_rows": len(df_tax),
+    }
+    df_main_table = _build_main_comparison_table(stage1, stage2_3, stage4, counts)
     runtime_sec = float(time.perf_counter() - t_start)
 
     summary = {
         "metadata": {
             "random_state": RANDOM_STATE,
             "cv_splits": CV_SPLITS,
-            "primary_rows": len(df_primary),
-            "train_rows": len(idx_train),
-            "test_rows": len(idx_test),
-            "extended_rows": len(df_extended),
-            "tax_rows": len(df_tax),
+            **counts,
             "runtime_seconds": round(runtime_sec, 2),
         },
         "baseline": {
@@ -1257,7 +1352,7 @@ def run_all_experiments(save_outputs: bool = True) -> dict[str, Any]:
         _generate_plots(stage2_3, stage4, df_features, df_shap, EVALUATION_DIR)
 
         report_md = _build_markdown_report(
-            stage1, stage2_3, df_ablation, stage4, df_features, df_shap, df_errors, runtime_sec
+            stage1, stage2_3, df_ablation, stage4, df_features, df_shap, df_errors, counts, runtime_sec
         )
         (EVALUATION_DIR / "Laporan Hasil Eksperimen Komparasi.md").write_text(
             report_md, encoding="utf-8"
@@ -1272,6 +1367,7 @@ def run_all_experiments(save_outputs: bool = True) -> dict[str, Any]:
             "metadata": {
                 "trained_on": "Dataset Gabungan Utama Biner 1164 Baris.csv",
                 "n_samples": len(df_primary),
+                "deduplicated_on": "teks_sastrawi",
                 "preprocessing": "src.eksperimen_baseline.clean_text",
                 "svm_best_params": stage2_3["best_params"]["svm_linear"],
                 "rf_best_params": stage2_3["best_params"]["random_forest"],

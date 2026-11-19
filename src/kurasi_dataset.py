@@ -1,7 +1,6 @@
 import hashlib
 import json
 import re
-import shutil
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -320,17 +319,9 @@ def build_provenance_catalog(df_summary: pd.DataFrame) -> pd.DataFrame:
     return df_cat
 
 
-def main() -> None:
-    staged_scrape = Path(
-        r"C:\Users\815100347\.gemini\antigravity\brain\8fd73174-f284-43cf-922d-1d9f90c3303a\scratch\cleaned_articles.json"
-    )
-    if staged_scrape.exists():
-        shutil.copy2(staged_scrape, RAW_DIR / "DJP Snapshot Scrape Mentah.json")
-    snapshot_path = (
-        staged_scrape if staged_scrape.exists() else RAW_DIR / "DJP Snapshot Scrape Mentah.json"
-    )
-
-    df_summary = export_scraped_official_sources(snapshot_path)
+def main(snapshot_path: Path | None = None) -> None:
+    resolved_snapshot = snapshot_path or (RAW_DIR / "DJP Snapshot Scrape Mentah.json")
+    df_summary = export_scraped_official_sources(resolved_snapshot)
     df_tax = export_curated_tax_dataset()
     df_primary, df_ext = build_combined_datasets(df_tax)
     df_cat = build_provenance_catalog(df_summary)

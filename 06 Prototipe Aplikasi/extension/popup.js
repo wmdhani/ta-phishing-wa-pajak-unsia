@@ -43,15 +43,16 @@ async function checkHealth() {
 }
 
 document.getElementById("check-btn").addEventListener("click", async () => {
-  const text = document.getElementById("msg-input").value.trim();
+  const rawText = document.getElementById("msg-input").value.trim();
   const out = document.getElementById("output");
-  if (!text) {
+  if (!rawText) {
     out.style.display = "block";
     out.style.background = "#fffbeb";
     out.style.color = "#92400e";
     out.textContent = "Paste pesan WA dulu.";
     return;
   }
+  const text = rawText.slice(0, 5000);
 
   try {
     let data;
@@ -111,11 +112,18 @@ document.getElementById("check-btn").addEventListener("click", async () => {
     recEl.style.marginTop = "4px";
     recEl.textContent = data.recommendation;
     out.appendChild(recEl);
-  } catch {
+  } catch (err) {
+    const errMsg = (err && err.message) || "";
     out.style.display = "block";
     out.style.background = "#fef2f2";
     out.style.color = "#991b1b";
-    out.textContent = "Server belum aktif di port 8000. Jalankan Cek Pesan Pajak dulu.";
+    if (errMsg.includes("HTTP 429")) {
+      out.textContent = "Terlalu banyak permintaan. Coba lagi sebentar.";
+    } else if (errMsg.includes("HTTP 422")) {
+      out.textContent = "Format teks pesan tidak valid atau melebihi batas panjang.";
+    } else {
+      out.textContent = "Server belum aktif di port 8000. Jalankan Cek Pesan Pajak dulu.";
+    }
   }
 });
 
