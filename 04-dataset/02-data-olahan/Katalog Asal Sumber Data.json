@@ -1,0 +1,102 @@
+[
+  {
+    "id_katalog": "FILE-RAW-01",
+    "nama_file": "04-dataset/01-data-mentah/Rahmi 2016 Korpus SMS Spam Utama v1.csv",
+    "jenis_data": "File Mentah (Korpus Dasar Utama)",
+    "instansi_atau_penulis": "Ferdila Rahmi & Yudi Wibisono (Universitas Pendidikan Indonesia, 2016)",
+    "lisensi": "CC BY-SA 4.0",
+    "jumlah_baris": 1143,
+    "url_sumber": "https://raw.githubusercontent.com/agustinustheo/indonesian-sms-spam-filtering/master/training_script/corpus/external/rahmi2016/dataset_sms_spam_v1.csv",
+    "sha256": "865d3ea178bc8545b9229ac674148ea98d22913337c7d36fceae0b8681fbb157"
+  },
+  {
+    "id_katalog": "FILE-RAW-02",
+    "nama_file": "04-dataset/01-data-mentah/Rahmi 2016 Arsip Asli SMS Spam.csv",
+    "jenis_data": "File Mentah (Salinan Arsip Rahmi & Wibisono 2016)",
+    "instansi_atau_penulis": "Ferdila Rahmi & Yudi Wibisono (UPI, 2016)",
+    "lisensi": "CC BY-SA 4.0",
+    "jumlah_baris": 1143,
+    "url_sumber": "https://yudiwbs.wordpress.com/2018/08/05/dataset-klasifikasi-bahasa-indonesia-sms-spam-klasifikasi-teks-dengan-scikit-learn/",
+    "sha256": "49001313b7180f027ab5fdd61ed26025388792711fc497fc588d9558e5438455"
+  },
+  {
+    "id_katalog": "FILE-RAW-03",
+    "nama_file": "04-dataset/01-data-mentah/Theodorus 2021 Korpus SMS Spam IEEE.csv",
+    "jenis_data": "File Mentah (Korpus Benchmark IEEE EIConCIT 2021)",
+    "instansi_atau_penulis": "Agustinus Theodorus, Tio K. Prasetyo, Reynaldi Hartono, Derwin Suhartono (BINUS University, 2021)",
+    "lisensi": "CC BY-SA 4.0",
+    "jumlah_baris": 4125,
+    "url_sumber": "https://doi.org/10.1109/EIConCIT50028.2021.9431859",
+    "sha256": "14c6e56a5f39a841d1b870974723aedebe7918584bf84cc07cbd96ee3f352c9f"
+  },
+  {
+    "id_katalog": "FILE-RAW-04",
+    "nama_file": "04-dataset/01-data-mentah/Kurniawan 2024 Korpus Phishing SMS dan Email Indo.csv",
+    "jenis_data": "File Mentah (Korpus Phishing SMS & Email Bahasa Indonesia)",
+    "instansi_atau_penulis": "Rasen Kurniawan (2024) - Kompilasi Kaggle & Gist Yudi Wibisono",
+    "lisensi": "Open Source GitHub",
+    "jumlah_baris": 1772,
+    "url_sumber": "https://github.com/rasen-kurniawan/phishing-detection-eda",
+    "sha256": "b94131b9bc67b4b158010b300a8a97a3c30568056a66a2cbc423b16e95c9eea5"
+  },
+  {
+    "id_katalog": "FILE-RAW-05",
+    "nama_file": "04-dataset/01-data-mentah/Saragih 2024 Korpus SMS Spam Indo.csv",
+    "jenis_data": "File Mentah (Korpus Klasifikasi SMS Spam Indonesia)",
+    "instansi_atau_penulis": "Samuel Cristian Saragih (2024)",
+    "lisensi": "MIT License",
+    "jumlah_baris": 690,
+    "url_sumber": "https://github.com/Sctian514/Indonesian-sms-spam-classifier",
+    "sha256": "ebaf0f849001ae31dbdfe2d42020c8e44857686333ef5407a80ffc2f54fd6b0b"
+  },
+  {
+    "id_katalog": "FILE-RAW-06",
+    "nama_file": "04-dataset/01-data-mentah/DJP Hasil Scrape 68 Sumber Resmi.json",
+    "jenis_data": "File Mentah Hasil Web Scraping 68 Halaman Resmi Pajak & Cek Fakta",
+    "instansi_atau_penulis": "DJP (pajak.go.id), DDTC News, Ortax, Jalahoaks DKI, BCA, Antara, DetikFinance",
+    "lisensi": "Informasi Publik Pemerintah & Berita Terverifikasi",
+    "jumlah_baris": 68,
+    "url_sumber": "https://www.pajak.go.id/id/pengumuman",
+    "sha256": "60b571cc67630a5b49dee5784f4a003553d3be954193abda530d7a364ba38818"
+  },
+  {
+    "id_katalog": "FILE-RAW-07",
+    "nama_file": "04-dataset/01-data-mentah/DJP Indikator Penipuan dan Kanal Resmi.json",
+    "jenis_data": "File Mentah Ekstraksi IOC (Domain/Nomor Penipu) & Kanal Resmi DJP",
+    "instansi_atau_penulis": "Direktorat Jenderal Pajak (PENG-31/PJ.09/2024 s.d. PENG-50/PJ.09/2025)",
+    "lisensi": "Informasi Publik DJP",
+    "jumlah_baris": 31,
+    "url_sumber": "https://www.pajak.go.id/id/pengumuman/waspada-penipuan-yang-mengatasnamakan-direktorat-jenderal-pajak",
+    "sha256": "e7883bd235c407005e640ab5a24d6ea0d77505b69d17d80ed6e9ae738d51ac05"
+  },
+  {
+    "id_katalog": "FILE-PROC-01",
+    "nama_file": "04-dataset/02-data-olahan/Dataset Pajak Terkurasi 260 Baris.csv",
+    "jenis_data": "File Olahan (Korpus Spesifik Domain Perpajakan Seimbang)",
+    "instansi_atau_penulis": "Kurasi Terverifikasi dari 68 Sumber Resmi DJP, KPP/KP2KP, Jalahoaks, DDTC, Ortax, BCA",
+    "lisensi": "CC BY-SA 4.0",
+    "jumlah_baris": 260,
+    "url_sumber": "https://www.pajak.go.id",
+    "sha256": "4cdcf6da8748d89b511d56dbe30a1f64a7b40476f8a6d7d2a3e9ba76892cd930"
+  },
+  {
+    "id_katalog": "FILE-PROC-02",
+    "nama_file": "04-dataset/02-data-olahan/Dataset Gabungan Utama Biner 1164 Baris.csv",
+    "jenis_data": "File Olahan Utama (Korpus Dasar Biner Rahmi 2016 + Korpus Pajak 260 Baris)",
+    "instansi_atau_penulis": "Pipeline Eksperimen Tugas Akhir (Rahmi 2016 + Kurasi DJP 2024-2026)",
+    "lisensi": "CC BY-SA 4.0",
+    "jumlah_baris": 1164,
+    "url_sumber": "https://www.pajak.go.id",
+    "sha256": "1f203f93683009d6acd41935c988a4d44167bac0c58b9fe1b1df33402cb8f9a4"
+  },
+  {
+    "id_katalog": "FILE-PROC-03",
+    "nama_file": "04-dataset/02-data-olahan/Dataset Gabungan Diperluas Biner 2521 Baris.csv",
+    "jenis_data": "File Olahan Diperluas (Lintas Korpus Rahmi 2016 + Theodorus 2021 + Saragih 2024 + Pajak)",
+    "instansi_atau_penulis": "Pipeline Eksperimen Tugas Akhir (Multi-Corpus Benchmark)",
+    "lisensi": "CC BY-SA 4.0",
+    "jumlah_baris": 2521,
+    "url_sumber": "https://doi.org/10.1109/EIConCIT50028.2021.9431859",
+    "sha256": "dc58b5484e58cbbfbc25a095110e4d58f448d1d5d6150f6dfcdbe677ad31219b"
+  }
+]

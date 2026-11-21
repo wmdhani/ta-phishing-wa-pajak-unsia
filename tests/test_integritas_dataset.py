@@ -4,13 +4,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.eksperimen_baseline import clean_text as sastrawi_clean_text
-from src.korpus_pajak import SOURCE_METADATA
+from ml.eksperimen_baseline import clean_text as sastrawi_clean_text
+from ml.korpus_pajak import SOURCE_METADATA
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = ROOT_DIR / "04 Dataset"
-RAW_DIR = DATA_DIR / "01 Data Mentah"
-PROCESSED_DIR = DATA_DIR / "02 Data Olahan"
+DATA_DIR = ROOT_DIR / "04-dataset"
+RAW_DIR = DATA_DIR / "01-data-mentah"
+PROCESSED_DIR = DATA_DIR / "02-data-olahan"
 
 
 def test_raw_corpora_exist_and_row_counts() -> None:

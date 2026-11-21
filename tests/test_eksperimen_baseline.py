@@ -1,4 +1,4 @@
-from src.eksperimen_baseline import clean_text, load_combined_dataset
+from ml.eksperimen_baseline import clean_text, load_combined_dataset
 
 
 def test_clean_text_preserves_tokens_and_stems() -> None:

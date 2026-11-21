@@ -8,8 +8,8 @@ import pandas as pd
 import pytest
 from sklearn.pipeline import Pipeline
 
-from src.eksperimen_baseline import clean_text
-from src.eksperimen_komparasi import (
+from ml.eksperimen_baseline import clean_text
+from ml.eksperimen_komparasi import (
     EVALUATION_DIR,
     MODEL_PATH,
     _make_calibrated_svm_pipeline,
@@ -20,29 +20,29 @@ from src.eksperimen_komparasi import (
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
 EXPECTED_EVAL_FILES = (
-    "ringkasan_eksperimen_lengkap.json",
-    "tabel_komparasi_utama.csv",
-    "hasil_gridsearch_10fold.csv",
-    "studi_ablatif_fitur.csv",
-    "fitur_teratas_svm_vs_rf.csv",
-    "shap_fitur_teratas_svm_vs_rf.csv",
-    "analisis_kesalahan_prediksi.csv",
-    "Laporan Hasil Eksperimen Komparasi.md",
+    "json/ringkasan_eksperimen_lengkap.json",
+    "csv/tabel_komparasi_utama.csv",
+    "csv/hasil_gridsearch_10fold.csv",
+    "csv/studi_ablatif_fitur.csv",
+    "csv/fitur_teratas_svm_vs_rf.csv",
+    "csv/shap_fitur_teratas_svm_vs_rf.csv",
+    "csv/analisis_kesalahan_prediksi.csv",
+    "laporan/laporan-hasil-eksperimen-komparasi.md",
 )
 
 EXPECTED_PLOT_FILES = (
-    "Gambar_Evaluasi_1_Confusion_Matrix_Komparasi.png",
-    "Gambar_Evaluasi_2_Kurva_ROC_dan_PR.png",
-    "Gambar_Evaluasi_3_Kalibrasi_Probabilitas_Platt.png",
-    "Gambar_Evaluasi_4_Bobot_Fitur_Teratas.png",
-    "Gambar_Evaluasi_5_Komparasi_Lintas_Korpus.png",
-    "Gambar_Evaluasi_6_SHAP_Komparasi.png",
+    "gambar/Gambar_Evaluasi_1_Confusion_Matrix_Komparasi.png",
+    "gambar/Gambar_Evaluasi_2_Kurva_ROC_dan_PR.png",
+    "gambar/Gambar_Evaluasi_3_Kalibrasi_Probabilitas_Platt.png",
+    "gambar/Gambar_Evaluasi_4_Bobot_Fitur_Teratas.png",
+    "gambar/Gambar_Evaluasi_5_Komparasi_Lintas_Korpus.png",
+    "gambar/Gambar_Evaluasi_6_SHAP_Komparasi.png",
 )
 
 
 @pytest.fixture(scope="module")
 def experiment_results() -> dict:
-    summary_path = EVALUATION_DIR / "ringkasan_eksperimen_lengkap.json"
+    summary_path = EVALUATION_DIR / "json" / "ringkasan_eksperimen_lengkap.json"
     force_fresh = os.environ.get("RUN_FRESH_EXPERIMENTS") == "1"
     if not force_fresh and summary_path.is_file() and MODEL_PATH.is_file():
         return json.loads(summary_path.read_text(encoding="utf-8"))
@@ -109,9 +109,14 @@ def test_multistage_sections_and_calibration_validity(experiment_results: dict) 
     assert ext["overlap_with_primary_removed"] == 248
     assert ext["unseen_external_rows"] == 1360
 
+    tax_s = experiment_results["tax_subset"]
+    assert "holdout_general_only_svm_calibrated" in tax_s
+    assert "holdout_general_only_random_forest" in tax_s
+    assert tax_s["holdout_svm_calibrated"]["accuracy"] > tax_s["holdout_general_only_svm_calibrated"]["accuracy"]
+
 
 def test_expected_artifacts_and_plots_exist(experiment_results: dict) -> None:
-    assert EVALUATION_DIR == ROOT_DIR / "05 Hasil Evaluasi"
+    assert EVALUATION_DIR == ROOT_DIR / "05-hasil-evaluasi"
 
     for filename in EXPECTED_EVAL_FILES:
         file_path = EVALUATION_DIR / filename
@@ -125,17 +130,17 @@ def test_expected_artifacts_and_plots_exist(experiment_results: dict) -> None:
 
     assert MODEL_PATH.is_file()
 
-    df_tbl = pd.read_csv(EVALUATION_DIR / "tabel_komparasi_utama.csv")
+    df_tbl = pd.read_csv(EVALUATION_DIR / "csv" / "tabel_komparasi_utama.csv")
     row_cal = df_tbl[
         (df_tbl["tahap_evaluasi"] == "Tahap 3: Holdout Tuned & Kalibrasi")
         & (df_tbl["model"] == "SVM Linear (Platt Sigmoid)")
     ].iloc[0]
     assert row_cal["accuracy"] == round(experiment_results["calibration"]["svm_calibrated"]["accuracy"], 4)
 
-    df_err = pd.read_csv(EVALUATION_DIR / "analisis_kesalahan_prediksi.csv")
+    df_err = pd.read_csv(EVALUATION_DIR / "csv" / "analisis_kesalahan_prediksi.csv")
     assert len(df_err) == experiment_results["error_analysis_count"]
 
-    df_shap = pd.read_csv(EVALUATION_DIR / "shap_fitur_teratas_svm_vs_rf.csv")
+    df_shap = pd.read_csv(EVALUATION_DIR / "csv" / "shap_fitur_teratas_svm_vs_rf.csv")
     svm_nama1 = df_shap[(df_shap["model"] == "SVM_Linear_SHAP") & (df_shap["fitur"] == "nama1")]
     assert not svm_nama1.empty
     assert svm_nama1.iloc[0]["arah_dominan"] == "Resmi/Normal"
