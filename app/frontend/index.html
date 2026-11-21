@@ -5,30 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta
     name="description"
-    content="Aplikasi web dan ekstensi pendeteksi pesan phishing WhatsApp mengatasnamakan Direktorat Jenderal Pajak (DJP) berbasis LinearSVC (Platt Scaling) dan heuristik domain pajak.go.id."
+    content="Aplikasi web pendeteksi pesan phishing WhatsApp mengatasnamakan Direktorat Jenderal Pajak (DJP) berbasis LinearSVC (Platt Scaling) dan verifikasi domain pajak.go.id."
   />
-  <meta name="theme-color" content="#0b4f71" />
-  <meta property="og:title" content="Cek Pesan Pajak — Deteksi Scam WhatsApp Pajak (DJP)" />
+  <meta name="theme-color" content="#eaeef2" />
+  <meta property="og:title" content="Cek Pesan Pajak | Deteksi Phishing WhatsApp Pajak (DJP)" />
   <meta
     property="og:description"
-    content="Skrining cepat pesan WhatsApp mengatasnamakan Pajak (DJP) untuk mendeteksi berkas .apk berbahaya, tautan palsu di luar pajak.go.id, dan pola scam secara real-time."
+    content="Pemeriksaan cepat pesan WhatsApp mengatasnamakan Pajak (DJP) untuk mendeteksi berkas .apk berbahaya, tautan di luar pajak.go.id, dan pola penipuan."
   />
   <meta property="og:type" content="website" />
-  <title>Cek Pesan Pajak — Deteksi Scam WhatsApp Pajak (DJP)</title>
+  <title>Cek Pesan Pajak | Deteksi Phishing WhatsApp Pajak (DJP)</title>
   <link
     rel="icon"
     type="image/svg+xml"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230b4f71'/%3E%3Cpath d='M12 4.5 5.5 7.2v4.6c0 4.3 2.8 7.6 6.5 8.7 3.7-1.1 6.5-4.4 6.5-8.7V7.2L12 4.5Z' fill='none' stroke='%23ffffff' stroke-width='1.9' stroke-linejoin='round'/%3E%3Cpath d='m9.2 12.1 1.9 1.9 3.8-3.8' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230a4a69'/%3E%3Cpath d='M12 4.5 5.5 7.2v4.6c0 4.3 2.8 7.6 6.5 8.7 3.7-1.1 6.5-4.4 6.5-8.7V7.2L12 4.5Z' fill='none' stroke='%23ffffff' stroke-width='1.9' stroke-linejoin='round'/%3E%3Cpath d='m9.2 12.1 1.9 1.9 3.8-3.8' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
   />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="/static/styles.css?v=3.0" />
 </head>
 <body>
+  <a class="skip-link" href="#main-workspace">Lewati ke area pemeriksaan</a>
+
   <header class="topbar">
     <div class="container topbar-inner">
       <div class="brand">
@@ -38,9 +40,9 @@
             <path d="m9 12 2 2 4-4"></path>
           </svg>
         </div>
-        <div>
+        <div class="brand-copy">
           <h1 class="brand-title">Cek Pesan Pajak</h1>
-          <p class="brand-subtitle">Cek chat WA Pajak: asli DJP atau scam?</p>
+          <p class="brand-subtitle">Verifikasi pesan WhatsApp mengatasnamakan DJP</p>
         </div>
       </div>
 
@@ -82,15 +84,10 @@
           Darurat .apk
         </button>
       </nav>
-
-      <div id="service-pill" class="status-pill status-ready" role="status" aria-live="polite">
-        <span class="status-dot" aria-hidden="true"></span>
-        <span id="service-pill-text">Siap</span>
-      </div>
     </div>
   </header>
 
-  <main class="container main-content">
+  <main id="main-workspace" class="container main-content">
     <section
       id="tab-checker"
       class="tab-panel"
@@ -99,10 +96,10 @@
       data-panel="checker"
     >
       <div class="workspace">
-        <div class="surface input-card">
+        <div class="surface input-deck">
           <div class="card-head">
-            <h2 class="card-title">Cek Chat WhatsApp</h2>
-            <p class="card-desc">Paste chat WA di bawah. Gratis &amp; teks tidak disimpan.</p>
+            <h2 class="card-title">Periksa Chat WhatsApp</h2>
+            <p class="card-desc">Tempel isi pesan di bawah. Teks tidak disimpan di&nbsp;server.</p>
           </div>
 
           <div class="toolbar">
@@ -111,52 +108,71 @@
                 <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
               </svg>
-              Paste &amp; Cek
+              Tempel &amp; Periksa
             </button>
             <button type="button" id="clear-btn" class="btn-text" hidden>
-              Clear
+              Bersihkan
             </button>
           </div>
 
           <label for="message-input" class="sr-only">Teks chat WhatsApp</label>
-          <textarea
-            id="message-input"
-            class="message-textarea"
-            maxlength="5000"
-            placeholder="Paste isi chat WA di sini (contoh: pesan yang kirim file .apk atau link pajak)..."
-          ></textarea>
+          <div class="recessed-tray">
+            <textarea
+              id="message-input"
+              class="message-textarea"
+              maxlength="5000"
+              placeholder="Tempel isi pesan WA di sini (misalnya chat berisi lampiran .apk atau tautan pajak)..."
+            ></textarea>
+          </div>
 
           <div class="input-meta">
-            <span id="char-count">0 / 5.000</span>
-            <span>Ctrl+Enter</span>
+            <span id="char-count" class="tabular-readout">0 / 5.000</span>
+            <span class="shortcut-hint">Ctrl + Enter</span>
           </div>
 
           <div id="input-alert" class="inline-alert" role="alert" hidden></div>
 
           <button type="button" id="check-btn" class="btn-primary">
-            <span class="btn-label">Cek Sekarang</span>
+            <span class="btn-label">Periksa Pesan</span>
             <span class="btn-spinner" aria-hidden="true" hidden></span>
           </button>
 
           <div class="presets-block">
-            <span class="presets-label">Contoh cepat:</span>
+            <span class="presets-label">Uji contoh cepat:</span>
             <div id="presets-list" class="presets-grid"></div>
           </div>
         </div>
 
-        <div class="surface result-card" aria-live="polite">
+        <div class="surface result-console" aria-live="polite">
           <div id="empty-state" class="empty-state">
-            <div class="empty-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                <path d="m9 11 2 2 4-4"></path>
-              </svg>
+            <div class="state-head">
+              <div class="empty-well" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  <path d="m9 11 2 2 4-4"></path>
+                </svg>
+              </div>
+              <h2 class="empty-heading">Hasil Analisis Muncul di Sini</h2>
             </div>
-            <h3>Hasil Cek Muncul di Sini</h3>
-            <p>Paste chat WA di kiri atau klik tombol contoh.</p>
-            <div class="golden-pill">
-              Ingat: DJP tidak pernah kirim file <code>.apk</code> lewat WhatsApp.
+            <p class="empty-desc">Tempel pesan WhatsApp pada panel kiri atau pilih salah satu contoh uji untuk melihat skor risiko, sorotan tautan, dan saran tindakan.</p>
+            <div class="golden-rule">
+              <strong>Aturan Dasar:</strong> Direktorat Jenderal Pajak tidak pernah mengirim berkas <code>.apk</code> melalui WhatsApp.
             </div>
+          </div>
+
+          <div id="error-state" class="error-state" role="alert" hidden>
+            <div class="state-head">
+              <div class="error-well" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" x2="12" y1="8" y2="12"></line>
+                  <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                </svg>
+              </div>
+              <h2 class="error-heading">Pemeriksaan Gagal Diproses</h2>
+            </div>
+            <p id="error-state-message" class="error-desc">Terjadi kendala saat menghubungi layanan pemeriksaan.</p>
+            <button type="button" id="retry-check-btn" class="btn-soft">Coba Periksa Ulang</button>
           </div>
 
           <div id="result-state" class="result-state" hidden>
@@ -166,7 +182,7 @@
                 <div class="verdict-head-text">
                   <div class="verdict-badges-row">
                     <span id="verdict-badge" class="verdict-badge"></span>
-                    <span id="confidence-note" class="confidence-pill"></span>
+                    <span id="confidence-note" class="confidence-pill tabular-readout"></span>
                   </div>
                   <h2 id="verdict-title" class="verdict-title"></h2>
                 </div>
@@ -189,11 +205,11 @@
 
             <div class="details-split">
               <div class="detail-col">
-                <h3 class="mini-heading">Kenapa?</h3>
+                <h3 class="mini-heading">Alasan Deteksi</h3>
                 <ul id="reasons-list" class="compact-reasons"></ul>
               </div>
               <div class="detail-col">
-                <h3 class="mini-heading">Solusi</h3>
+                <h3 class="mini-heading">Langkah Aman</h3>
                 <ul id="actions-list" class="compact-actions"></ul>
               </div>
             </div>
@@ -204,7 +220,7 @@
                   <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
                   <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
                 </svg>
-                Copy Alert
+                Salin Peringatan
               </button>
               <a
                 id="wa-share-link"
@@ -213,10 +229,10 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Share WA
+                Bagikan ke WA
               </a>
               <button type="button" id="apk-emergency-cta" class="btn-danger-pill" hidden>
-                Sudah Install .apk? Buka Darurat
+                Terlanjur Pasang .apk? Buka Darurat
               </button>
             </div>
             <div id="copy-toast" class="copy-toast" role="status" hidden></div>
@@ -243,8 +259,8 @@
               </svg>
             </div>
             <div>
-              <h2 class="card-title">Web &amp; Kontak Resmi DJP</h2>
-              <p class="card-desc">Web resmi DJP selalu berakhiran <code>pajak.go.id</code>.</p>
+              <h2 class="card-title">Situs &amp; Kontak Resmi DJP</h2>
+              <p class="card-desc">Alamat web resmi DJP selalu berakhiran <code>pajak.go.id</code>.</p>
             </div>
           </div>
 
@@ -259,7 +275,7 @@
             <li>
               <div>
                 <strong class="mono-domain">djponline.pajak.go.id</strong>
-                <span>Lapor SPT &amp; e-Billing</span>
+                <span>Pelaporan SPT &amp; e-Billing</span>
               </div>
               <span class="pill-verified">Resmi</span>
             </li>
@@ -273,7 +289,7 @@
             <li>
               <div>
                 <strong class="mono-domain">Kring Pajak 1500200</strong>
-                <span>Call center resmi DJP</span>
+                <span>Layanan telepon resmi DJP</span>
               </div>
               <span class="pill-verified">Resmi</span>
             </li>
@@ -288,7 +304,7 @@
             <div class="compare-row">
               <span class="compare-tag compare-bad">Palsu</span>
               <code class="mono-domain">pajak.go.id.<strong>verifikasi.xyz</strong></code>
-              <span class="compare-note">Akhiran .xyz (jebakan)</span>
+              <span class="compare-note">Akhiran .xyz (domain jebakan)</span>
             </div>
           </div>
         </article>
@@ -303,8 +319,8 @@
               </svg>
             </div>
             <div>
-              <h2 class="card-title">4 Ciri Scam Pajak</h2>
-              <p class="card-desc">Centang jika ada di chat Anda:</p>
+              <h2 class="card-title">Daftar Periksa 4 Ciri Scam</h2>
+              <p class="card-desc">Tandai jika salah satu unsur berikut muncul di pesan:</p>
             </div>
           </div>
 
@@ -312,35 +328,35 @@
             <label class="check-item">
               <input type="checkbox" class="scam-check" />
               <div>
-                <strong>Kirim file <code>.apk</code></strong>
-                <span>Nama file seperti <em>Update Coretax</em> atau <em>Surat Pajak</em>.</span>
+                <strong>Mengirim berkas <code>.apk</code></strong>
+                <span>Judul palsu seperti <em>Update Coretax</em> atau <em>Surat Pajak</em>.</span>
               </div>
             </label>
             <label class="check-item">
               <input type="checkbox" class="scam-check" />
               <div>
-                <strong>Link selain <code>pajak.go.id</code></strong>
-                <span>Pakai domain <code>.xyz</code>, <code>.my.id</code>, atau <code>bit.ly</code>.</span>
+                <strong>Tautan selain <code>pajak.go.id</code></strong>
+                <span>Memakai akhiran <code>.xyz</code>, <code>.my.id</code>, atau pemendek URL.</span>
               </div>
             </label>
             <label class="check-item">
               <input type="checkbox" class="scam-check" />
               <div>
-                <strong>Ancam denda / blokir hari ini</strong>
-                <span>Memaksa klik cepat supaya panik.</span>
+                <strong>Mengancam denda atau blokir hari ini</strong>
+                <span>Mendesak korban segera mengeklik tanpa verifikasi.</span>
               </div>
             </label>
             <label class="check-item">
               <input type="checkbox" class="scam-check" />
               <div>
-                <strong>Minta OTP, PIN, atau transfer pribadi</strong>
-                <span>Pajak resmi selalu pakai Kode Billing.</span>
+                <strong>Meminta OTP, PIN, atau transfer pribadi</strong>
+                <span>Pembayaran pajak resmi hanya menggunakan Kode Billing.</span>
               </div>
             </label>
           </div>
 
           <div id="checklist-feedback" class="checklist-feedback">
-            Ada 1 tanda saja? Jangan klik link atau file.
+            Ditemukan 1 tanda saja, jangan buka tautan atau berkas tersebut.
           </div>
         </article>
       </div>
@@ -357,35 +373,34 @@
       <div class="surface emergency-card">
         <div class="emergency-top">
           <div>
-            <span class="emergency-kicker">Penyelamatan Cepat</span>
-            <h2 class="card-title">Terlanjur Install File <code>.apk</code>?</h2>
-            <p class="card-desc">Lakukan 5 langkah cepat ini untuk amankan m-banking &amp; akun Anda:</p>
+            <h2 class="card-title">Penyelamatan Cepat Jika Terlanjur Pasang Berkas <code>.apk</code></h2>
+            <p class="card-desc">Jalankan 5 langkah berurutan ini untuk melindungi akses perbankan dan akun pribadi:</p>
           </div>
           <button type="button" id="back-to-checker-btn" class="btn-soft">
-            &larr; Kembali ke Cek Pesan
+            Kembali ke Cek Pesan
           </button>
         </div>
 
         <ol class="emergency-steps">
           <li>
-            <strong>1. Nyalakan Airplane Mode</strong>
-            <p>Matikan Wi-Fi &amp; data seluler supaya <code>.apk</code> berhenti kirim OTP keluar.</p>
+            <strong>1. Aktifkan Mode Pesawat</strong>
+            <p>Putuskan Wi-Fi dan data seluler segera agar berkas <code>.apk</code> berhenti mengirim OTP keluar.</p>
           </li>
           <li>
             <strong>2. Jangan Buka M-Banking</strong>
-            <p>Jangan buka aplikasi bank/e-wallet atau ketik PIN dulu.</p>
+            <p>Hindari membuka aplikasi bank, dompet digital, atau memasukkan PIN pada ponsel tersebut.</p>
           </li>
           <li>
-            <strong>3. Uninstall Aplikasi Asing</strong>
-            <p>Buka <em>Settings &rarr; Apps</em>, lalu hapus aplikasi yang baru ter-install.</p>
+            <strong>3. Hapus Aplikasi Asing</strong>
+            <p>Masuk ke <em>Setelan &gt; Aplikasi</em>, lalu hapus aplikasi mencurigakan yang baru terpasang.</p>
           </li>
           <li>
             <strong>4. Hubungi Bank Resmi</strong>
-            <p>Telepon call center bank dari HP lain untuk blokir sementara.</p>
+            <p>Telepon pusat layanan resmi bank dari perangkat lain untuk pemblokiran rekening sementara.</p>
           </li>
           <li>
-            <strong>5. Ganti Password &amp; PIN</strong>
-            <p>Ubah password email, WA, dan m-banking lewat perangkat lain yang aman.</p>
+            <strong>5. Ganti Kata Sandi &amp; PIN</strong>
+            <p>Perbarui sandi email, WhatsApp, dan perbankan melalui perangkat lain yang bersih.</p>
           </li>
         </ol>
       </div>
@@ -395,7 +410,7 @@
   <footer class="footer">
     <div class="container footer-inner">
       <p class="footer-note">
-        <strong>Cek Pesan Pajak</strong> &bull; Web resmi: <strong>pajak.go.id</strong> &bull; Call center: <strong>1500200</strong>
+        <strong>Cek Pesan Pajak</strong> | Situs resmi: <strong>pajak.go.id</strong> | Kring&nbsp;Pajak:&nbsp;<strong class="tabular-readout">1500200</strong>
       </p>
       <button type="button" id="open-academic-btn" class="footer-academic-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -408,15 +423,15 @@
     </div>
   </footer>
 
-  <dialog id="academic-dialog" class="academic-dialog" aria-labelledby="academic-modal-title">
+  <dialog id="academic-dialog" class="academic-dialog" closedby="any" aria-labelledby="academic-modal-title">
     <div class="dialog-panel">
       <div class="dialog-head">
-        <div>
-          <span class="dialog-kicker">Tugas Akhir UNSIA</span>
-          <h2 id="academic-modal-title" class="dialog-title">Info Akademik &amp; Evaluasi Model</h2>
-        </div>
+        <h2 id="academic-modal-title" class="dialog-title">Info Akademik &amp; Evaluasi Model (TA UNSIA)</h2>
         <button type="button" id="close-academic-btn" class="dialog-close" aria-label="Tutup jendela">
-          &times;
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
       </div>
 
@@ -431,7 +446,7 @@
           aria-selected="true"
           tabindex="0"
         >
-          Summary
+          Ringkasan Riset
         </button>
         <button
           type="button"
@@ -443,7 +458,7 @@
           aria-selected="false"
           tabindex="-1"
         >
-          Live XAI Check
+          Inspeksi XAI
         </button>
         <button
           type="button"
@@ -455,7 +470,7 @@
           aria-selected="false"
           tabindex="-1"
         >
-          Demo WA Extension
+          Simulasi Ekstensi
         </button>
       </div>
 
@@ -467,7 +482,7 @@
           aria-labelledby="acad-tab-btn-summary"
           data-acad-panel="summary"
         >
-          <p class="dialog-loading">Loading...</p>
+          <p class="dialog-loading">Memuat ringkasan riset...</p>
         </div>
         <div
           id="acad-panel-inspector"
@@ -489,6 +504,6 @@
     </div>
   </dialog>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=3.0"></script>
 </body>
 </html>

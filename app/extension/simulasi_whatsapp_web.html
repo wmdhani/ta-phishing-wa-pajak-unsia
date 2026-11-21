@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simulasi WhatsApp Web: Ekstensi Cek Pesan Pajak (Manifest V3)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  :root {
+    --ground: #eaeef2;
+    --surface: #f4f7fa;
+    --recessed: #e1e7ee;
+    --ink: #121821;
+    --ink-muted: #435061;
+    --accent: #0a4a69;
+    --accent-hover: #073850;
+    --accent-soft: #dcecf4;
+    --danger-bg: #f9ecec;
+    --danger-ink: #9b1c1c;
+    --warn-bg: #faf3e1;
+    --warn-ink: #854d0e;
+    --safe-bg: #e8f5ee;
+    --safe-ink: #145a32;
+  }
+
+  * { box-sizing: border-box; }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  :where(a, button, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  body {
+    margin: 0;
+    padding: 20px;
+    background: var(--ground);
+    font-family: "Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  .stage {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 390px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .wa-shell {
+    background: var(--surface);
+    border: 1px solid rgba(18, 24, 33, 0.14);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .chrome-bar {
+    background: #17202b;
+    color: #e2e8f0;
+    padding: 10px 14px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .url-pill {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-family: Consolas, ui-monospace, monospace;
+    font-size: 11.5px;
+    flex: 1;
+    min-width: 220px;
+  }
+
+  .ext-pill {
+    background: var(--accent);
+    color: #ffffff;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .wa-grid {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    min-height: 680px;
+  }
+
+  .wa-chats {
+    background: var(--surface);
+    border-right: 1px solid rgba(18, 24, 33, 0.1);
+  }
+
+  .wa-head {
+    background: #ebeff4;
+    padding: 13px 15px;
+    font-weight: 800;
+    font-size: 13.5px;
+    border-bottom: 1px solid rgba(18, 24, 33, 0.1);
+  }
+
+  .chat-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(18, 24, 33, 0.06);
+    font-size: 12.5px;
+  }
+
+  .chat-item.active {
+    background: var(--accent-soft);
+  }
+
+  .chat-name { font-weight: 700; margin-bottom: 2px; }
+  .chat-sub { color: var(--ink-muted); font-size: 11.5px; }
+
+  .wa-conv {
+    background: #e6e1d7;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wa-messages {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .wa-row { display: flex; justify-content: flex-start; }
+
+  .message-in {
+    background: #ffffff;
+    border-radius: 0 12px 12px 12px;
+    padding: 12px 14px;
+    max-width: 760px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .sender-tag {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .msg-time {
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  .wa-pajak-wrap {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .wa-pajak-btn {
+    min-height: 40px;
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(10, 74, 105, 0.3);
+    border-radius: 9px;
+    cursor: pointer;
+  }
+
+  .wa-pajak-btn:hover:not(:disabled) {
+    background: #cde4ef;
+  }
+
+  .wa-pajak-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
+  .wa-pajak-badge {
+    margin-top: 8px;
+    padding: 8px 11px;
+    border-radius: 9px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .wa-pajak-tinggi { background: var(--danger-bg); color: var(--danger-ink); }
+  .wa-pajak-sedang { background: var(--warn-bg); color: var(--warn-ink); }
+  .wa-pajak-rendah { background: var(--safe-bg); color: var(--safe-ink); }
+
+  .popup-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .popup-cap {
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted);
+    margin: 0;
+  }
+
+  .popup-box {
+    border: 1px solid rgba(18, 24, 33, 0.12);
+    border-radius: 14px;
+    padding: 15px;
+    background: var(--surface);
+    box-shadow: 0 6px 18px rgba(18, 24, 33, 0.08);
+  }
+
+  .popup-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .popup-box h1 { font-size: 15px; margin: 0; color: var(--accent); }
+
+  .popup-status {
+    font-size: 11.5px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+
+  .popup-status.status-ok { background: var(--safe-bg); color: var(--safe-ink); }
+  .popup-status.status-warn { background: var(--warn-bg); color: var(--warn-ink); }
+
+  .popup-textarea {
+    width: 100%;
+    min-height: 92px;
+    border: 1px solid rgba(18, 24, 33, 0.18);
+    border-radius: 10px;
+    padding: 9px 10px;
+    font-family: inherit;
+    font-size: 12.5px;
+    line-height: 1.48;
+    background: #ffffff;
+    color: var(--ink);
+    resize: vertical;
+    margin-bottom: 10px;
+  }
+
+  .popup-btn {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+
+  .popup-btn:hover:not(:disabled) { background: var(--accent-hover); }
+
+  .popup-out {
+    padding: 10px 11px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.48;
+  }
+
+  .popup-out.tone-danger { background: var(--danger-bg); color: var(--danger-ink); }
+  .popup-out.tone-warn { background: var(--warn-bg); color: var(--warn-ink); }
+  .popup-out.tone-safe { background: var(--safe-bg); color: var(--safe-ink); }
+
+  .ext-note {
+    margin-top: 4px;
+    border-top: 1px solid rgba(18, 24, 33, 0.14);
+    padding: 12px 2px 4px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 8px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+
+  @media (max-width: 1024px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 680px) {
+    body { padding: 12px; }
+    .wa-grid { grid-template-columns: 1fr; }
+    .wa-chats { border-right: none; border-bottom: 1px solid rgba(18, 24, 33, 0.1); }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="wa-shell">
+    <div class="chrome-bar">
+      <div class="url-pill">https://web.whatsapp.com | Simulasi DOM Ekstensi Manifest V3 (background.js + content.js)</div>
+      <div class="ext-pill">Cek Pesan Pajak Aktif</div>
+    </div>
+    <div class="wa-grid">
+      <aside class="wa-chats" aria-label="Daftar percakapan simulasi">
+        <div class="wa-head">WhatsApp Web (Simulasi)</div>
+        <div class="chat-item active">
+          <div class="chat-name">Uji 3 Skenario Pesan Pajak</div>
+          <div class="chat-sub">Lencana bahasa awam pada gelembung pesan</div>
+        </div>
+        <div class="chat-item">
+          <div class="chat-name">Kring Pajak 1500200</div>
+          <div class="chat-sub">Kanal resmi informasi DJP</div>
+        </div>
+        <div class="chat-item">
+          <div class="chat-name">Pelaporan SPT Tahunan</div>
+          <div class="chat-sub">Portal djponline.pajak.go.id</div>
+        </div>
+      </aside>
+      <main class="wa-conv">
+        <div class="wa-head">Percakapan Masuk: Pemindaian Langsung Ekstensi</div>
+        <div class="wa-messages">
+          <div class="wa-row">
+            <div class="message-in" data-pajak-attached="1">
+              <div class="sender-tag">+62 812-9901-xxxx (Tidak Dikenal)</div>
+              <span class="selectable-text">Yth. Wajib Pajak, segera unduh dan instal berkas Pembaruan_Coretax_DJP.apk untuk verifikasi NPWP agar terhindar dari denda administratif.</span>
+              <div class="msg-time">10:14</div>
+              <div class="wa-pajak-wrap">
+                <button type="button" class="wa-pajak-btn">Periksa Ulang</button>
+                <div class="wa-pajak-badge wa-pajak-tinggi">
+                  <strong>Jangan Klik atau Download!</strong><br>
+                  <small>Ada berkas .apk berbahaya</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wa-row">
+            <div class="message-in" data-pajak-attached="1">
+              <div class="sender-tag">+62 857-4410-xxxx (Pesan Terusan)</div>
+              <span class="selectable-text">Pemberitahuan resmi Direktorat Jenderal Pajak: terdapat selisih SPT Tahunan Anda. Segera login melalui https://djp-coretax-verifikasi.xyz/login sebelum pukul 17.00 WIB.</span>
+              <div class="msg-time">10:17</div>
+              <div class="wa-pajak-wrap">
+                <button type="button" class="wa-pajak-btn">Periksa Ulang</button>
+                <div class="wa-pajak-badge wa-pajak-tinggi">
+                  <strong>Jangan Klik atau Download!</strong><br>
+                  <small>Tautan luar DJP: djp-coretax-verifikasi.xyz</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wa-row">
+            <div class="message-in" data-pajak-attached="1">
+              <div class="sender-tag">Kring Pajak / DJP Resmi</div>
+              <span class="selectable-text">Direktorat Jenderal Pajak mengimbau Wajib Pajak melaporkan SPT Tahunan tepat waktu melalui laman resmi https://djponline.pajak.go.id atau hubungi Kring Pajak 1500200.</span>
+              <div class="msg-time">10:21</div>
+              <div class="wa-pajak-wrap">
+                <button type="button" class="wa-pajak-btn">Periksa Ulang</button>
+                <div class="wa-pajak-badge wa-pajak-rendah">
+                  <strong>Pola Chat Resmi / Normal</strong><br>
+                  <small>Tautan resmi: djponline.pajak.go.id</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <aside class="popup-card" aria-label="Simulasi popup ekstensi Chrome">
+    <h2 class="popup-cap">Popup Ekstensi Chrome (popup.html)</h2>
+    <div class="popup-box">
+      <div class="popup-head">
+        <h1>Cek Pesan Pajak</h1>
+        <span id="sim-popup-status" class="popup-status status-ok">Layanan Siap</span>
+      </div>
+      <label for="sim-popup-input" class="sr-only">Teks uji popup ekstensi</label>
+      <textarea id="sim-popup-input" class="popup-textarea">Pemberitahuan resmi Direktorat Jenderal Pajak: terdapat selisih SPT Tahunan Anda. Segera login melalui https://djp-coretax-verifikasi.xyz/login sebelum pukul 17.00 WIB.</textarea>
+      <button id="sim-popup-btn" type="button" class="popup-btn">Cek Pesan Sekarang</button>
+      <div id="sim-popup-out" class="popup-out tone-danger" aria-live="polite">
+        <strong>Jangan Klik atau Download!</strong><br>
+        <small>Scam 84%</small><br>
+        Alasan: Link asing (djp-coretax-verifikasi.xyz).<br>
+        Jangan klik link atau kasih OTP/PIN. Cek resmi di pajak.go.id / 1500200.
+      </div>
+    </div>
+    <div class="ext-note">
+      <strong>Alur Manifest V3:</strong><br/>
+      1. <code>content.js</code> memindai gelembung pesan (<code>&ge;8</code> karakter, lampiran <code>.apk</code>, atau tautan) lalu meneruskan teks via <code>background.js</code>.<br/>
+      2. <em>Service worker</em> mengirim permintaan ke <code>POST /predict</code>.<br/>
+      3. Merender lencana bahasa awam tanpa salah menandai angka jam <code>17.00</code> sebagai domain.
+    </div>
+    <a class="back-link" href="/">Kembali ke aplikasi utama Cek Pesan Pajak</a>
+  </aside>
+</div>
+<script src="/static/simulasi_wa.js?v=3.0" defer></script>
+</body>
+</html>

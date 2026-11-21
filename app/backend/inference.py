@@ -11,11 +11,11 @@ import joblib
 import numpy as np
 from sklearn.pipeline import Pipeline
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from src.eksperimen_baseline import STEM_WORD, clean_text
+from ml.eksperimen_baseline import STEM_WORD, clean_text
 
 MODEL_PATH = Path(__file__).resolve().parent / "model_phishing_pajak.joblib"
 APK_PATTERN = re.compile(r"\b[a-z0-9_.-]+\.apk\b", re.IGNORECASE)
@@ -183,17 +183,26 @@ _NEUTRAL_TAX_STEMS = frozenset(
 )
 
 
-@functools.lru_cache(maxsize=1)
+_TRAILING_URL_PUNCT = ".,;:!?)\"'>]"
+
+
+@functools.lru_cache(maxsize=4)
 def load_model_bundle(model_path: str | Path = MODEL_PATH) -> dict[str, Any]:
-    """Load the serialized TF-IDF + SVM + Random Forest model bundle."""
+    """Load the serialized TF-IDF + SVM + Random Forest model bundle and cache derivatives."""
     path = Path(model_path)
     if not path.exists():
         raise FileNotFoundError(f"Berkas model tidak ditemukan: {path}")
-    return joblib.load(path)
+    bundle = dict(joblib.load(path))
+    bundle["feature_names"] = bundle["vectorizer"].get_feature_names_out()
+    bundle["svm_coefs"] = bundle["svm_linear"].coef_.ravel()
+    bundle["svm_is_pipeline"] = isinstance(
+        getattr(bundle["svm_calibrated"], "estimator", None), Pipeline
+    )
+    return bundle
 
 
 def _extract_domain(raw_url: str) -> str:
-    candidate = raw_url.strip().rstrip(".,;:!?)")
+    candidate = raw_url.strip().rstrip(_TRAILING_URL_PUNCT)
     if not candidate.lower().startswith(("http://", "https://")):
         candidate = f"https://{candidate}"
     parsed = urlparse(candidate)
@@ -206,18 +215,27 @@ def is_official_djp_domain(domain: str) -> bool:
     return clean == "pajak.go.id" or clean.endswith(".pajak.go.id")
 
 
+def _is_url_with_context(cleaned_url: str) -> bool:
+    lower = cleaned_url.lower()
+    return lower.startswith(("http://", "https://", "www.")) or "/" in cleaned_url
+
+
 def analyze_urls_and_apk(raw_text: str) -> dict[str, Any]:
     """Inspect raw message text for .apk attachments and official vs suspicious domains."""
-    apk_matches = sorted(set(APK_PATTERN.findall(raw_text)))
-    raw_urls = URL_PATTERN.findall(raw_text)
+    apk_spans = [(m.start(), m.end(), m.group(0)) for m in APK_PATTERN.finditer(raw_text)]
+    apk_matches = sorted({text for _, _, text in apk_spans})
 
     urls_found: list[str] = []
     official_domains: list[str] = []
     suspicious_domains: list[str] = []
 
-    for item in raw_urls:
-        cleaned = item.strip().rstrip(".,;:!?)")
-        if cleaned.lower().endswith(".apk"):
+    for match in URL_PATTERN.finditer(raw_text):
+        cleaned = match.group(0).strip().rstrip(_TRAILING_URL_PUNCT)
+        end_pos = match.start() + len(cleaned)
+        has_context = _is_url_with_context(cleaned)
+        if not has_context and any(s <= match.start() and end_pos <= e for s, e, _ in apk_spans):
+            continue
+        if cleaned.lower().endswith(".apk") and not has_context:
             continue
         domain = _extract_domain(cleaned)
         if not domain or "." not in domain:
@@ -306,7 +324,26 @@ def _extract_highlights_and_triggers(
     """Highlight only .apk attachments and URLs in the chat bubble; extract cue words separately."""
     spans: list[tuple[int, int, str, str, str]] = []
 
+    for match in URL_PATTERN.finditer(raw_text):
+        trimmed = match.group(0).rstrip(_TRAILING_URL_PUNCT)
+        if not trimmed or not trimmed.lower().endswith(".apk") or not _is_url_with_context(trimmed):
+            continue
+        end_pos = match.start() + len(trimmed)
+        domain = _extract_domain(trimmed)
+        domain_note = f" dari {domain}" if domain else ""
+        spans.append(
+            (
+                match.start(),
+                end_pos,
+                trimmed,
+                "apk",
+                f"Tautan file .apk berbahaya{domain_note} (DJP tidak pernah kirim .apk lewat WA).",
+            )
+        )
+
     for match in APK_PATTERN.finditer(raw_text):
+        if any(not (match.end() <= s or match.start() >= e) for s, e, *_ in spans):
+            continue
         spans.append(
             (
                 match.start(),
@@ -318,9 +355,11 @@ def _extract_highlights_and_triggers(
         )
 
     for match in URL_PATTERN.finditer(raw_text):
-        raw_url = match.group(0)
-        trimmed = raw_url.rstrip(".,;:!?)")
-        if not trimmed or trimmed.lower().endswith(".apk"):
+        trimmed = match.group(0).rstrip(_TRAILING_URL_PUNCT)
+        if not trimmed:
+            continue
+        has_context = _is_url_with_context(trimmed)
+        if trimmed.lower().endswith(".apk") and not has_context:
             continue
         end_pos = match.start() + len(trimmed)
         if any(not (end_pos <= s or match.start() >= e) for s, e, *_ in spans):
@@ -529,33 +568,20 @@ def _build_human_verdict(
     return title, badge, summary, confidence_note
 
 
-def predict_message(
-    raw_text: str,
-    model_path: str | Path = MODEL_PATH,
-    top_k: int = 8,
+def _assemble_prediction(
+    text: str,
+    cleaned: str,
+    features_row: Any,
+    svm_prob: float,
+    rf_prob: float,
+    feature_names: np.ndarray,
+    svm_coefs: np.ndarray,
+    top_k: int,
 ) -> dict[str, Any]:
-    """Run full preprocessing, SVM Platt + RF inference, heuristic checks, and layperson XAI."""
-    text = raw_text.strip()
-    if not text:
-        raise ValueError("Teks pesan tidak boleh kosong.")
-
-    bundle = load_model_bundle(model_path)
-    vectorizer = bundle["vectorizer"]
-    svm_linear = bundle["svm_linear"]
-    svm_calibrated = bundle["svm_calibrated"]
-    random_forest = bundle["random_forest"]
-
-    cleaned = clean_text(text)
-    features = vectorizer.transform([cleaned])
-
-    svm_cal_input = (
-        [cleaned] if isinstance(getattr(svm_calibrated, "estimator", None), Pipeline) else features
-    )
-    svm_prob = float(svm_calibrated.predict_proba(svm_cal_input)[0, 1])
-    rf_prob = float(random_forest.predict_proba(features)[0, 1])
+    """Combine calibrated model probabilities, domain/APK rules, and layperson XAI."""
     label = int(svm_prob >= 0.5)
-
     heuristics = analyze_urls_and_apk(text)
+
     if heuristics["has_apk"] and svm_prob < 0.75:
         risk_level = "TINGGI"
         label = 1
@@ -566,10 +592,17 @@ def predict_message(
     else:
         risk_level = "RENDAH"
 
+    if label == 1:
+        label_text = "Indikasi Scam"
+    elif risk_level == "SEDANG":
+        label_text = "Perlu Verifikasi / Waspada"
+    else:
+        label_text = "Pesan Aman / Resmi"
+
     triggers = _extract_top_triggers(
-        features,
-        vectorizer.get_feature_names_out(),
-        svm_linear.coef_.ravel(),
+        features_row,
+        feature_names,
+        svm_coefs,
         top_k=top_k,
     )
     trigger_stems = _collect_trigger_stems(triggers)
@@ -592,7 +625,7 @@ def predict_message(
 
     return {
         "label": label,
-        "label_text": "Indikasi Scam" if label == 1 else "Pesan Aman / Resmi",
+        "label_text": label_text,
         "risk_level": risk_level,
         "risk_title": risk_title,
         "risk_badge": risk_badge,
@@ -618,3 +651,84 @@ def predict_message(
             official_domains=heuristics["official_domains"],
         ),
     }
+
+
+def predict_message(
+    raw_text: str,
+    model_path: str | Path = MODEL_PATH,
+    top_k: int = 8,
+) -> dict[str, Any]:
+    """Run full preprocessing, SVM Platt + RF inference, heuristic checks, and layperson XAI."""
+    text = raw_text.replace("\x00", "").strip()
+    if not text:
+        raise ValueError("Teks pesan tidak boleh kosong.")
+
+    bundle = load_model_bundle(model_path)
+    vectorizer = bundle["vectorizer"]
+    svm_calibrated = bundle["svm_calibrated"]
+    random_forest = bundle["random_forest"]
+
+    cleaned = clean_text(text)
+    features = vectorizer.transform([cleaned])
+    svm_cal_input = [cleaned] if bundle["svm_is_pipeline"] else features
+    svm_prob = float(svm_calibrated.predict_proba(svm_cal_input)[0, 1])
+    rf_prob = float(random_forest.predict_proba(features)[0, 1])
+
+    return _assemble_prediction(
+        text=text,
+        cleaned=cleaned,
+        features_row=features,
+        svm_prob=svm_prob,
+        rf_prob=rf_prob,
+        feature_names=bundle["feature_names"],
+        svm_coefs=bundle["svm_coefs"],
+        top_k=top_k,
+    )
+
+
+def predict_messages_batch(
+    raw_texts: list[str],
+    model_path: str | Path = MODEL_PATH,
+    top_k: int = 5,
+) -> list[dict[str, Any]]:
+    """Run vectorized batch preprocessing and model inference across multiple messages."""
+    bundle = load_model_bundle(model_path)
+    vectorizer = bundle["vectorizer"]
+    svm_calibrated = bundle["svm_calibrated"]
+    random_forest = bundle["random_forest"]
+    feature_names = bundle["feature_names"]
+    svm_coefs = bundle["svm_coefs"]
+    svm_is_pipeline = bundle["svm_is_pipeline"]
+
+    outputs: list[dict[str, Any] | None] = [None] * len(raw_texts)
+    valid_entries: list[tuple[int, str, str]] = []
+
+    for idx, raw in enumerate(raw_texts):
+        cleaned_input = raw.replace("\x00", "").strip()
+        if not cleaned_input:
+            outputs[idx] = {"index": idx, "error": "Teks kosong dilewati."}
+            continue
+        valid_entries.append((idx, cleaned_input, clean_text(cleaned_input)))
+
+    if valid_entries:
+        cleaned_batch = [entry[2] for entry in valid_entries]
+        features_matrix = vectorizer.transform(cleaned_batch)
+        svm_cal_inputs = cleaned_batch if svm_is_pipeline else features_matrix
+        svm_probs = svm_calibrated.predict_proba(svm_cal_inputs)[:, 1]
+        rf_probs = random_forest.predict_proba(features_matrix)[:, 1]
+
+        for row_idx, (orig_idx, text, cleaned) in enumerate(valid_entries):
+            item = _assemble_prediction(
+                text=text,
+                cleaned=cleaned,
+                features_row=features_matrix[row_idx],
+                svm_prob=float(svm_probs[row_idx]),
+                rf_prob=float(rf_probs[row_idx]),
+                feature_names=feature_names,
+                svm_coefs=svm_coefs,
+                top_k=top_k,
+            )
+            item["index"] = orig_idx
+            outputs[orig_idx] = item
+
+    return [item for item in outputs if item is not None]

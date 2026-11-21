@@ -7,8 +7,8 @@ cd /d "%~dp0"
 set "UVICORN=%LOCALAPPDATA%\venvs\ta-phishing-pajak-unsia\Scripts\uvicorn.exe"
 if exist "%UVICORN%" goto :run_uvicorn
 
-if exist "..\.venv\Scripts\uvicorn.exe" (
-  set "UVICORN=..\.venv\Scripts\uvicorn.exe"
+if exist "..\..\.venv\Scripts\uvicorn.exe" (
+  set "UVICORN=..\..\.venv\Scripts\uvicorn.exe"
   goto :run_uvicorn
 )
 

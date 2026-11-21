@@ -23,17 +23,64 @@
     },
   ];
 
-  const ICONS = {
-    danger: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" x2="9" y1="9" y2="15"></line><line x1="9" x2="15" y1="9" y2="15"></line></svg>`,
-    warn: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg>`,
-    safe: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>`,
-  };
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  function createSvgIcon(kind) {
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    svg.setAttribute("aria-hidden", "true");
+
+    if (kind === "danger") {
+      const circle = document.createElementNS(SVG_NS, "circle");
+      circle.setAttribute("cx", "12");
+      circle.setAttribute("cy", "12");
+      circle.setAttribute("r", "10");
+      const l1 = document.createElementNS(SVG_NS, "line");
+      l1.setAttribute("x1", "15");
+      l1.setAttribute("x2", "9");
+      l1.setAttribute("y1", "9");
+      l1.setAttribute("y2", "15");
+      const l2 = document.createElementNS(SVG_NS, "line");
+      l2.setAttribute("x1", "9");
+      l2.setAttribute("x2", "15");
+      l2.setAttribute("y1", "9");
+      l2.setAttribute("y2", "15");
+      svg.append(circle, l1, l2);
+    } else if (kind === "warn") {
+      const path = document.createElementNS(SVG_NS, "path");
+      path.setAttribute(
+        "d",
+        "M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+      );
+      const l1 = document.createElementNS(SVG_NS, "line");
+      l1.setAttribute("x1", "12");
+      l1.setAttribute("x2", "12");
+      l1.setAttribute("y1", "9");
+      l1.setAttribute("y2", "13");
+      const l2 = document.createElementNS(SVG_NS, "line");
+      l2.setAttribute("x1", "12");
+      l2.setAttribute("x2", "12.01");
+      l2.setAttribute("y1", "17");
+      l2.setAttribute("y2", "17");
+      svg.append(path, l1, l2);
+    } else {
+      const p1 = document.createElementNS(SVG_NS, "path");
+      p1.setAttribute("d", "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z");
+      const p2 = document.createElementNS(SVG_NS, "path");
+      p2.setAttribute("d", "m9 12 2 2 4-4");
+      svg.append(p1, p2);
+    }
+    return svg;
+  }
 
   const el = {
     navTabs: document.querySelectorAll(".nav-tab"),
     tabPanels: document.querySelectorAll(".tab-panel"),
-    servicePill: document.getElementById("service-pill"),
-    servicePillText: document.getElementById("service-pill-text"),
     pasteBtn: document.getElementById("paste-btn"),
     clearBtn: document.getElementById("clear-btn"),
     input: document.getElementById("message-input"),
@@ -44,6 +91,9 @@
     checkBtnSpinner: document.querySelector("#check-btn .btn-spinner"),
     presetsList: document.getElementById("presets-list"),
     emptyState: document.getElementById("empty-state"),
+    errorState: document.getElementById("error-state"),
+    errorStateMessage: document.getElementById("error-state-message"),
+    retryCheckBtn: document.getElementById("retry-check-btn"),
     resultState: document.getElementById("result-state"),
     verdictBanner: document.getElementById("verdict-banner"),
     verdictIcon: document.getElementById("verdict-icon"),
@@ -83,6 +133,46 @@
   let presetsCache = FALLBACK_PRESETS;
   let toastTimer = null;
   let activeCheckController = null;
+  let activeSummaryController = null;
+  let activeInspectorController = null;
+  let supportsDisplayTransition;
+
+  function canTransitionDisplay() {
+    if (supportsDisplayTransition !== undefined) return supportsDisplayTransition;
+    if (!window.CSS?.supports?.("transition-behavior", "allow-discrete") || !document.body) {
+      supportsDisplayTransition = false;
+      return false;
+    }
+    const probe = document.createElement("div");
+    probe.style.cssText = "transition: display 1s allow-discrete !important; display: block;";
+    document.body.appendChild(probe);
+    getComputedStyle(probe).display;
+    probe.style.display = "none";
+    supportsDisplayTransition = getComputedStyle(probe).display === "block";
+    probe.remove();
+    return supportsDisplayTransition;
+  }
+
+  function supportsTopLayerExit() {
+    return Boolean(window.CSS?.supports?.("overlay", "auto") && canTransitionDisplay());
+  }
+
+  async function closeTopLayer(dialogEl) {
+    if (!dialogEl.open) return;
+    if (!supportsTopLayerExit()) {
+      dialogEl.setAttribute("data-closing", "");
+      const animations = dialogEl.getAnimations({ subtree: true });
+      if (animations.length > 0) {
+        await Promise.race([
+          Promise.allSettled(animations.map((a) => a.finished)),
+          new Promise((resolve) => setTimeout(resolve, 400)),
+        ]);
+      }
+      if (!dialogEl.hasAttribute("data-closing")) return;
+      dialogEl.removeAttribute("data-closing");
+    }
+    dialogEl.close();
+  }
 
   function setupTablistKeyboard(tabButtons, activateFn) {
     const buttons = Array.from(tabButtons);
@@ -134,7 +224,7 @@
   function setLoading(loading) {
     el.checkBtn.disabled = loading;
     el.checkBtnSpinner.hidden = !loading;
-    el.checkBtnLabel.textContent = loading ? "Memeriksa..." : "Cek Sekarang";
+    el.checkBtnLabel.textContent = loading ? "Memeriksa..." : "Periksa Pesan";
   }
 
   function clearActivePreset() {
@@ -183,6 +273,7 @@
     } else {
       const sorted = [...highlights].sort((a, b) => a.start - b.start);
       let cursor = 0;
+      const highlightButtons = [];
       const showHandlers = [];
 
       sorted.forEach((span) => {
@@ -191,25 +282,30 @@
             document.createTextNode(rawText.slice(cursor, span.start))
           );
         }
-        const mark = document.createElement("mark");
-        mark.className = `hl hl-${span.kind}`;
-        mark.tabIndex = 0;
-        mark.textContent = rawText.slice(span.start, span.end);
-        mark.title = span.reason;
+        const hlBtn = document.createElement("button");
+        hlBtn.type = "button";
+        hlBtn.className = `hl hl-${span.kind}`;
+        hlBtn.setAttribute("aria-pressed", "false");
+        hlBtn.textContent = rawText.slice(span.start, span.end);
+        hlBtn.title = span.reason;
+        highlightButtons.push(hlBtn);
 
         const showReason = () => {
+          highlightButtons.forEach((btn) => {
+            btn.setAttribute("aria-pressed", String(btn === hlBtn));
+          });
           el.highlightInspector.replaceChildren();
           const strong = document.createElement("strong");
-          strong.textContent = `${mark.textContent}: `;
+          strong.textContent = `${hlBtn.textContent}: `;
           el.highlightInspector.append(strong, document.createTextNode(span.reason));
           el.highlightInspector.hidden = false;
         };
-        mark.addEventListener("mouseenter", showReason);
-        mark.addEventListener("click", showReason);
-        mark.addEventListener("focus", showReason);
+        hlBtn.addEventListener("mouseenter", showReason);
+        hlBtn.addEventListener("click", showReason);
+        hlBtn.addEventListener("focus", showReason);
         showHandlers.push({ kind: span.kind, showReason });
 
-        el.highlightedText.appendChild(mark);
+        el.highlightedText.appendChild(hlBtn);
         cursor = span.end;
       });
 
@@ -227,7 +323,7 @@
 
     if (Array.isArray(triggerWords) && triggerWords.length > 0) {
       const label = document.createElement("span");
-      label.textContent = "Trigger words:";
+      label.textContent = "Kata pemicu:";
       el.triggerChipsRow.appendChild(label);
       triggerWords.slice(0, 4).forEach((word) => {
         const chip = document.createElement("span");
@@ -255,8 +351,8 @@
 
     const risk = (data.risk_level || "RENDAH").toLowerCase();
     el.verdictBanner.className = `verdict-banner tone-${risk}`;
-    el.verdictIcon.innerHTML =
-      risk === "tinggi" ? ICONS.danger : risk === "sedang" ? ICONS.warn : ICONS.safe;
+    const iconKind = risk === "tinggi" ? "danger" : risk === "sedang" ? "warn" : "safe";
+    el.verdictIcon.replaceChildren(createSvgIcon(iconKind));
     el.verdictBadge.textContent = data.risk_badge || data.label_text;
     el.confidenceNote.textContent = data.confidence_note || "";
     el.verdictTitle.textContent = data.risk_title || data.label_text;
@@ -269,7 +365,8 @@
         : risk === "sedang"
           ? Math.max(rawPct, 45)
           : Math.max(100 - rawPct, 12);
-    el.meterFill.style.width = `${Math.min(100, meterPct)}%`;
+    const meterRatio = Math.max(0, Math.min(1, meterPct / 100));
+    el.meterFill.style.setProperty("--meter-scale", String(meterRatio));
 
     renderHighlightedBubble(rawText, data.highlights || [], data.trigger_words || []);
 
@@ -310,17 +407,27 @@
     el.copyToast.hidden = true;
 
     el.emptyState.hidden = true;
+    el.errorState.hidden = true;
     el.resultState.hidden = false;
 
-    if (window.innerWidth <= 960) {
+    if (window.innerWidth <= 1024) {
       el.resultState.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
+  }
+
+  function renderErrorState(messageText) {
+    lastResult = null;
+    lastCheckedText = "";
+    el.emptyState.hidden = true;
+    el.resultState.hidden = true;
+    el.errorStateMessage.textContent = messageText;
+    el.errorState.hidden = false;
   }
 
   async function runCheck(textOverride) {
     const text = (textOverride ?? el.input.value).trim();
     if (!text) {
-      showInputAlert("Paste atau ketik chat WA dulu.");
+      showInputAlert("Tempel atau ketik isi chat WhatsApp terlebih dahulu.");
       el.input.focus();
       return;
     }
@@ -328,7 +435,8 @@
     if (activeCheckController) {
       activeCheckController.abort();
     }
-    activeCheckController = new AbortController();
+    const controller = new AbortController();
+    activeCheckController = controller;
 
     showInputAlert("");
     setLoading(true);
@@ -337,7 +445,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, top_k: 8 }),
-        signal: activeCheckController.signal,
+        signal: controller.signal,
       });
       if (!resp.ok) {
         const errPayload = await resp.json().catch(() => ({}));
@@ -347,10 +455,14 @@
       renderResult(text, data);
     } catch (err) {
       if (err && err.name === "AbortError") return;
-      showInputAlert(`Gagal memeriksa pesan: ${err.message}.`);
+      const errMsg = `Gagal memeriksa pesan: ${err.message}.`;
+      showInputAlert(errMsg);
+      renderErrorState(errMsg);
     } finally {
-      activeCheckController = null;
-      setLoading(false);
+      if (activeCheckController === controller) {
+        activeCheckController = null;
+        setLoading(false);
+      }
     }
   }
 
@@ -361,18 +473,6 @@
     toastTimer = setTimeout(() => {
       el.copyToast.hidden = true;
     }, 3000);
-  }
-
-  async function checkServiceHealth() {
-    try {
-      const resp = await fetch("/health");
-      if (!resp.ok) throw new Error("offline");
-      el.servicePill.className = "status-pill status-ready";
-      el.servicePillText.textContent = "Siap";
-    } catch {
-      el.servicePill.className = "status-pill status-offline";
-      el.servicePillText.textContent = "Offline";
-    }
   }
 
   async function loadPresets() {
@@ -397,10 +497,12 @@
     const num = Number(val);
     if (Number.isNaN(num)) return String(val);
     const scaled = isPct ? num * 100 : num;
-    return scaled.toLocaleString("id-ID", {
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits,
-    }) + (isPct ? "%" : "");
+    return (
+      scaled.toLocaleString("id-ID", {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits,
+      }) + (isPct ? "%" : "")
+    );
   }
 
   function switchAcadTab(tabName) {
@@ -451,6 +553,7 @@
     const meta = data.metadata || {};
     const thesis = data.thesis || {};
     const allRows = data.evaluation_rows || [];
+    const bench = data.latency_benchmark || {};
 
     const container = document.createElement("div");
     container.className = "acad-panel";
@@ -462,33 +565,49 @@
     heroTitle.textContent = thesis.title || "";
     const heroSub = document.createElement("p");
     heroSub.className = "acad-hero-meta";
-    heroSub.textContent = `${thesis.author || "Wan Mirza Dhani (240101020194)"} • Pembimbing: ${thesis.advisor || "Bapak Novi Dian Nathasia, S.Kom., MMSI"} • PJJ Sistem Informasi UNSIA (TKT 6)`;
+    heroSub.textContent =
+      `${thesis.author || "Wan Mirza Dhani (240101020194)"} | ` +
+      `Pembimbing: ${thesis.advisor || "Bapak Novi Dian Nathasia, S.Kom., MMSI"} | ` +
+      `${thesis.program || "PJJ Sistem Informasi, Universitas Siber Asia"}`;
     hero.append(heroTitle, heroSub);
     container.appendChild(hero);
 
     const statsGrid = document.createElement("div");
     statsGrid.className = "acad-meta-grid";
-    const svmAcc = meta.holdout_accuracy_svm ? formatIdDecimal(meta.holdout_accuracy_svm, 2, true) : "95,69%";
-    const rfAcc = meta.holdout_accuracy_rf ? formatIdDecimal(meta.holdout_accuracy_rf, 2, true) : "96,55%";
+    const svmAcc = meta.holdout_accuracy_svm ? formatIdDecimal(meta.holdout_accuracy_svm, 2, true) : "-";
+    const rfAcc = meta.holdout_accuracy_rf ? formatIdDecimal(meta.holdout_accuracy_rf, 2, true) : "-";
     const brierVal = meta.holdout_brier_svm_calibrated
       ? formatIdDecimal(meta.holdout_brier_svm_calibrated, 4, false)
-      : "0,0254";
+      : "-";
     const taxSvmRow = allRows.find(
       (r) => r.tahap_evaluasi === "Tahap 4A: Subset Pajak Holdout" && (r.model || "").includes("Platt")
     );
     const taxRfRow = allRows.find(
       (r) => r.tahap_evaluasi === "Tahap 4A: Subset Pajak Holdout" && (r.model || "").includes("Random Forest")
     );
-    const taxAccDisplay = taxSvmRow ? formatIdDecimal(taxSvmRow.accuracy, 2, true) : "95,56%";
+    const taxAccDisplay = taxSvmRow ? formatIdDecimal(taxSvmRow.accuracy, 2, true) : "-";
     const taxAucSub =
       taxSvmRow && taxRfRow
         ? `AUC ${formatIdDecimal(taxSvmRow.roc_auc, 4, false)} vs RF ${formatIdDecimal(taxRfRow.roc_auc, 4, false)}`
-        : "AUC 0,9960 vs RF 0,9752";
+        : "Evaluasi subset pajak";
+
+    const speedMain =
+      typeof bench.api_p50_ms === "number"
+        ? `${formatIdDecimal(bench.api_p50_ms, 1, false)} ms`
+        : `Brier ${brierVal}`;
+    const speedSub =
+      typeof bench.direct_p50_ms === "number"
+        ? `Direct ${formatIdDecimal(bench.direct_p50_ms, 1, false)} ms | Brier ${brierVal}`
+        : "Kalibrasi Platt Sigmoid";
+
+    const sampleCount =
+      typeof meta.n_samples === "number" ? `${meta.n_samples.toLocaleString("id-ID")} Chat` : "-";
+
     const stats = [
-      ["Dataset", `${(meta.n_samples ?? 1159).toLocaleString("id-ID")} Chat`, "899 umum + 260 pajak"],
-      ["Accuracy (Holdout)", svmAcc, `LinearSVC vs RF ${rfAcc}`],
+      ["Dataset Utama", sampleCount, "899 korpus umum + 260 korpus pajak"],
+      ["Akurasi Holdout", svmAcc, `LinearSVC vs RF ${rfAcc}`],
       ["Khusus Chat Pajak", taxAccDisplay, taxAucSub],
-      ["Speed & Calibration", "~25 ms", `Brier ${brierVal} • Platt Scaling`],
+      ["Kecepatan & Kalibrasi", speedMain, speedSub],
     ];
     stats.forEach(([label, val, sub]) => {
       const box = document.createElement("div");
@@ -508,14 +627,17 @@
       const tableToolbar = document.createElement("div");
       tableToolbar.className = "acad-table-toolbar";
       const tableTitle = document.createElement("h3");
-      tableTitle.className = "xai-section-title";
-      tableTitle.style.margin = "0";
-      tableTitle.textContent = showFullBenchmarkTable ? `Full Benchmark (${allRows.length} Rows)` : "Key Comparison (LinearSVC vs RF)";
+      tableTitle.className = "xai-section-title acad-table-heading";
+      tableTitle.textContent = showFullBenchmarkTable
+        ? `Tabel Evaluasi Lengkap (${allRows.length} Baris)`
+        : "Perbandingan Inti (LinearSVC vs RF)";
 
       const toggleBtn = document.createElement("button");
       toggleBtn.type = "button";
       toggleBtn.className = "xai-preset-btn";
-      toggleBtn.textContent = showFullBenchmarkTable ? "Show Compact (6 Rows)" : `Show All ${allRows.length} Rows`;
+      toggleBtn.textContent = showFullBenchmarkTable
+        ? "Tampilkan Ringkas (6 Baris)"
+        : `Tampilkan Semua (${allRows.length} Baris)`;
       toggleBtn.addEventListener("click", () => {
         showFullBenchmarkTable = !showFullBenchmarkTable;
         renderAcademicSummaryPanel(data);
@@ -525,10 +647,10 @@
 
       const visibleRows = showFullBenchmarkTable ? allRows : allRows.filter(isKeyComparisonRow);
       const colSpecs = [
-        ["tahap_evaluasi", "Stage"],
+        ["tahap_evaluasi", "Tahap Evaluasi"],
         ["model", "Model"],
-        ["n_sampel", "Samples"],
-        ["accuracy", "Accuracy"],
+        ["n_sampel", "Sampel"],
+        ["accuracy", "Akurasi"],
         ["f1", "F1-Score"],
         ["roc_auc", "ROC-AUC"],
       ];
@@ -580,31 +702,55 @@
   }
 
   async function loadAcademicSummary() {
+    if (activeSummaryController) {
+      activeSummaryController.abort();
+    }
+    const controller = new AbortController();
+    activeSummaryController = controller;
+
     el.acadPanelSummary.replaceChildren();
     const loading = document.createElement("p");
     loading.className = "dialog-loading";
-    loading.textContent = "Loading...";
+    loading.textContent = "Memuat ringkasan riset...";
     el.acadPanelSummary.appendChild(loading);
     try {
-      const resp = await fetch("/api/academic-summary");
+      const resp = await fetch("/api/academic-summary", { signal: controller.signal });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
       renderAcademicSummaryPanel(data);
     } catch (err) {
+      if (err && err.name === "AbortError") return;
       el.acadPanelSummary.textContent = `Gagal memuat ringkasan: ${err.message}`;
+    } finally {
+      if (activeSummaryController === controller) {
+        activeSummaryController = null;
+      }
     }
   }
 
   async function fetchPredictionForInspector(sampleText) {
-    const resp = await fetch("/predict", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: sampleText, top_k: 6 }),
-    });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    inspectorText = sampleText;
-    inspectorResult = await resp.json();
-    renderInspectorContents();
+    if (activeInspectorController) {
+      activeInspectorController.abort();
+    }
+    const controller = new AbortController();
+    activeInspectorController = controller;
+
+    try {
+      const resp = await fetch("/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: sampleText, top_k: 6 }),
+        signal: controller.signal,
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      inspectorText = sampleText;
+      inspectorResult = await resp.json();
+      renderInspectorContents();
+    } finally {
+      if (activeInspectorController === controller) {
+        activeInspectorController = null;
+      }
+    }
   }
 
   function renderInspectorContents() {
@@ -614,7 +760,9 @@
     toolbar.className = "xai-toolbar";
     const tbLabel = document.createElement("span");
     tbLabel.className = "xai-toolbar-label";
-    tbLabel.textContent = lastResult ? "Hasil pesan terakhir (atau ganti contoh):" : "Pilih contoh uji:";
+    tbLabel.textContent = lastResult
+      ? "Hasil pesan terakhir (atau pilih contoh):"
+      : "Pilih contoh uji:";
 
     const presetBtns = document.createElement("div");
     presetBtns.className = "xai-preset-btns";
@@ -625,6 +773,7 @@
       btn.textContent = p.label;
       btn.addEventListener("click", () => {
         fetchPredictionForInspector(p.text).catch((err) => {
+          if (err && err.name === "AbortError") return;
           el.acadPanelInspector.textContent = `Gagal memuat XAI: ${err.message}`;
         });
       });
@@ -637,7 +786,7 @@
     if (!data) {
       const waitMsg = document.createElement("p");
       waitMsg.className = "dialog-loading";
-      waitMsg.textContent = "Loading...";
+      waitMsg.textContent = "Memuat inspeksi XAI...";
       el.acadPanelInspector.appendChild(waitMsg);
       return;
     }
@@ -655,16 +804,16 @@
     const modelCards = [
       {
         name: "LinearSVC (Platt)",
-        tag: data.inference_ms ? `Production • ${data.inference_ms} ms` : "Production",
+        tag: data.inference_ms ? `Produksi | ${data.inference_ms} ms` : "Produksi",
         prob: svmProb,
-        note: `Verdict: ${data.risk_level} (${data.label === 1 ? "Scam" : "Aman"})`,
+        note: `Status: ${data.risk_level} (${data.label_text})`,
         winner: true,
       },
       {
-        name: "Random Forest (100 Trees)",
-        tag: "Benchmark",
+        name: "Random Forest (100 Pohon)",
+        tag: "Pembanding",
         prob: rfProb,
-        note: `Gap: ${formatIdDecimal(Math.abs(svmProb - rfProb), 2, true)}`,
+        note: `Selisih: ${formatIdDecimal(Math.abs(svmProb - rfProb), 2, true)}`,
         winner: false,
       },
     ];
@@ -688,7 +837,7 @@
       track.className = "xai-bar-track";
       const fill = document.createElement("div");
       fill.className = `xai-bar-fill ${mc.prob >= 0.5 ? "tone-danger" : "tone-safe"}`;
-      fill.style.width = `${Math.max(4, Math.min(100, Math.round(mc.prob * 100)))}%`;
+      fill.style.setProperty("--bar-scale", String(Math.max(0.04, Math.min(1, mc.prob))));
       track.appendChild(fill);
 
       const nt = document.createElement("div");
@@ -706,7 +855,7 @@
       trigBox.className = "xai-section-box";
       const trigTitle = document.createElement("h3");
       trigTitle.className = "xai-section-title";
-      trigTitle.textContent = "Top Feature Weights (TF-IDF x Coef w)";
+      trigTitle.textContent = "Bobot Fitur Teratas (TF-IDF x Koefisien w)";
 
       const list = document.createElement("div");
       list.className = "xai-weights-list";
@@ -736,7 +885,7 @@
     const prepBox = document.createElement("div");
     prepBox.className = "xai-clean-line";
     const prepLabel = document.createElement("strong");
-    prepLabel.textContent = "Preprocessed (Sastrawi): ";
+    prepLabel.textContent = "Hasil Praproses Sastrawi: ";
     const prepText = document.createElement("code");
     prepText.textContent = data.cleaned_text || "(kosong)";
     prepBox.append(prepLabel, prepText);
@@ -753,6 +902,7 @@
     if (!inspectorResult) {
       renderInspectorContents();
       fetchPredictionForInspector(presetsCache[0].text).catch((err) => {
+        if (err && err.name === "AbortError") return;
         el.acadPanelInspector.textContent = `Gagal memuat analisis model: ${err.message}`;
       });
       return;
@@ -768,24 +918,22 @@
     const head = document.createElement("div");
     head.className = "sim-ext-head";
     const headText = document.createElement("span");
-    headText.textContent = "Simulasi tombol Cek Pesan Pajak di dalam chat WhatsApp Web (Manifest V3):";
+    headText.textContent = "Simulasi pemindaian pesan langsung di WhatsApp Web (Manifest V3):";
 
     const headActions = document.createElement("div");
-    headActions.style.display = "flex";
-    headActions.style.gap = "8px";
-    headActions.style.flexWrap = "wrap";
+    headActions.className = "sim-head-actions";
 
     const runAllBtn = document.createElement("button");
     runAllBtn.type = "button";
     runAllBtn.className = "sim-scan-btn";
-    runAllBtn.textContent = "Test All 3 Chats";
+    runAllBtn.textContent = "Uji Semua 3 Pesan";
 
     const openFullLink = document.createElement("a");
     openFullLink.className = "btn-soft-link";
     openFullLink.href = "/simulasi-wa";
     openFullLink.target = "_blank";
     openFullLink.rel = "noopener noreferrer";
-    openFullLink.textContent = "Full Screen";
+    openFullLink.textContent = "Buka Layar Penuh";
 
     headActions.append(runAllBtn, openFullLink);
     head.append(headText, headActions);
@@ -794,8 +942,8 @@
     const list = document.createElement("div");
     list.className = "sim-wa-list";
     const senderLabels = [
-      "+62 812-9901-xxxx (Unknown)",
-      "+62 857-4410-xxxx (Forward)",
+      "+62 812-9901-xxxx (Tidak Dikenal)",
+      "+62 857-4410-xxxx (Pesan Terusan)",
       "Kring Pajak / DJP Resmi",
     ];
     const scanButtons = [];
@@ -817,7 +965,7 @@
       const scanBtn = document.createElement("button");
       scanBtn.type = "button";
       scanBtn.className = "sim-scan-btn";
-      scanBtn.textContent = "Cek";
+      scanBtn.textContent = "Periksa";
 
       const badge = document.createElement("div");
       badge.className = "sim-wa-badge";
@@ -825,7 +973,7 @@
 
       const runBubbleScan = async () => {
         scanBtn.disabled = true;
-        scanBtn.textContent = "Cek...";
+        scanBtn.textContent = "Memeriksa...";
         try {
           const resp = await fetch("/predict", {
             method: "POST",
@@ -849,12 +997,12 @@
           sub.textContent = `${detailText}${res.inference_ms ? ` (${res.inference_ms} ms)` : ""}`;
           badge.appendChild(sub);
           badge.hidden = false;
-          scanBtn.textContent = "Cek Ulang";
+          scanBtn.textContent = "Periksa Ulang";
         } catch (err) {
           badge.className = "sim-wa-badge sedang";
-          badge.textContent = `Gagal cek: ${err.message}`;
+          badge.textContent = `Gagal memeriksa: ${err.message}`;
           badge.hidden = false;
-          scanBtn.textContent = "Cek";
+          scanBtn.textContent = "Periksa";
         } finally {
           scanBtn.disabled = false;
         }
@@ -874,7 +1022,6 @@
     el.acadPanelExtension.appendChild(list);
   }
 
-  // Event Listeners
   setupTablistKeyboard(el.navTabs, (btn) => switchTab(btn.dataset.tab));
   setupTablistKeyboard(el.acadTabs, (btn) => switchAcadTab(btn.dataset.acadTab));
 
@@ -888,6 +1035,7 @@
 
   el.backToCheckerBtn.addEventListener("click", () => switchTab("checker"));
   el.apkEmergencyCta.addEventListener("click", () => switchTab("emergency"));
+  el.retryCheckBtn.addEventListener("click", () => runCheck());
 
   el.input.addEventListener("input", () => {
     clearActivePreset();
@@ -906,14 +1054,14 @@
 
   el.pasteBtn.addEventListener("click", async () => {
     if (!navigator.clipboard || !navigator.clipboard.readText) {
-      showInputAlert("Browser tidak mengizinkan paste otomatis. Silakan Ctrl+V manual.");
+      showInputAlert("Browser tidak mengizinkan tempel otomatis. Tekan Ctrl+V secara manual.");
       el.input.focus();
       return;
     }
     try {
       const clipText = await navigator.clipboard.readText();
       if (!clipText.trim()) {
-        showInputAlert("Clipboard masih kosong. Salin chat WA dulu.");
+        showInputAlert("Clipboard masih kosong. Salin pesan WhatsApp terlebih dahulu.");
         return;
       }
       clearActivePreset();
@@ -922,7 +1070,7 @@
       showInputAlert("");
       runCheck(el.input.value);
     } catch {
-      showInputAlert("Izin clipboard ditolak browser. Silakan Ctrl+V manual.");
+      showInputAlert("Izin clipboard ditolak browser. Tekan Ctrl+V secara manual.");
       el.input.focus();
     }
   });
@@ -935,6 +1083,7 @@
     lastResult = null;
     lastCheckedText = "";
     el.resultState.hidden = true;
+    el.errorState.hidden = true;
     el.emptyState.hidden = false;
     el.input.focus();
   });
@@ -944,9 +1093,9 @@
     const textToCopy = buildShareMessage(lastCheckedText, lastResult);
     try {
       await navigator.clipboard.writeText(textToCopy);
-      showToast("Berhasil disalin. Siap paste ke grup WA.");
+      showToast("Peringatan disalin. Siap dibagikan ke grup WA.");
     } catch {
-      showToast("Gagal salin. Pakai tombol Share WA.");
+      showToast("Gagal menyalin otomatis. Gunakan tombol Bagikan ke WA.");
     }
   });
 
@@ -955,17 +1104,20 @@
       const checkedCount = Array.from(el.scamChecks).filter((c) => c.checked).length;
       if (checkedCount === 0) {
         el.checklistFeedback.className = "checklist-feedback";
-        el.checklistFeedback.textContent = "Ada 1 tanda saja? Jangan klik link atau file.";
+        el.checklistFeedback.textContent =
+          "Ditemukan 1 tanda saja, jangan buka tautan atau berkas tersebut.";
       } else {
         el.checklistFeedback.className = "checklist-feedback alert";
         el.checklistFeedback.textContent =
-          `${checkedCount} ciri ditemukan. Jangan klik link, install file, atau kirim OTP.`;
+          `${checkedCount} ciri ditemukan. Jangan klik tautan, pasang berkas, atau kirim OTP.`;
       }
     });
   });
 
   el.openAcademicBtn.addEventListener("click", () => {
     switchAcadTab("summary");
+    el.academicDialog.removeAttribute("data-closing");
+    document.body.classList.add("modal-open");
     if (typeof el.academicDialog.showModal === "function") {
       el.academicDialog.showModal();
     } else {
@@ -975,16 +1127,32 @@
   });
 
   el.closeAcademicBtn.addEventListener("click", () => {
-    el.academicDialog.close();
+    closeTopLayer(el.academicDialog);
   });
 
-  el.academicDialog.addEventListener("click", (event) => {
-    if (event.target === el.academicDialog) {
-      el.academicDialog.close();
-    }
+  el.academicDialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    closeTopLayer(el.academicDialog);
   });
+
+  el.academicDialog.addEventListener("close", () => {
+    document.body.classList.remove("modal-open");
+  });
+
+  if (!("closedBy" in HTMLDialogElement.prototype)) {
+    el.academicDialog.addEventListener("click", (event) => {
+      if (event.target !== el.academicDialog) return;
+      const rect = el.academicDialog.getBoundingClientRect();
+      const isDialogContent =
+        rect.top <= event.clientY &&
+        event.clientY <= rect.top + rect.height &&
+        rect.left <= event.clientX &&
+        event.clientX <= rect.left + rect.width;
+      if (isDialogContent) return;
+      closeTopLayer(el.academicDialog);
+    });
+  }
 
   updateInputControls();
-  checkServiceHealth();
   loadPresets();
 })();

@@ -9,29 +9,29 @@
       width: 340px;
       padding: 14px;
       margin: 0;
-      background: #f6f7f9;
-      color: #0f172a;
+      background: #eaeef2;
+      color: #121821;
     }
     .head {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     h1 {
       font-size: 14.5px;
       font-weight: 800;
       margin: 0;
-      color: #0b4f71;
+      color: #0a4a69;
     }
     .status {
       font-size: 11px;
       font-weight: 700;
-      padding: 3px 8px;
+      padding: 4px 9px;
       border-radius: 999px;
-      background: #e2e8f0;
-      color: #475569;
+      background: #e1e7ee;
+      color: #435061;
     }
     textarea {
       width: 100%;
@@ -41,30 +41,36 @@
       font-family: inherit;
       font-size: 12.5px;
       line-height: 1.45;
-      border: 1.5px solid rgba(15, 23, 42, 0.14);
+      border: 1.5px solid rgba(18, 24, 33, 0.16);
       border-radius: 10px;
-      background: #ffffff;
+      background: #f4f7fa;
+      color: #121821;
       resize: vertical;
     }
+    :where(a, button, textarea):focus-visible {
+      outline: 2px solid #0a4a69;
+      outline-offset: 2px;
+    }
     textarea:focus {
-      outline: none;
-      border-color: #0b4f71;
+      border-color: #0a4a69;
+      background: #ffffff;
     }
     button {
       margin-top: 8px;
       width: 100%;
-      padding: 9px 12px;
+      min-height: 44px;
+      padding: 10px 12px;
       font-family: inherit;
       font-size: 12.5px;
       font-weight: 700;
-      background: #0b4f71;
+      background: #0a4a69;
       color: #ffffff;
       border: none;
       border-radius: 10px;
       cursor: pointer;
     }
     button:hover {
-      background: #083d58;
+      background: #073850;
     }
     #output {
       margin-top: 10px;
@@ -75,15 +81,29 @@
       display: none;
     }
     .foot-link {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
       margin-top: 10px;
       font-size: 11.5px;
-      font-weight: 600;
-      color: #0b4f71;
+      font-weight: 700;
+      color: #0a4a69;
       text-decoration: none;
+      text-underline-offset: 3px;
     }
     .foot-link:hover {
       text-decoration: underline;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
   </style>
 </head>
@@ -92,6 +112,7 @@
     <h1>Cek Pesan Pajak</h1>
     <span id="api-status" class="status">Cek layanan...</span>
   </div>
+  <label for="msg-input" class="sr-only">Teks pesan WhatsApp yang ingin diperiksa</label>
   <textarea id="msg-input" placeholder="Paste chat WA pajak yang mau dicek..."></textarea>
   <button id="check-btn" type="button">Cek Pesan Sekarang</button>
   <div id="output"></div>
