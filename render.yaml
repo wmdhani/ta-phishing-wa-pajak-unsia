@@ -7,3 +7,7 @@ services:
     envVars:
       - key: RATE_LIMIT_PER_MIN
         value: "60"
+      - key: TRUST_PROXY_HEADERS
+        value: "1"
+      - key: TRUST_PROXY_HOPS
+        value: "1"

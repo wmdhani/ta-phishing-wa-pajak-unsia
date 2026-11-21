@@ -2,17 +2,22 @@
 .venv/
 __pycache__/
 *.py[cod]
+*$py.class
 .pytest_cache/
 .ruff_cache/
 
-01 *
-02 *
-03 *
-04 Dataset/
-05 Hasil Evaluasi/*.png
-05 Hasil Evaluasi/*.json
-05 Hasil Evaluasi/*.txt
-07 Naskah Tugas Akhir/
+01-administrasi/
+02-proposal/
+03-referensi/
+04-dataset/
+05-hasil-evaluasi/gambar/
+05-hasil-evaluasi/laporan/
+05-hasil-evaluasi/csv/*
+!05-hasil-evaluasi/csv/tabel_komparasi_utama.csv
+05-hasil-evaluasi/json/*
+!05-hasil-evaluasi/json/benchmark_latensi_purwarupa.json
+06-naskah-ta/
+scripts/
 tests/
 **/*.docx
 **/*.pdf
