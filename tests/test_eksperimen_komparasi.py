@@ -97,6 +97,18 @@ def test_multistage_sections_and_calibration_validity(experiment_results: dict) 
     calibration = experiment_results["calibration"]
     svm_cal = calibration["svm_calibrated"]
     assert svm_cal["brier_score"] < 0.05
+    assert 0.0 <= svm_cal["specificity"] <= 1.0
+
+    mcnemar = calibration["mcnemar"]
+    assert mcnemar["discordant_total"] == mcnemar["svm_correct_rf_error"] + mcnemar["svm_error_rf_correct"]
+    assert 0.0 <= mcnemar["p_value_exact_two_sided"] <= 1.0
+
+    boot = calibration["bootstrap_95ci"]
+    assert boot["n_bootstrap"] == 2000
+    assert boot["svm_calibrated_accuracy"][0] <= svm_cal["accuracy"] <= boot["svm_calibrated_accuracy"][1]
+
+    unc = calibration["uncertainty_band"]
+    assert unc["svm_calibrated_count"] < unc["random_forest_count"]
 
     probas = np.asarray(calibration["holdout_proba_svm_calibrated"])
     assert probas.shape == (232, 2)

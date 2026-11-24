@@ -1,6 +1,6 @@
 # Laporan Hasil Eksperimen Komparasi SVM Linear dan Random Forest
 
-Seluruh rangkaian eksperimen dijalankan secara otomatis oleh `src/eksperimen_komparasi.py` dengan total waktu komputasi **189.36 detik**.
+Seluruh rangkaian eksperimen dijalankan secara otomatis oleh `ml/eksperimen_komparasi.py` dengan total waktu komputasi **305.86 detik**.
 
 ## 1. Reproduksi Baseline (Holdout 80:20 Korpus Utama 1159 Baris Unik dari 1164 Mentah)
 
@@ -18,6 +18,8 @@ Seluruh rangkaian eksperimen dijalankan secara otomatis oleh `src/eksperimen_kom
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | SVM Linear (Platt Sigmoid) | 95.69% | 96.59% | 92.39% | 94.44% | 0.9957 | 0.9943 | 0.02542 | 0.09186 |
 | Random Forest (Tuned) | 96.55% | 97.73% | 93.48% | 95.56% | 0.9936 | 0.9909 | 0.04214 | 0.15870 |
+
+- **Uji Signifikansi & Ketidakpastian Holdout:** McNemar eksak dua sisi (`b=3`, `c=5`) menghasilkan `p = 0.7266`; *bootstrap* 95% CI akurasi `SVM` sebesar **93.10%–98.28%**; serta jumlah skor di pita ragu `[0,2, 0,8]` sebanyak **22** (9.48%) untuk SVM berbanding **59** (25.43%) untuk Random Forest.
 
 ## 4. Studi Ablatif Praproses dan Representasi Fitur TF-IDF
 
@@ -71,6 +73,6 @@ Seluruh rangkaian eksperimen dijalankan secara otomatis oleh `src/eksperimen_kom
 
 - **Stabilitas Lintas-Lipatan vs Varians Holdout Tunggal:** SVM Linear unggul konsisten pada seluruh skenario 10-Fold CV (korpus utama `97.16%` vs `94.07%`, korpus pajak `98.17%` vs `93.57%`, korpus diperluas `91.81%` vs `91.11%`), holdout korpus diperluas (`96.03%` vs `92.46%`), zero-shot eksternal (F1 `54.27%` vs `45.76%`), ROC-AUC/PR-AUC (`0.9957`/`0.9943` vs `0.9936`/`0.9909`), serta Brier Score (`0.02542` vs `0.04214`). Selisih 1–2 sampel pada ambang diskrit `0.5` di holdout utama (`n = 232`) berada dalam rentang simpangan baku CV (`±2.41%`).
 - **Interpretasi Studi Ablatif & Token Generik `token_url`:** Konfigurasi utama (`teks_sastrawi`, bigram `(1, 2)`, `3.000` fitur) dipilih karena meraih rata-rata F1 10-Fold CV tertinggi pada SVM (`97.16%`), mengungguli skenario tanpa token entitas (`95.81%`) dan unigram saja (`95.94%`). Variasi pada holdout tunggal (`1_Tanpa_Token_Entitas` `97.84%`) dipengaruhi ukuran uji (`1` sampel = `0.43%`) serta penyamaran domain resmi `pajak.go.id` dan tautan penipu ke satu token generik `token_url`.
-- **Justifikasi Empiris Lapisan Heuristik Purwarupa (`idx=960` & `idx=1082`):** Kasus `idx=960` (pesan `.apk` bergaya birokratis formal dengan `p_svm = 0.424`) dan `idx=1082` (siaran resmi pemadanan NIK bermuatan `www.pajak.go.id` dengan `p_svm = 0.551`) membuktikan keterbatasan TF-IDF murni dan menjustifikasi aturan hibrida `has_apk` serta `is_official_djp_domain` pada `06 Prototipe Aplikasi/inference.py`.
-- **Rincian Zero-Shot Lintas-Korpus & Ketimpangan Subset Saragih:** Pada `1360` pesan eksternal unik, SVM mempertahankan Recall `80.28%` namun mengalami penurunan spesifisitas (`58.40%`, `FP = 416`) akibat *domain shift* kosakata SMS normal lintas-periode (2016 vs 2021–2024). Khusus subset `Korpus_Umum_Saragih2024` (`n = 94` pascadeduplikasi 248 baris Rahmi), komposisi kelas sangat timpang (`90` penipuan : `4` normal), sehingga `f1_macro` dan `roc_auc` subset tersebut tidak diinterpretasikan secara terpisah.
+- **Justifikasi Empiris Lapisan Heuristik Purwarupa (`idx=960` & `idx=1082`):** Kasus `idx=960` (pesan `.apk` bergaya birokratis formal dengan `p_svm = 0.424`) dan `idx=1082` (siaran resmi pemadanan NIK bermuatan `www.pajak.go.id` dengan `p_svm = 0.551`) membuktikan keterbatasan TF-IDF murni dan menjustifikasi aturan hibrida `has_apk` serta `is_official_djp_domain` pada `app/backend/inference.py`.
+- **Rincian Zero-Shot Lintas-Korpus & Ketimpangan Subset Saragih:** Pada `1360` pesan eksternal unik, SVM mempertahankan Recall `80.28%` namun mengalami penurunan presisi (`40.99%`) dan spesifisitas gabungan (`58.40%`, `FP = 416`) akibat *domain shift* kosakata SMS normal lintas-periode (2016 vs 2021–2024). Pada subset `Korpus_Umum_Theodorus2021_IEEE` (`n = 1266`), SVM meraih presisi `34.71%` dengan spesifisitas `58.63%` (`FP = 412`); sementara pada subset `Korpus_Umum_Saragih2024` (`n = 94`, `FP = 4`, `90` penipuan : `4` normal), komposisi kelas sangat timpang sehingga `f1_macro` dan `roc_auc` subset tersebut tidak diinterpretasikan secara terpisah.
 - **Skala SHAP & Artefak Anonimisasi Korpus Dasar:** Nilai `LinearExplainer` bekerja pada satuan margin hyperplane sedangkan `TreeExplainer` bekerja pada satuan probabilitas, sehingga perbandingan lintas model mengacu pada peringkat fitur dan `arah_dominan` saat fitur aktif (`x_test > 0`). Munculnya `nama1` (`-1.272`) dan `2016` (`-0.666`) merupakan artefak anonimisasi korpus SMS Rahmi 2016, sedangkan ketahanan terhadap kosakata pajak dibuktikan melalui evaluasi terpisah pada 260 baris korpus pajak seimbang.

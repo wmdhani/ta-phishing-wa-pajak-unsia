@@ -1,22 +1,22 @@
 {
   "pytest_verification": {
-    "total_collected": 23,
-    "passed": 23,
+    "total_collected": 29,
+    "passed": 29,
     "failed": 0,
-    "pytest_reported_seconds": 21.51,
-    "subprocess_seconds": 25.04,
+    "pytest_reported_seconds": 7.88,
+    "subprocess_seconds": 9.544,
     "cases": {
       "tests/test_eksperimen_baseline.py::test_clean_text_preserves_tokens_and_stems": {
         "status": "PASSED",
-        "duration_sec": 0.01
+        "duration_sec": 0.0
       },
       "tests/test_eksperimen_baseline.py::test_load_combined_dataset_shape": {
         "status": "PASSED",
-        "duration_sec": 0.81
+        "duration_sec": 0.77
       },
       "tests/test_eksperimen_komparasi.py::test_load_datasets_deduplicates_and_pipeline_calibration": {
         "status": "PASSED",
-        "duration_sec": 0.63
+        "duration_sec": 0.57
       },
       "tests/test_eksperimen_komparasi.py::test_baseline_reproduction_matches_locked_metrics": {
         "status": "PASSED",
@@ -28,11 +28,11 @@
       },
       "tests/test_eksperimen_komparasi.py::test_expected_artifacts_and_plots_exist": {
         "status": "PASSED",
-        "duration_sec": 0.07
+        "duration_sec": 0.02
       },
       "tests/test_eksperimen_komparasi.py::test_exported_joblib_bundle_predicts_tax_phishing_and_official_messages": {
         "status": "PASSED",
-        "duration_sec": 0.36
+        "duration_sec": 0.27
       },
       "tests/test_integritas_dataset.py::test_raw_corpora_exist_and_row_counts": {
         "status": "PASSED",
@@ -56,27 +56,27 @@
       },
       "tests/test_integritas_dataset.py::test_sastrawi_deduplication_consistency": {
         "status": "PASSED",
-        "duration_sec": 0.13
+        "duration_sec": 0.15
       },
       "tests/test_prototipe_api.py::test_health_endpoint": {
         "status": "PASSED",
-        "duration_sec": 0.22
+        "duration_sec": 0.23
       },
       "tests/test_prototipe_api.py::test_predict_phishing_apk": {
         "status": "PASSED",
-        "duration_sec": 0.23
+        "duration_sec": 0.19
       },
       "tests/test_prototipe_api.py::test_predict_phishing_fake_domain": {
         "status": "PASSED",
-        "duration_sec": 0.04
+        "duration_sec": 0.01
       },
       "tests/test_prototipe_api.py::test_predict_official_djp_message": {
         "status": "PASSED",
-        "duration_sec": 0.04
+        "duration_sec": 0.02
       },
       "tests/test_prototipe_api.py::test_numeric_time_and_amount_not_flagged_as_domain": {
         "status": "PASSED",
-        "duration_sec": 0.05
+        "duration_sec": 0.03
       },
       "tests/test_prototipe_api.py::test_official_domain_spoof_guard": {
         "status": "PASSED",
@@ -84,29 +84,53 @@
       },
       "tests/test_prototipe_api.py::test_predict_empty_text_rejected": {
         "status": "PASSED",
-        "duration_sec": 0.02
+        "duration_sec": 0.0
       },
       "tests/test_prototipe_api.py::test_predict_batch_endpoint": {
         "status": "PASSED",
-        "duration_sec": 0.09
+        "duration_sec": 0.03
       },
       "tests/test_prototipe_api.py::test_web_ui_and_supporting_endpoints": {
         "status": "PASSED",
-        "duration_sec": 0.75
+        "duration_sec": 0.15
       },
       "tests/test_prototipe_api.py::test_security_headers_and_rate_limiter_helper": {
         "status": "PASSED",
         "duration_sec": 0.0
+      },
+      "tests/test_prototipe_api.py::test_predict_apk_url_flags_apk_and_suspicious_domain": {
+        "status": "PASSED",
+        "duration_sec": 0.03
+      },
+      "tests/test_prototipe_api.py::test_security_csp_headers": {
+        "status": "PASSED",
+        "duration_sec": 0.04
+      },
+      "tests/test_prototipe_api.py::test_cors_strict_allowlist_and_private_network": {
+        "status": "PASSED",
+        "duration_sec": 0.03
+      },
+      "tests/test_prototipe_api.py::test_batch_weighted_rate_limit_char_cap_and_probability_parity": {
+        "status": "PASSED",
+        "duration_sec": 0.23
+      },
+      "tests/test_prototipe_api.py::test_missing_model_returns_503_without_path_leak": {
+        "status": "PASSED",
+        "duration_sec": 0.02
+      },
+      "tests/test_prototipe_api.py::test_academic_summary_latency_benchmark": {
+        "status": "PASSED",
+        "duration_sec": 0.01
       }
     }
   },
   "latency_benchmark": {
-    "cold_bundle_load_ms": 122.655,
+    "cold_bundle_load_ms": 129.578,
     "bundle_metadata": {
       "trained_on": "Dataset Gabungan Utama Biner 1164 Baris.csv",
       "n_samples": 1159,
       "deduplicated_on": "teks_sastrawi",
-      "preprocessing": "src.eksperimen_baseline.clean_text",
+      "preprocessing": "ml.eksperimen_baseline.clean_text",
       "svm_best_params": {
         "C": 2.0,
         "class_weight": null
@@ -123,30 +147,30 @@
     },
     "direct_inference_holdout_232": {
       "n_calls": 232,
-      "total_ms": 4813.096,
-      "mean_ms": 20.746,
-      "std_ms": 4.702,
-      "min_ms": 12.447,
-      "median_p50_ms": 19.989,
-      "p95_ms": 27.447,
-      "p99_ms": 32.98,
-      "max_ms": 39.996
+      "total_ms": 3373.819,
+      "mean_ms": 14.542,
+      "std_ms": 1.277,
+      "min_ms": 12.356,
+      "median_p50_ms": 14.303,
+      "p95_ms": 16.971,
+      "p99_ms": 18.68,
+      "max_ms": 20.084
     },
     "fastapi_post_predict_holdout_232": {
       "n_calls": 232,
-      "total_ms": 8117.949,
-      "mean_ms": 34.991,
-      "std_ms": 14.043,
-      "min_ms": 23.707,
-      "median_p50_ms": 31.812,
-      "p95_ms": 48.082,
-      "p99_ms": 110.724,
-      "max_ms": 171.396
+      "total_ms": 8270.942,
+      "mean_ms": 35.651,
+      "std_ms": 10.3,
+      "min_ms": 14.14,
+      "median_p50_ms": 35.518,
+      "p95_ms": 52.524,
+      "p99_ms": 56.838,
+      "max_ms": 62.12
     },
     "fastapi_post_predict_batch_50": {
       "batch_size": 50,
-      "total_ms": 1315.652,
-      "avg_per_message_ms": 26.313
+      "total_ms": 50.295,
+      "avg_per_message_ms": 1.006
     }
   },
   "preset_verification": {
@@ -254,7 +278,7 @@
           "Terlanjur install? Buka tab Darurat .apk."
         ],
         "recommendation": "Jangan download/install file .apk ini. Hapus chat & block pengirimnya.",
-        "inference_ms": 19.59
+        "inference_ms": 21.15
       }
     },
     "Phishing Domain Palsu": {
@@ -363,7 +387,7 @@
           "Share info ini ke grup jika pesan beredar."
         ],
         "recommendation": "Jangan klik link atau kasih OTP/PIN. Cek resmi di pajak.go.id / 1500200.",
-        "inference_ms": 31.86
+        "inference_ms": 15.09
       }
     },
     "Pengumuman Resmi DJP": {
@@ -465,7 +489,7 @@
           "Akses layanan pajak langsung di pajak.go.id."
         ],
         "recommendation": "Link resmi pajak.go.id. Tetap jaga kerahasiaan OTP & password.",
-        "inference_ms": 25.28
+        "inference_ms": 18.48
       }
     }
   }

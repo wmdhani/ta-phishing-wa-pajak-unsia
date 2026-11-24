@@ -16,7 +16,7 @@
 
 ## 2. Penjelasan Tiap Komponen
 
-### A. Tampilan Web Pengguna (`06 Prototipe Aplikasi/web/`)
+### A. Tampilan Web Pengguna (`app/frontend/`)
 - **Berkas:** `index.html`, `app.js`, `styles.css`.
 - **Kenapa dipisah jadi 3 tab?** Supaya orang awam tidak bingung. Tab **Cek Pesan** untuk periksa chat, **Web Resmi & Ciri Scam** untuk edukasi cek domain DJP, dan **Darurat .apk** khusus panduan pertolongan pertama kalau user telanjur *install* file berbahaya.
 - **Tampilan hasil dibuat to-the-point:** Begitu chat dicek, muncul status tegas (`BAHAYA / SCAM`, `WASPADA`, atau `AMAN`), pratinjau chat yang otomatis menandai warna pada file `.apk` atau link, lalu dua kotak singkat: **Kenapa?** dan **Solusi**. Tersedia juga tombol **Copy Alert** / **Share WA** supaya warga bisa langsung memperingatkan grup keluarga.
@@ -26,7 +26,7 @@
   2. **Live XAI Check:** membedah chat yang baru dicek, membandingkan skor `LinearSVC` vs `Random Forest` secara langsung, lengkap dengan 6 kata pemicu terkuat dan hasil pemotongan kata Sastrawi.
   3. **Demo WA Extension:** simulasi cara kerja ekstensi *WhatsApp Web* langsung di dalam modal (plus mode layar penuh di `/simulasi-wa`).
 
-### B. "Otak" Pembersih Teks & Prediksi (`src/eksperimen_baseline.py`, `inference.py`, `model_phishing_pajak.joblib`)
+### B. "Otak" Pembersih Teks & Prediksi (`ml/eksperimen_baseline.py`, `app/backend/inference.py`, `app/backend/model_phishing_pajak.joblib`)
 - **Pembersihan teks yang konsisten:** Chat yang masuk dibersihkan dulu memakai fungsi yang persis sama seperti waktu melatih model. Kata berimbuhan dipotong ke kata dasar memakai Sastrawi, sedangkan `.apk` dan link website diganti jadi penanda khusus (`token_apk` dan `token_url`). File `.apk` diproses duluan sebelum link supaya file seperti `coretax.id.apk` tidak salah dianggap website.
 - **Model yang dipakai:** File `model_phishing_pajak.joblib` (sekitar 1,19 MB) berisi kamus TF-IDF 3.000 kata/frasa dan dua model: **LinearSVC terkalibrasi Platt** sebagai model utama, serta **Random Forest** sebagai pembanding. Model dimuat satu kali ke memori (`cache`), jadi setiap cek pesan hanya butuh hitungan belasan milidetik di lokal (sekitar `66 ms` di Railway).
 - **Hybrid AI + Aturan Pajak:**
@@ -34,19 +34,19 @@
   2. **Aturan domain resmi `pajak.go.id`:** Sistem hanya mengakui domain yang persis `pajak.go.id` atau berakhiran `.pajak.go.id`. Jebakan seperti `pajak.go.id.verifikasi.xyz` tetap ditandai mencurigakan. Angka jam (`17.00`) atau nominal uang (`Rp1.500.000`) dijaga agar tidak salah dianggap alamat web.
 - **Alasan otomatis (XAI):** Sistem melihat bobot tiap kata di `LinearSVC`, membuang kata pajak netral (seperti *pajak* atau *NPWP*), lalu mengambil kata pemicu bernada mendesak atau ancaman (seperti *segera*, *denda*, *unduh*) untuk dijelaskan ke user dengan bahasa awam.
 
-### C. Peladen / Jembatan Backend (`06 Prototipe Aplikasi/api.py`)
+### C. Peladen / Jembatan Backend (`app/backend/api.py`)
 - Backend dibangun memakai **FastAPI** sebagai jembatan antara web/ekstensi dan model Python.
 - **Startup cepat:** Begitu server menyala (`lifespan`), model dan kamus Sastrawi langsung dipanaskan di memori supaya pengguna pertama tidak menunggu lama.
 - **Pengaman API:** Input dibatasi maksimal 5.000 karakter, setiap IP dibatasi maksimal 60 kali cek per menit supaya server tidak mudah di-spam (*rate limit*), dan respons dilengkapi *security header* standar web (`X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy`, `Permissions-Policy`).
 
-### D. Ekstensi Chrome WhatsApp Web (`06 Prototipe Aplikasi/extension/`)
+### D. Ekstensi Chrome WhatsApp Web (`app/extension/`)
 - Berkas: `manifest.json`, `content.js`, `background.js`, `popup.html`, `popup.js`, `styles.css`, dan `simulasi_whatsapp_web.html`.
 - `content.js` memantau gelembung chat baru yang muncul di `web.whatsapp.com` (mengabaikan daftar chat di samping dan teks kutipan/reply), lalu menempelkan tombol **Cek Pesan Pajak** tepat di dalam chat.
 - Saat tombol diklik, `background.js` mengirim teks ke API dan hasilnya langsung muncul sebagai lencana merah/kuning/hijau di bawah chat, tanpa user perlu copy-paste.
 
 ### E. Deployment Cloud & Pengujian (`Dockerfile`, `railway.json`, `render.yaml`, `tests/test_prototipe_api.py`)
 - **Dockerfile** memakai `python:3.11-slim`, hanya menginstal 8 library inti produksi dari `requirements-deploy.txt`, berjalan sebagai user non-root `appuser`, dan tidak membutuhkan `pandas` saat inferensi sehingga container ringan dan cepat dibangun.
-- **Pengujian Otomatis:** Seluruh fungsi API, deteksi `.apk`, anti-spoofing domain, penjagaan angka jam `17.00`, *rate limiter*, *security header*, dan halaman web terverifikasi lulus lewat **23 skenario `pytest`**.
+- **Pengujian Otomatis:** Seluruh fungsi API, deteksi `.apk`, anti-spoofing domain, penjagaan angka jam `17.00`, *rate limiter*, *security header*, halaman web, dan integritas dataset/model terverifikasi lulus lewat **29 fungsi uji `pytest`** (`16` di `test_prototipe_api.py` + `13` di modul integritas/eksperimen).
 
 ---
 
@@ -68,7 +68,7 @@ Gunakan **rumus 3 langkah** saat dosen menunjuk baris kode apa pun:
 2. **Alasannya:** kenapa ditulis seperti itu (bukan cara lain).
 3. **Dampaknya:** apa yang terjadi kalau baris ini tidak ada.
 
-### A. Syntax Praproses & Regex (`src/eksperimen_baseline.py`)
+### A. Syntax Praproses & Regex (`ml/eksperimen_baseline.py`)
 - **`re.sub(r"\.apk\b", " token_apk ", text)`**
   - *Cara jawab:* "`\.` artinya mencari karakter titik asli (bukan sembarang karakter), `\b` artinya batas akhir kata. Jadi hanya kata yang berakhiran `.apk` yang diubah jadi `token_apk`, dan ini dijalankan sebelum deteksi link supaya nama file seperti `coretax.id.apk` tidak ketukar jadi `token_url`."
 - **`re.sub(r"[^a-z0-9\s_]", " ", text)`**
@@ -76,7 +76,7 @@ Gunakan **rumus 3 langkah** saat dosen menunjuk baris kode apa pun:
 - **`lru_cache(maxsize=20000)(stemmer.stem)`**
   - *Cara jawab:* "Ini menyimpan hingga 20.000 hasil kata dasar Sastrawi di memori RAM. Kalau ada kata yang sama muncul lagi, tidak perlu dihitung ulang, jadi prosesnya jauh lebih cepat."
 
-### B. Syntax Deteksi & XAI (`06 Prototipe Aplikasi/inference.py`)
+### B. Syntax Deteksi & XAI (`app/backend/inference.py`)
 - **`clean == "pajak.go.id" or clean.endswith(".pajak.go.id")`**
   - *Cara jawab:* "Kami sengaja memakai `endswith('.pajak.go.id')`, bukan sekadar mencari kata `'pajak.go.id' in domain`. Kalau hanya pakai `in`, domain jebakan seperti `pajak.go.id.evil.com` bisa lolos dianggap resmi. Dengan `endswith`, akhiran domain harus benar-benar milik DJP."
 - **`URL_PATTERN` dengan `_BARE_TLD_LIST`**
@@ -86,7 +86,7 @@ Gunakan **rumus 3 langkah** saat dosen menunjuk baris kode apa pun:
 - **`score = tfidf_val * coef_val`**
   - *Cara jawab:* "Untuk XAI, bobot TF-IDF suatu kata pada pesan dikalikan dengan koefisien garis pemisah `LinearSVC`. Hasil positif mendorong ke arah *phishing*, sedangkan hasil negatif mendorong ke arah aman/resmi."
 
-### C. Syntax Backend FastAPI & Keamanan (`06 Prototipe Aplikasi/api.py`)
+### C. Syntax Backend FastAPI & Keamanan (`app/backend/api.py`)
 - **`@app.post("/predict")` dan `Field(..., min_length=1, max_length=5000)`**
   - *Cara jawab:* "`@app.post` adalah *decorator* FastAPI untuk menerima data JSON lewat metode POST, sedangkan `Field` dari Pydantic otomatis memvalidasi panjang teks minimal 1 dan maksimal 5.000 huruf. Kalau kosong atau kepanjangan, API otomatis menolak dengan kode HTTP `422`."
 - **`@asynccontextmanager` pada `lifespan`**
@@ -94,7 +94,7 @@ Gunakan **rumus 3 langkah** saat dosen menunjuk baris kode apa pun:
 - **`@app.middleware("http")`**
   - *Cara jawab:* "Middleware bekerja sebagai pos pemeriksaan di depan semua endpoint: setiap request `POST /predict` dicek batas per menitnya (*rate limit* `429`), dan setiap respons ditempeli *security headers* seperti `X-Frame-Options` dan `X-Content-Type-Options`."
 
-### D. Syntax Frontend Web & Ekstensi (`web/app.js` & `extension/content.js`)
+### D. Syntax Frontend Web & Ekstensi (`app/frontend/app.js` & `app/extension/content.js`)
 - **`document.createElement(...)` dan `.textContent = ...`**
   - *Cara jawab:* "Saya memakai `textContent`, bukan `innerHTML`, saat menampilkan teks pesan atau hasil analisis agar browser memperlakukannya murni sebagai teks biasa. Ini mencegah serangan XSS jika ada yang memasukkan kode `<script>` ke kotak pesan."
 - **`new AbortController()`**

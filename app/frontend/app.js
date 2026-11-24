@@ -567,7 +567,7 @@
     heroSub.className = "acad-hero-meta";
     heroSub.textContent =
       `${thesis.author || "Wan Mirza Dhani (240101020194)"} | ` +
-      `Pembimbing: ${thesis.advisor || "Bapak Novi Dian Nathasia, S.Kom., MMSI"} | ` +
+      `Pembimbing: ${thesis.advisor || "Bapak Novi Dian Nathasia, S.Kom., M.M.S.I."} | ` +
       `${thesis.program || "PJJ Sistem Informasi, Universitas Siber Asia"}`;
     hero.append(heroTitle, heroSub);
     container.appendChild(hero);

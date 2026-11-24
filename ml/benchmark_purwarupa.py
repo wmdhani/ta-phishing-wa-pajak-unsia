@@ -87,11 +87,46 @@ UJI_MATRIX_SPEC = (
         "Guard angka jam dan nominal agar tidak terdeteksi sebagai domain",
     ),
     (
-        "UJI-09",
+        "UJI-09a",
         "test_prototipe_api.py::test_web_ui_and_supporting_endpoints",
-        "GET / web Cek Pesan Pajak, /api/presets, dan /api/academic-summary",
+        "GET /, /simulasi-wa, /api/presets, /api/academic-summary, dan preflight",
+    ),
+    (
+        "UJI-09b",
+        "test_prototipe_api.py::test_security_headers_and_rate_limiter_helper",
+        "Helper pembatas laju _is_rate_limited dan pengecualian testclient",
     ),
     ("UJI-10", "suite integritas data & model (13 kasus)", "Validasi 5 korpus, SHA-256, deduplikasi, baseline, Platt, joblib"),
+    (
+        "UJI-11",
+        "test_prototipe_api.py::test_predict_apk_url_flags_apk_and_suspicious_domain",
+        "POST /predict tautan berakhiran .apk menandai has_apk dan suspicious_domains",
+    ),
+    (
+        "UJI-12",
+        "test_prototipe_api.py::test_security_csp_headers",
+        "Header Content-Security-Policy dan Permissions-Policy pada layanan",
+    ),
+    (
+        "UJI-13",
+        "test_prototipe_api.py::test_cors_strict_allowlist_and_private_network",
+        "CORS allowlist ketat dan Access-Control-Allow-Private-Network",
+    ),
+    (
+        "UJI-14",
+        "test_prototipe_api.py::test_batch_weighted_rate_limit_char_cap_and_probability_parity",
+        "Batas 100.000 karakter batch, rate limit berbobot (429), & paritas probabilitas",
+    ),
+    (
+        "UJI-15",
+        "test_prototipe_api.py::test_missing_model_returns_503_without_path_leak",
+        "HTTP 503 saat bundel model absen tanpa kebocoran path peladen",
+    ),
+    (
+        "UJI-16",
+        "test_prototipe_api.py::test_academic_summary_latency_benchmark",
+        "Kelengkapan metrik benchmark latensi pada /api/academic-summary",
+    ),
 )
 
 
@@ -223,7 +258,7 @@ def save_test_summary_csv(
     latency_info: dict[str, Any],
     out_csv: Path,
 ) -> None:
-    """Build combined CSV summarizing UJI-01..UJI-10 verification and inference latencies."""
+    """Build combined CSV summarizing UJI-01..UJI-16 verification and inference latencies."""
     cases = pytest_info["cases"]
     rows: list[dict[str, Any]] = []
 
@@ -273,7 +308,7 @@ def save_test_summary_csv(
                 "subjek": subjek,
                 "deskripsi": desc,
                 "jumlah_sampel_atau_uji": n_smp,
-                "status": "PASS (<100 ms)",
+                "status": "PASS (<100 ms)" if float(val) < 100.0 else "EXCEEDS_100MS (>=100 ms)",
                 "nilai_waktu_ms": val,
                 "satuan": unit,
             }
@@ -430,10 +465,12 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
   }}
   .web-stage .topbar {{ position: static; backdrop-filter: none; }}
   .web-stage .topbar-inner {{ padding: 10px 18px; }}
-  .web-stage .main-content {{ padding: 14px 18px 8px; }}
+  .web-stage .main-content {{ padding: 14px 18px 10px; }}
   .web-stage .workspace {{ grid-template-columns: 0.9fr 1.1fr; gap: 14px; }}
   .web-stage .surface {{ padding: 16px; }}
-  .web-stage .message-textarea {{ min-height: 110px; font-size: 0.85rem; }}
+  .web-stage .message-textarea {{ min-height: 104px; font-size: 0.85rem; }}
+  .web-stage .footer {{ padding: 10px 18px; margin-top: 8px; border-top: 1px solid var(--hairline); }}
+  .web-stage .footer-inner {{ padding: 0; }}
   .api-body {{ padding: 16px; display: flex; flex-direction: column; gap: 12px; }}
   .swagger-head {{ border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }}
   .swagger-head h2 {{ font-size: 16px; margin-bottom: 3px; }}
@@ -502,9 +539,9 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
         <div class="topbar-inner">
           <div class="brand">
             <div class="brand-mark">&#10003;</div>
-            <div>
+            <div class="brand-copy">
               <h1 class="brand-title">Cek Pesan Pajak</h1>
-              <p class="brand-subtitle">Cek chat WA Pajak: asli DJP atau scam?</p>
+              <p class="brand-subtitle">Verifikasi pesan WhatsApp mengatasnamakan DJP</p>
             </div>
           </div>
           <nav class="nav-tabs">
@@ -512,7 +549,6 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
             <span class="nav-tab">Web Resmi &amp; Ciri Scam</span>
             <span class="nav-tab nav-tab-alert">Darurat .apk</span>
           </nav>
-          <div class="status-pill status-ready"><span class="status-dot"></span><span>Siap</span></div>
         </div>
       </header>
 
@@ -520,21 +556,23 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
         <section class="workspace">
           <div class="surface">
             <div class="card-head">
-              <h2 class="card-title">Cek Chat WhatsApp</h2>
-              <p class="card-desc">Paste chat WA di bawah. Gratis &amp; teks tidak disimpan.</p>
+              <h2 class="card-title">Periksa Chat WhatsApp</h2>
+              <p class="card-desc">Tempel isi pesan di bawah. Teks tidak disimpan di&nbsp;server.</p>
             </div>
             <div class="toolbar">
-              <span class="btn-soft">Paste &amp; Cek</span>
-              <span class="btn-text">Clear</span>
+              <span class="btn-soft">Tempel &amp; Periksa</span>
+              <span class="btn-text">Bersihkan</span>
             </div>
-            <div class="message-textarea" style="background:#ffffff; border-color:var(--brand);">{html.escape(apk_case["input_text"])}</div>
+            <div class="recessed-tray">
+              <div class="message-textarea" style="background: rgba(255,255,255,0.55); border-color: var(--accent);">{html.escape(apk_case["input_text"])}</div>
+            </div>
             <div class="input-meta">
-              <span>{len(apk_case["input_text"])} / 5.000</span>
-              <span>Ctrl+Enter</span>
+              <span class="tabular-readout">{len(apk_case["input_text"])} / 5.000</span>
+              <span class="shortcut-hint">Ctrl + Enter</span>
             </div>
-            <div class="btn-primary">Cek Sekarang</div>
+            <div class="btn-primary">Periksa Pesan</div>
             <div class="presets-block">
-              <span class="presets-label">Contoh cepat:</span>
+              <span class="presets-label">Uji contoh cepat:</span>
               <div class="presets-grid">
                 <div class="preset-pill active"><span class="preset-tag tone-danger">Scam</span><span class="preset-name">File .apk Palsu</span></div>
                 <div class="preset-pill"><span class="preset-tag tone-danger">Scam</span><span class="preset-name">Link Pajak Palsu</span></div>
@@ -550,13 +588,13 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
                   <div class="verdict-head-text">
                     <div class="verdict-badges-row">
                       <span class="verdict-badge">{html.escape(r["risk_badge"])}</span>
-                      <span class="confidence-pill">{html.escape(r["confidence_note"])}</span>
+                      <span class="confidence-pill tabular-readout">{html.escape(r["confidence_note"])}</span>
                     </div>
                     <h2 class="verdict-title">{html.escape(r["risk_title"])}</h2>
                   </div>
                 </div>
                 <p class="verdict-summary">{html.escape(r["verdict_summary"])}</p>
-                <div class="meter-track"><div class="meter-fill" style="width:{max(round(r['svm_probability']*100), 92)}%;"></div></div>
+                <div class="meter-track"><div class="meter-fill" style="--meter-scale: {max(r['svm_probability'], 0.92):.4f};"></div></div>
               </div>
 
               <div class="bubble-section">
@@ -570,24 +608,30 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
 
               <div class="details-split">
                 <div class="detail-col">
-                  <h3 class="mini-heading">Kenapa?</h3>
+                  <h3 class="mini-heading">Alasan Deteksi</h3>
                   <ul class="compact-reasons">{reasons_html}</ul>
                 </div>
                 <div class="detail-col">
-                  <h3 class="mini-heading">Solusi</h3>
+                  <h3 class="mini-heading">Langkah Aman</h3>
                   <ul class="compact-actions">{actions_html}</ul>
                 </div>
               </div>
 
               <div class="result-footer-actions">
-                <span class="btn-soft">Copy Alert</span>
-                <span class="btn-soft-link">Share WA</span>
-                <span class="btn-danger-pill">Sudah Install .apk? Buka Darurat</span>
+                <span class="btn-soft">Salin Peringatan</span>
+                <span class="btn-soft-link">Bagikan ke WA</span>
+                <span class="btn-danger-pill">Terlanjur Pasang .apk? Buka Darurat</span>
               </div>
             </div>
           </div>
         </section>
       </main>
+      <footer class="footer">
+        <div class="footer-inner">
+          <p class="footer-note"><strong>Cek Pesan Pajak</strong> | Situs resmi: <strong>pajak.go.id</strong> | Kring&nbsp;Pajak:&nbsp;<strong>1500200</strong></p>
+          <span class="footer-academic-btn"><span>Info Akademik</span><span class="footer-academic-badge">TA UNSIA</span></span>
+        </div>
+      </footer>
     </div>
   </div>
 
@@ -602,7 +646,7 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
     </div>
     <div class="api-body">
       <div class="swagger-head">
-        <h2>Cek Pesan Pajak REST API <span style="font-size:11px; background:#e2e8f0; padding:2px 6px; border-radius:4px;">v2.0.0</span></h2>
+        <h2>Cek Pesan Pajak REST API <span style="font-size:11px; background:#e2e8f0; padding:2px 6px; border-radius:4px;">v2.1.0</span></h2>
         <div class="swagger-sub">Layanan web terpadu &amp; REST API berbasis LinearSVC (Kalibrasi Platt) + Heuristik DJP</div>
       </div>
       <div class="endpoint-pill">
@@ -1286,13 +1330,17 @@ def generate_methodology_and_ui_diagrams() -> None:
 
 
 def generate_prototype_screenshots(
-    presets_out: dict[str, Any], latency_info: dict[str, Any]
+    presets_out: dict[str, Any],
+    latency_info: dict[str, Any],
+    include_methodology_diagrams: bool = False,
 ) -> None:
+    """Perbarui tangkapan layar purwarupa Bab IV tanpa menimpa diagram Bab I-III atau simulasi_whatsapp_web.html."""
     EXT_DIR.mkdir(parents=True, exist_ok=True)
     sim_html_path = EXT_DIR / "simulasi_whatsapp_web.html"
-    sim_html_path.write_text(
-        _build_whatsapp_simulation_html(presets_out), encoding="utf-8"
-    )
+    if not sim_html_path.exists():
+        sim_html_path.write_text(
+            _build_whatsapp_simulation_html(presets_out), encoding="utf-8"
+        )
 
     stale_names = (
         "Gambar 3.2 Rancangan Antarmuka Purwarupa dan Ekstensi.png",
@@ -1310,7 +1358,6 @@ def generate_prototype_screenshots(
         if old_path.exists():
             old_path.unlink()
 
-    arch_png = ASSET_DIR / "Gambar 3.1 Arsitektur Sistem Terpadu.png"
     web_png = (
         ASSET_DIR
         / "Gambar 4.5 Tangkapan Layar Antarmuka Web Cek Pesan Pajak dan Respons API.png"
@@ -1320,19 +1367,20 @@ def generate_prototype_screenshots(
         / "Gambar 4.6 Tangkapan Layar Ekstensi Chrome pada Simulasi WhatsApp Web.png"
     )
 
-    generate_methodology_and_ui_diagrams()
+    if include_methodology_diagrams:
+        generate_methodology_and_ui_diagrams()
+        arch_png = ASSET_DIR / "Gambar 3.1 Arsitektur Sistem Terpadu.png"
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".html", encoding="utf-8", delete=False
+        ) as tmp_arch:
+            tmp_arch.write(_build_architecture_diagram_html())
+            tmp_arch_html = Path(tmp_arch.name)
+        try:
+            _capture_html_png(tmp_arch_html, arch_png, width=1500, height=790)
+        finally:
+            tmp_arch_html.unlink(missing_ok=True)
+
     copy_evaluation_figures()
-
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".html", encoding="utf-8", delete=False
-    ) as tmp_arch:
-        tmp_arch.write(_build_architecture_diagram_html())
-        tmp_arch_html = Path(tmp_arch.name)
-
-    try:
-        _capture_html_png(tmp_arch_html, arch_png, width=1500, height=790)
-    finally:
-        tmp_arch_html.unlink(missing_ok=True)
 
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".html", encoding="utf-8", delete=False
@@ -1341,11 +1389,11 @@ def generate_prototype_screenshots(
         tmp_html = Path(tmp.name)
 
     try:
-        _capture_html_png(tmp_html, web_png, width=1600, height=880)
+        _capture_html_png(tmp_html, web_png, width=1600, height=920)
     finally:
         tmp_html.unlink(missing_ok=True)
 
-    _capture_html_png(sim_html_path, ext_png, width=1600, height=900)
+    _capture_html_png(sim_html_path, ext_png, width=1520, height=880)
 
 
 def main() -> None:

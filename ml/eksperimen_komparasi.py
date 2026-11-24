@@ -38,6 +38,7 @@ from sklearn.metrics import (
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
+from scipy.stats import binomtest
 
 from ml.eksperimen_baseline import STEM_WORD, STOP_WORDS, URL_PATTERN, clean_text
 
@@ -127,6 +128,7 @@ def _compute_metrics(
         "accuracy": float(accuracy_score(y_true, y_pred)),
         "precision": float(precision_score(y_true, y_pred, zero_division=0)),
         "recall": float(recall_score(y_true, y_pred, zero_division=0)),
+        "specificity": float(tn / (tn + fp)) if (tn + fp) > 0 else 0.0,
         "f1": float(f1_score(y_true, y_pred, zero_division=0)),
         "f1_macro": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
         "tn": int(tn),
@@ -151,6 +153,72 @@ def _compute_metrics(
         metrics["pr_auc"] = float(average_precision_score(y_true, y_score))
 
     return metrics
+
+
+def _compute_holdout_uncertainty_and_significance(
+    y_test: np.ndarray,
+    pred_svm: np.ndarray,
+    proba_svm: np.ndarray,
+    pred_rf: np.ndarray,
+    proba_rf: np.ndarray,
+    n_bootstrap: int = 2000,
+) -> dict[str, Any]:
+    """Hitung uji McNemar eksak, CI bootstrap 95%, dan pita ketidakpastian [0.2, 0.8]."""
+    svm_ok = pred_svm == y_test
+    rf_ok = pred_rf == y_test
+    b = int(np.sum(svm_ok & (~rf_ok)))
+    c = int(np.sum((~svm_ok) & rf_ok))
+    discordant = b + c
+    p_val = (
+        float(binomtest(min(b, c), discordant, p=0.5, alternative="two-sided").pvalue)
+        if discordant > 0
+        else 1.0
+    )
+
+    rng = np.random.default_rng(RANDOM_STATE)
+    n = len(y_test)
+    svm_acc_boot = np.empty(n_bootstrap, dtype=float)
+    rf_acc_boot = np.empty(n_bootstrap, dtype=float)
+    svm_f1_boot = np.empty(n_bootstrap, dtype=float)
+    rf_f1_boot = np.empty(n_bootstrap, dtype=float)
+    for i in range(n_bootstrap):
+        idx = rng.integers(0, n, size=n)
+        yb = y_test[idx]
+        svm_acc_boot[i] = accuracy_score(yb, pred_svm[idx])
+        rf_acc_boot[i] = accuracy_score(yb, pred_rf[idx])
+        svm_f1_boot[i] = f1_score(yb, pred_svm[idx], zero_division=0)
+        rf_f1_boot[i] = f1_score(yb, pred_rf[idx], zero_division=0)
+
+    def _ci_bounds(arr: np.ndarray) -> list[float]:
+        lo, hi = np.percentile(arr, [2.5, 97.5])
+        return [float(lo), float(hi)]
+
+    svm_unc_count = int(np.sum((proba_svm >= 0.2) & (proba_svm <= 0.8)))
+    rf_unc_count = int(np.sum((proba_rf >= 0.2) & (proba_rf <= 0.8)))
+    return {
+        "mcnemar": {
+            "svm_correct_rf_error": b,
+            "svm_error_rf_correct": c,
+            "discordant_total": discordant,
+            "p_value_exact_two_sided": p_val,
+        },
+        "bootstrap_95ci": {
+            "n_bootstrap": n_bootstrap,
+            "random_state": RANDOM_STATE,
+            "svm_calibrated_accuracy": _ci_bounds(svm_acc_boot),
+            "svm_calibrated_f1": _ci_bounds(svm_f1_boot),
+            "random_forest_accuracy": _ci_bounds(rf_acc_boot),
+            "random_forest_f1": _ci_bounds(rf_f1_boot),
+        },
+        "uncertainty_band": {
+            "lower": 0.2,
+            "upper": 0.8,
+            "svm_calibrated_count": svm_unc_count,
+            "svm_calibrated_ratio": float(svm_unc_count / n) if n else 0.0,
+            "random_forest_count": rf_unc_count,
+            "random_forest_ratio": float(rf_unc_count / n) if n else 0.0,
+        },
+    }
 
 
 def _make_calibrated_svm_pipeline(svm_best_params: dict[str, Any]) -> CalibratedClassifierCV:
@@ -335,7 +403,7 @@ def _run_stage2_and_3_tuning_calibration(
     idx_test: np.ndarray,
     folds_train: list[tuple[Any, np.ndarray, Any, np.ndarray]],
 ) -> dict[str, Any]:
-    """Jalankan GridSearch 10-Fold pada 931 data latih dan kalibrasi Platt pada LinearSVC."""
+    """Jalankan pencarian grid 10-Fold terisolasi pada 927 data latih dan kalibrasi Platt pada LinearSVC."""
     x_train = df_primary.loc[idx_train, "teks_sastrawi"]
     x_test = df_primary.loc[idx_test, "teks_sastrawi"]
     y_train = df_primary.loc[idx_train, "label"].to_numpy()
@@ -380,6 +448,10 @@ def _run_stage2_and_3_tuning_calibration(
     rf_tuned_pred = rf_tuned.predict(x_test_tf)
     rf_tuned_proba = rf_tuned.predict_proba(x_test_tf)[:, 1]
 
+    holdout_stats = _compute_holdout_uncertainty_and_significance(
+        y_test, cal_pred, cal_proba, rf_tuned_pred, rf_tuned_proba
+    )
+
     return {
         "best_params": {"svm_linear": svm_best_params, "random_forest": rf_best_params},
         "cv_10fold_tuned": {"svm_linear": svm_cv_summary, "random_forest": rf_cv_summary},
@@ -388,6 +460,7 @@ def _run_stage2_and_3_tuning_calibration(
             "svm_calibrated": _compute_metrics(y_test, cal_pred, y_prob=cal_proba),
             "random_forest": _compute_metrics(y_test, rf_tuned_pred, y_prob=rf_tuned_proba),
         },
+        "holdout_stats": holdout_stats,
         "grid_df": grid_df,
         "models_holdout": {
             "vectorizer": vec_main,
@@ -1237,11 +1310,18 @@ def _build_markdown_report(
     if not err_lines:
         err_lines.append("- Tidak ada kesalahan prediksi pada kedua model di himpunan uji.")
 
+    theo_svm = ext_s["per_source"]["Korpus_Umum_Theodorus2021_IEEE"]["svm_calibrated"]
+    saragih_svm = ext_s["per_source"]["Korpus_Umum_Saragih2024"]["svm_calibrated"]
+    h_stats = stage2_3["holdout_stats"]
+    mcnemar = h_stats["mcnemar"]
+    boot_svm_acc = h_stats["bootstrap_95ci"]["svm_calibrated_accuracy"]
+    unc = h_stats["uncertainty_band"]
+
     return "\n".join(
         [
             "# Laporan Hasil Eksperimen Komparasi SVM Linear dan Random Forest",
             "",
-            f"Seluruh rangkaian eksperimen dijalankan secara otomatis oleh `src/eksperimen_komparasi.py` dengan total waktu komputasi **{runtime_sec:.2f} detik**.",
+            f"Seluruh rangkaian eksperimen dijalankan secara otomatis oleh `ml/eksperimen_komparasi.py` dengan total waktu komputasi **{runtime_sec:.2f} detik**.",
             "",
             f"## 1. Reproduksi Baseline (Holdout 80:20 Korpus Utama {counts['primary_rows']} Baris Unik dari {counts['primary_raw_rows']} Mentah)",
             "",
@@ -1259,6 +1339,8 @@ def _build_markdown_report(
             "| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
             f"| SVM Linear (Platt Sigmoid) | {_format_pct(h_svm['accuracy'])} | {_format_pct(h_svm['precision'])} | {_format_pct(h_svm['recall'])} | {_format_pct(h_svm['f1'])} | {h_svm['roc_auc']:.4f} | {h_svm['pr_auc']:.4f} | {h_svm['brier_score']:.5f} | {h_svm['log_loss']:.5f} |",
             f"| Random Forest (Tuned) | {_format_pct(h_rf['accuracy'])} | {_format_pct(h_rf['precision'])} | {_format_pct(h_rf['recall'])} | {_format_pct(h_rf['f1'])} | {h_rf['roc_auc']:.4f} | {h_rf['pr_auc']:.4f} | {h_rf['brier_score']:.5f} | {h_rf['log_loss']:.5f} |",
+            "",
+            f"- **Uji Signifikansi & Ketidakpastian Holdout:** McNemar eksak dua sisi (`b={mcnemar['svm_correct_rf_error']}`, `c={mcnemar['svm_error_rf_correct']}`) menghasilkan `p = {mcnemar['p_value_exact_two_sided']:.4f}`; *bootstrap* 95% CI akurasi `SVM` sebesar **{_format_pct(boot_svm_acc[0])}–{_format_pct(boot_svm_acc[1])}**; serta jumlah skor di pita ragu `[0,2, 0,8]` sebanyak **{unc['svm_calibrated_count']}** ({_format_pct(unc['svm_calibrated_ratio'])}) untuk SVM berbanding **{unc['random_forest_count']}** ({_format_pct(unc['random_forest_ratio'])}) untuk Random Forest.",
             "",
             "## 4. Studi Ablatif Praproses dan Representasi Fitur TF-IDF",
             "",
@@ -1287,8 +1369,8 @@ def _build_markdown_report(
             "",
             f"- **Stabilitas Lintas-Lipatan vs Varians Holdout Tunggal:** SVM Linear unggul konsisten pada seluruh skenario 10-Fold CV (korpus utama `{t_cv_svm['f1_mean'] * 100:.2f}%` vs `{t_cv_rf['f1_mean'] * 100:.2f}%`, korpus pajak `{tax_s['cv_10fold_tax_260_svm']['f1_mean'] * 100:.2f}%` vs `{tax_s['cv_10fold_tax_260_rf']['f1_mean'] * 100:.2f}%`, korpus diperluas `{e2521['cv_10fold_svm']['f1_mean'] * 100:.2f}%` vs `{e2521['cv_10fold_rf']['f1_mean'] * 100:.2f}%`), holdout korpus diperluas (`{_format_pct(e2521['holdout_svm_calibrated']['accuracy'])}` vs `{_format_pct(e2521['holdout_random_forest']['accuracy'])}`), zero-shot eksternal (F1 `{_format_pct(ext_s['combined_svm_calibrated']['f1'])}` vs `{_format_pct(ext_s['combined_random_forest']['f1'])}`), ROC-AUC/PR-AUC (`{h_svm['roc_auc']:.4f}`/`{h_svm['pr_auc']:.4f}` vs `{h_rf['roc_auc']:.4f}`/`{h_rf['pr_auc']:.4f}`), serta Brier Score (`{h_svm['brier_score']:.5f}` vs `{h_rf['brier_score']:.5f}`). Selisih 1–2 sampel pada ambang diskrit `0.5` di holdout utama (`n = {counts['test_rows']}`) berada dalam rentang simpangan baku CV (`±{t_cv_svm['f1_std'] * 100:.2f}%`).",
             "- **Interpretasi Studi Ablatif & Token Generik `token_url`:** Konfigurasi utama (`teks_sastrawi`, bigram `(1, 2)`, `3.000` fitur) dipilih karena meraih rata-rata F1 10-Fold CV tertinggi pada SVM (`97.16%`), mengungguli skenario tanpa token entitas (`95.81%`) dan unigram saja (`95.94%`). Variasi pada holdout tunggal (`1_Tanpa_Token_Entitas` `97.84%`) dipengaruhi ukuran uji (`1` sampel = `0.43%`) serta penyamaran domain resmi `pajak.go.id` dan tautan penipu ke satu token generik `token_url`.",
-            "- **Justifikasi Empiris Lapisan Heuristik Purwarupa (`idx=960` & `idx=1082`):** Kasus `idx=960` (pesan `.apk` bergaya birokratis formal dengan `p_svm = 0.424`) dan `idx=1082` (siaran resmi pemadanan NIK bermuatan `www.pajak.go.id` dengan `p_svm = 0.551`) membuktikan keterbatasan TF-IDF murni dan menjustifikasi aturan hibrida `has_apk` serta `is_official_djp_domain` pada `06 Prototipe Aplikasi/inference.py`.",
-            f"- **Rincian Zero-Shot Lintas-Korpus & Ketimpangan Subset Saragih:** Pada `{ext_s['unseen_external_rows']}` pesan eksternal unik, SVM mempertahankan Recall `{_format_pct(ext_s['combined_svm_calibrated']['recall'])}` namun mengalami penurunan spesifisitas (`58.40%`, `FP = {ext_s['combined_svm_calibrated']['fp']}`) akibat *domain shift* kosakata SMS normal lintas-periode (2016 vs 2021–2024). Khusus subset `Korpus_Umum_Saragih2024` (`n = 94` pascadeduplikasi 248 baris Rahmi), komposisi kelas sangat timpang (`90` penipuan : `4` normal), sehingga `f1_macro` dan `roc_auc` subset tersebut tidak diinterpretasikan secara terpisah.",
+            "- **Justifikasi Empiris Lapisan Heuristik Purwarupa (`idx=960` & `idx=1082`):** Kasus `idx=960` (pesan `.apk` bergaya birokratis formal dengan `p_svm = 0.424`) dan `idx=1082` (siaran resmi pemadanan NIK bermuatan `www.pajak.go.id` dengan `p_svm = 0.551`) membuktikan keterbatasan TF-IDF murni dan menjustifikasi aturan hibrida `has_apk` serta `is_official_djp_domain` pada `app/backend/inference.py`.",
+            f"- **Rincian Zero-Shot Lintas-Korpus & Ketimpangan Subset Saragih:** Pada `{ext_s['unseen_external_rows']}` pesan eksternal unik, SVM mempertahankan Recall `{_format_pct(ext_s['combined_svm_calibrated']['recall'])}` namun mengalami penurunan presisi (`{_format_pct(ext_s['combined_svm_calibrated']['precision'])}`) dan spesifisitas gabungan (`{_format_pct(ext_s['combined_svm_calibrated']['specificity'])}`, `FP = {ext_s['combined_svm_calibrated']['fp']}`) akibat *domain shift* kosakata SMS normal lintas-periode (2016 vs 2021–2024). Pada subset `Korpus_Umum_Theodorus2021_IEEE` (`n = {theo_svm['n_samples']}`), SVM meraih presisi `{_format_pct(theo_svm['precision'])}` dengan spesifisitas `{_format_pct(theo_svm['specificity'])}` (`FP = {theo_svm['fp']}`); sementara pada subset `Korpus_Umum_Saragih2024` (`n = {saragih_svm['n_samples']}`, `FP = {saragih_svm['fp']}`, `90` penipuan : `4` normal), komposisi kelas sangat timpang sehingga `f1_macro` dan `roc_auc` subset tersebut tidak diinterpretasikan secara terpisah.",
             "- **Skala SHAP & Artefak Anonimisasi Korpus Dasar:** Nilai `LinearExplainer` bekerja pada satuan margin hyperplane sedangkan `TreeExplainer` bekerja pada satuan probabilitas, sehingga perbandingan lintas model mengacu pada peringkat fitur dan `arah_dominan` saat fitur aktif (`x_test > 0`). Munculnya `nama1` (`-1.272`) dan `2016` (`-0.666`) merupakan artefak anonimisasi korpus SMS Rahmi 2016, sedangkan ketahanan terhadap kosakata pajak dibuktikan melalui evaluasi terpisah pada 260 baris korpus pajak seimbang.",
             "",
         ]
@@ -1369,6 +1451,7 @@ def run_all_experiments(save_outputs: bool = True) -> dict[str, Any]:
             "svm_linear_uncalibrated": stage2_3["holdout_tuned"]["svm_linear"],
             "svm_calibrated": stage2_3["holdout_tuned"]["svm_calibrated"],
             "random_forest": stage2_3["holdout_tuned"]["random_forest"],
+            **stage2_3["holdout_stats"],
             "holdout_proba_svm_calibrated": stage2_3["holdout_arrays"]["proba_svm_calibrated_matrix"].tolist(),
         },
         "ablation": df_ablation.to_dict(orient="records"),
@@ -1416,7 +1499,7 @@ def run_all_experiments(save_outputs: bool = True) -> dict[str, Any]:
                 "trained_on": "Dataset Gabungan Utama Biner 1164 Baris.csv",
                 "n_samples": len(df_primary),
                 "deduplicated_on": "teks_sastrawi",
-                "preprocessing": "src.eksperimen_baseline.clean_text",
+                "preprocessing": "ml.eksperimen_baseline.clean_text",
                 "svm_best_params": stage2_3["best_params"]["svm_linear"],
                 "rf_best_params": stage2_3["best_params"]["random_forest"],
                 "holdout_accuracy_svm": stage2_3["holdout_tuned"]["svm_calibrated"]["accuracy"],

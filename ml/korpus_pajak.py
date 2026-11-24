@@ -564,14 +564,6 @@ SOURCE_METADATA: dict[str, SourceMeta] = {
         "tanggal_publikasi": "2024-09-21",
         "url": "https://finance.detik.com/berita-ekonomi-bisnis/d-7551672/awas-penipuan-mengatasnamakan-djp-begini-modusnya",
     },
-    "SRC-069": {
-        "id_sumber": "SRC-069",
-        "kategori_sumber": "Portal_Berita_Pajak_dan_Cek_Fakta",
-        "instansi_penerbit": "DetikFinance",
-        "nomor_dokumen_resmi": "DetikFinance: Daftar Modus Penipuan Pajak",
-        "tanggal_publikasi": "2024-10-14",
-        "url": "https://finance.detik.com/berita-ekonomi-bisnis/d-7587421/waspada-ini-daftar-modus-penipuan-terbaru- catut-nama-djp",
-    },
 }
 
 
