@@ -4,7 +4,7 @@
 
 ## Sebagai Salah Satu Syarat untuk Memperoleh Gelar Sarjana Komputer pada Program Studi PJJ Sistem Informasi
 
-![Logo Universitas Siber Asia](Aset Gambar/Logo UNSIA.png)
+![Logo Universitas Siber Asia](../../aset-gambar/Logo UNSIA.png)
 
 ## Oleh :
 
@@ -20,7 +20,7 @@
 
 # HALAMAN PERNYATAAN ORISINALITAS
 
-Saya yang bertanda-tangan di bawah ini:
+Saya yang bertanda tangan di bawah ini:
 
 | Atribut Identitas | Keterangan Mahasiswa |
 | :--- | :--- |
@@ -28,15 +28,15 @@ Saya yang bertanda-tangan di bawah ini:
 | NIM | 240101020194 |
 | Judul Tugas Akhir | Komparasi Algoritma Support Vector Machine dan Random Forest dalam Deteksi Pesan Phishing WhatsApp Mengatasnamakan Otoritas Perpajakan |
 
-Menyatakan dengan sesungguhnya bahwa Tugas Akhir ini merupakan hasil penelitian, pemikiran dan pemaparan asli saya sendiri. Saya tidak mencantumkan tanpa pengakuan bahan-bahan yang telah dipublikasikan sebelumnya atau ditulis oleh orang lain, atau sebagai bahan yang pernah diajukan untuk gelar atau ijazah pada Universitas Siber Asia atau Perguruan Tinggi lainnya.
+Menyatakan dengan sesungguhnya bahwa Tugas Akhir ini merupakan hasil penelitian, pemikiran, dan pemaparan asli saya sendiri. Saya tidak mencantumkan tanpa pengakuan bahan-bahan yang telah dipublikasikan sebelumnya atau ditulis oleh orang lain, atau sebagai bahan yang pernah diajukan untuk gelar atau ijazah pada Universitas Siber Asia atau Perguruan Tinggi lainnya.
 
 Apabila di kemudian hari terdapat penyimpangan dan ketidakbenaran dalam pernyataan ini, maka saya bersedia menerima sanksi akademik sesuai dengan peraturan yang berlaku di Universitas Siber Asia.
 
 Demikian pernyataan ini saya buat.
 
-| Tempat dan Tanggal | Tanda Tangan di Atas Materai Rp10.000 | Nama Lengkap Mahasiswa |
+| Tempat dan Tanggal | Tanda Tangan di Atas Meterai Rp10.000 | Nama Lengkap Mahasiswa |
 | :--- | :---: | :--- |
-| Jakarta, ...... / ................ / 2026 | (materai Rp 10.000,-) | (Wan Mirza Dhani) |
+| Jakarta, ...... / ................ / 2026 | (meterai Rp10.000) | (Wan Mirza Dhani) |
 
 ---
 
@@ -57,9 +57,9 @@ Telah berhasil dipertahankan di hadapan Dewan Penguji dan diterima sebagai bagia
 | :--- | :--- | :--- |
 | Ketua Sidang / Dosen Penguji I | (..........................................) | .......................... |
 | Dosen Penguji II | (..........................................) | .......................... |
-| Dosen Pembimbing I | (Novi Dian Nathasia, S.Kom., MMSI) | .......................... |
+| Dosen Pembimbing I | (Novi Dian Nathasia, S.Kom., M.M.S.I.) | .......................... |
 | Dosen Pembimbing II | (..........................................) | .......................... |
-| Ketua Program Studi | (Vika Febri Muliati, S.Kom., M.Kom) | .......................... |
+| Ketua Program Studi | (Vika Febri Muliati, S.Kom., M.Kom.) | .......................... |
 | Ditetapkan di | Jakarta | |
 | Tanggal | ...... / ................ / 2026 | |
 
@@ -67,13 +67,13 @@ Telah berhasil dipertahankan di hadapan Dewan Penguji dan diterima sebagai bagia
 
 # ABSTRAK
 
-Pelaku *phishing* di WhatsApp yang mengaku sebagai Direktorat Jenderal Pajak kerap mengirim berkas `.apk` atau tautan *Coretax* palsu kepada korban. Penelitian ini membandingkan algoritma *Support Vector Machine* (`LinearSVC`) dan *Random Forest* menggunakan fitur *Term Frequency-Inverse Document Frequency* (TF-IDF), lalu menanamkan model terbaik ke aplikasi web *Cek Pesan Pajak* serta ekstensi peramban *WhatsApp Web*. Dataset induk berjumlah 1.164 teks (904 pesan umum dan 260 pesan pajak berimbang) yang menghasilkan 1.159 teks unik pascadeduplikasi *stopword removal* dan *stemming* Sastrawi. Pada validasi silang sepuluh lipatan (*10-Fold CV*), `LinearSVC` meraih *F1-Score* 97,16% (*Accuracy* 97,74%) mengungguli *Random Forest* sebesar 94,07% (*Accuracy* 95,25%), serta mencapai *F1-Score* 98,17% pada korpus pajak 260 baris. Uji kontrol membuktikan pelatihan SMS umum saja hanya meraih akurasi 42,22% pada subset pajak, sedangkan korpus berimbang mengangkat akurasi menjadi 95,56%. Setelah kalibrasi *Platt scaling* berbasis *Pipeline*, `LinearSVC` mencatat akurasi *holdout* 95,69% (*ROC-AUC* 0,9957; *Brier Score* 0,02542) yang lebih terkalibrasi daripada *Random Forest* (*Brier Score* 0,04214), serta unggul pada korpus diperluas 2.519 baris (96,03% berbanding 92,46%). Integrasi model ke FastAPI dan ekstensi peramban bersama penjaga heuristik `.apk` serta `pajak.go.id` memampukan verifikasi langsung berbahasa awam.
+Pelaku *phishing* di WhatsApp yang mengaku sebagai Direktorat Jenderal Pajak kerap mengirim berkas `.apk` berbahaya atau tautan *Coretax* palsu. Penelitian ini membandingkan *Support Vector Machine* (`LinearSVC`) dan *Random Forest* memakai pembobotan *Term Frequency-Inverse Document Frequency* (TF-IDF), lalu menanamkan model terbaik ke purwarupa web *Cek Pesan Pajak* serta ekstensi *WhatsApp Web*. Dataset induk kurasi berjumlah 1.164 teks (904 pesan singkat umum publik dan 260 pesan pajak berimbang), menghasilkan 1.159 teks unik pascapembersihan kata umum, *stemming* Sastrawi, serta deduplikasi. Pada validasi silang sepuluh lipatan dengan TF-IDF unigram-bigram, `LinearSVC` meraih *F1-Score* 97,16% (*Accuracy* 97,74%) mengungguli *Random Forest* 94,07% (*Accuracy* 95,25%), serta mencapai *F1-Score* 98,17% pada korpus pajak 260 baris. Uji kontrol membuktikan pelatihan pesan umum saja hanya meraih akurasi 42,22% pada subset pajak, sedangkan korpus berimbang mengangkatnya ke 95,56%. Setelah kalibrasi *Platt scaling*, akurasi *holdout* `LinearSVC` (95,69%) berbeda tidak bermakna terhadap *Random Forest* (96,55%; McNemar p = 0,7266), tetapi jauh lebih terkalibrasi (*Brier Score* 0,02542 berbanding 0,04214; *ROC-AUC* 0,9957) dan unggul pada korpus diperluas 2.519 baris (96,03% berbanding 92,46%). Integrasi model bersama penjaga `.apk` dan `pajak.go.id` ke FastAPI serta ekstensi memfasilitasi verifikasi instan dalam uji simulasi lokal.
 
 Kata Kunci: Deteksi Phishing, Otoritas Perpajakan, Random Forest, Support Vector Machine, TF-IDF.
 
 # ABSTRACT
 
-Scammers impersonating Indonesia's Directorate General of Taxes on WhatsApp frequently send malicious `.apk` files or fake *Coretax* links. This study compares *Support Vector Machine* (`LinearSVC`) and *Random Forest* classifiers using *Term Frequency-Inverse Document Frequency* (TF-IDF) features, then embeds the calibrated model into the *Cek Pesan Pajak* web application and a *WhatsApp Web* browser extension. The primary dataset comprises 1,164 Indonesian texts (904 general messages and 260 balanced tax messages), yielding 1,159 unique texts after Sastrawi stopword removal, stemming, and deduplication. Under stratified 10-fold cross-validation, `LinearSVC` achieved a 97.16% *F1-Score* (97.74% accuracy), outperforming *Random Forest* at 94.07% (95.25% accuracy), while reaching a 98.17% *F1-Score* on the 260-row tax corpus. A control experiment showed general SMS training alone reached only 42.22% accuracy on tax messages, whereas balanced curation lifted accuracy to 95.56%. Following pipeline-isolated Platt scaling, `LinearSVC` recorded 95.69% holdout accuracy (0.9957 *ROC-AUC*, 0.02542 *Brier Score*), outperforming *Random Forest* (0.04214 *Brier Score*) and leading on the 2,519-row extended corpus (96.03% versus 92.46%). Integrating the model with `.apk` and official `pajak.go.id` guards into FastAPI and a browser extension enables instant plain-language verification.
+Scammers impersonating Indonesia's Directorate General of Taxes on WhatsApp frequently send malicious `.apk` files or fake *Coretax* links. This study compares *Support Vector Machine* (`LinearSVC`) and *Random Forest* classifiers using *Term Frequency-Inverse Document Frequency* (TF-IDF) features, embedding the calibrated winner into the *Cek Pesan Pajak* web prototype and a *WhatsApp Web* extension. The curated primary dataset comprises 1,164 Indonesian texts (904 public short messages and 260 balanced tax messages), yielding 1,159 unique texts after stopword removal, Sastrawi stemming, and deduplication. Under ten-fold cross-validation on unigram-bigram TF-IDF, `LinearSVC` achieved a 97.16% *F1-Score* (97.74% accuracy) over *Random Forest* at 94.07% (95.25% accuracy), while reaching 98.17% on the 260-row tax corpus. Training on general messages alone reached 42.22% accuracy on the tax subset, whereas balanced curation lifted it to 95.56%. Following Platt scaling, `LinearSVC` holdout accuracy (95.69%) did not differ significantly from *Random Forest* (96.55%; McNemar p = 0.7266), yet proved better calibrated (*Brier Score* 0.02542 versus 0.04214; *ROC-AUC* 0.9957) and led on the 2,519-row corpus (96.03% versus 92.46%). Integrating the model with `.apk` and `pajak.go.id` guards into FastAPI and the extension supports instant verification in local simulation tests.
 
 Keywords: Phishing Detection, Random Forest, Support Vector Machine, Tax Authority, TF-IDF.
 
@@ -81,25 +81,25 @@ Keywords: Phishing Detection, Random Forest, Support Vector Machine, Tax Authori
 
 # KATA PENGANTAR
 
-Puji syukur penulis panjatkan kepada Tuhan Yang Maha Esa. Atas rahmat-Nya, penulis dapat menyelesaikan Tugas Akhir berjudul *"Komparasi Algoritma Support Vector Machine dan Random Forest dalam Deteksi Pesan Phishing WhatsApp Mengatasnamakan Otoritas Perpajakan"*. Tugas Akhir dengan skema *Prototype* ini disusun sebagai salah satu syarat untuk meraih gelar Sarjana Komputer pada Program Studi PJJ Sistem Informasi Universitas Siber Asia.
+Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa. Atas rahmat-Nya, penulis dapat menyelesaikan Tugas Akhir berjudul *"Komparasi Algoritma Support Vector Machine dan Random Forest dalam Deteksi Pesan Phishing WhatsApp Mengatasnamakan Otoritas Perpajakan"*. Tugas Akhir skema *Prototype* ini disusun sebagai syarat memperoleh gelar Sarjana Komputer pada Program Studi PJJ Sistem Informasi Universitas Siber Asia.
 
-Topik ini penulis pilih karena semakin sering ditemukan kasus penipuan lewat WhatsApp yang mencatut nama otoritas perpajakan di Indonesia. Penelitian ini tidak mungkin selesai tanpa bantuan dan bimbingan banyak pihak, sejak masa perkuliahan hingga laporan ini tersusun. Oleh sebab itu, penulis mengucapkan terima kasih yang tulus kepada:
+Topik ini dipilih karena penipuan lewat WhatsApp yang mencatut otoritas perpajakan makin sering terjadi dan merugikan masyarakat. Penyusunan laporan serta perancangan purwarupa ini tidak mungkin terlaksana tanpa bimbingan, dukungan, dan bantuan banyak pihak sejak masa perkuliahan berlangsung. Oleh karena itu, penulis menyampaikan ucapan terima kasih yang tulus kepada:
 
-a) Bapak Jang Youn Cho, Ph.D., CPA, selaku Rektor Universitas Siber Asia, yang memimpin penyelenggaraan pendidikan tinggi daring sehingga proses studi penulis dapat berjalan.
+a) Bapak Jang Youn Cho, Ph.D., CPA, selaku Rektor Universitas Siber Asia. Beliau memimpin penyelenggaraan pendidikan tinggi daring sehingga proses studi penulis berjalan baik.
 
-b) Bapak Dr. Ucuk Darusalam, S.T., M.T., selaku Wakil Rektor Bidang Akademik, Penelitian dan Pengabdian Kepada Masyarakat Universitas Siber Asia, yang mendukung tersedianya fasilitas belajar dan penelitian bagi mahasiswa.
+b) Bapak Dr. Ucuk Darusalam, S.T., M.T., selaku Wakil Rektor Bidang Akademik, Penelitian, dan Pengabdian Kepada Masyarakat Universitas Siber Asia. Dukungan beliau membantu tersedianya fasilitas belajar dan penelitian mahasiswa.
 
-c) Ibu Vika Febri Muliati, S.Kom., M.Kom, selaku Ketua Program Studi PJJ Sistem Informasi Universitas Siber Asia, yang memberikan arahan akademik selama penulis menempuh studi.
+c) Ibu Vika Febri Muliati, S.Kom., M.Kom., selaku Ketua Program Studi PJJ Sistem Informasi Universitas Siber Asia. Beliau senantiasa memberikan arahan akademik selama penulis menempuh studi.
 
-d) Bapak Novi Dian Nathasia, S.Kom., MMSI, selaku Dosen Pembimbing Tugas Akhir, yang meluangkan waktu dan pikiran untuk membimbing penulis hingga penelitian ini selesai.
+d) Bapak Novi Dian Nathasia, S.Kom., M.M.S.I., selaku Dosen Pembimbing Tugas Akhir. Beliau meluangkan waktu dan pikiran untuk membimbing penulis hingga penelitian ini selesai.
 
-e) Seluruh dosen pengajar Program Studi PJJ Sistem Informasi Universitas Siber Asia, yang telah membekali penulis dengan ilmu komputasi yang sangat berguna.
+e) Seluruh dosen pengajar Program Studi PJJ Sistem Informasi Universitas Siber Asia. Ilmu sistem informasi yang dibagikan sangat bermanfaat bagi penyusunan penelitian ini.
 
-f) Orang tua dan keluarga penulis, yang tidak pernah berhenti mendoakan. Dukungan moral dan materi dari keluarga menjadi sumber kekuatan utama bagi penulis.
+f) Orang tua dan keluarga penulis yang selalu mendoakan penulis. Dukungan moral serta materi dari keluarga menjadi kekuatan utama selama masa studi.
 
-g) Rekan-rekan mahasiswa Program Studi PJJ Sistem Informasi dan semua pihak yang telah membantu penulis. Diskusi selama penyusunan karya ilmiah ini sangat menolong penyelesaian purwarupa sistem.
+g) Rekan-rekan mahasiswa Program Studi PJJ Sistem Informasi serta seluruh pihak yang membantu penulis. Diskusi selama penyusunan karya ilmiah ini amat menolong penyelesaian purwarupa sistem.
 
-Penulis menyadari laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat diperbaiki pada penelitian selanjutnya. Karena itu, kritik dan saran yang membangun dari pembaca sangat penulis harapkan untuk menyempurnakan sistem deteksi ini ke depan. Akhir kata, semoga Tuhan Yang Maha Esa membalas kebaikan semua pihak yang telah membantu, dan semoga Tugas Akhir ini bermanfaat bagi pengembangan ilmu pengetahuan.
+Penulis menyadari laporan Tugas Akhir ini masih memiliki sejumlah keterbatasan yang perlu disempurnakan di masa mendatang. Oleh sebab itu, kritik dan saran yang membangun sangat penulis harapkan demi perbaikan sistem deteksi ini bagi masyarakat. Akhir kata, semoga Tuhan Yang Maha Esa membalas kebaikan seluruh pihak yang membantu dan karya ilmiah ini membawa manfaat.
 
 | Tempat dan Waktu Penyusunan | Identitas Penyusun |
 | :--- | :---: |
@@ -122,44 +122,45 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat
 | Bab I Pendahuluan | 1 |
 | 1.1 Latar Belakang Masalah | 1 |
 | 1.2 Rumusan Masalah | 2 |
-| 1.3 Batasan Masalah | 2 |
-| 1.4 Tujuan Penelitian | 3 |
+| 1.3 Batasan Masalah | 3 |
+| 1.4 Tujuan Penelitian | 4 |
 | 1.5 Manfaat Penelitian | 4 |
-| 1.6 Metode Penelitian | 4 |
-| Bab II Landasan Metode | 6 |
-| 2.1 Penelitian Terdahulu dan Matriks Komparasi | 6 |
-| 2.2 Landasan Teori dan Metode Khusus | 7 |
-| 2.2.1 Algoritma *Support Vector Machine*, *LinearSVC*, dan Kalibrasi Platt | 7 |
-| 2.2.2 Algoritma *Random Forest* | 7 |
-| 2.2.3 Praproses Teks Bahasa Indonesia dan Pembobotan Fitur TF-IDF | 7 |
-| 2.2.4 Validasi Silang Terstratifikasi, Metrik Evaluasi, dan Kesiapterapan Teknologi | 8 |
-| 2.3 Prosedur Operasional dan Bagan Alir Penelitian | 8 |
-| 2.4 Waktu dan Lokasi Penelitian | 9 |
-| 2.5 Alat dan Bahan Penelitian | 10 |
-| 2.6 Cara Pengumpulan dan Analisis Data | 10 |
-| 2.7 Definisi Operasional Variabel dan Parameter | 10 |
-| Bab III Implementasi Metode Usulan | 11 |
-| 3.1 Arsitektur Implementasi Metode Usulan | 11 |
-| 3.2 Implementasi Kurasi Korpus dan Praproses Teks | 12 |
-| 3.3 Implementasi Pelatihan Model, Penyetelan Hiperparameter, dan Kalibrasi | 13 |
-| 3.4 Implementasi Purwarupa Sistem Terpadu Tingkat Kesiapan Teknologi 6 | 14 |
-| 3.5 Skenario Pengujian Sistem dan Kesiapan Evaluasi | 14 |
-| Bab IV Hasil dan Analisa | 16 |
-| 4.1 Hasil Eksperimen Komparasi Klasifikasi dan Penyetelan Hiperparameter | 16 |
-| 4.2 Analisis Kalibrasi Probabilitas dan Studi Ablatif Fitur | 18 |
-| 4.3 Analisis Ketahanan Bias Kata Kunci Pajak dan Generalisasi Lintas Korpus | 19 |
-| 4.4 Analisis Interpretabilitas Fitur dan Kesalahan Prediksi | 20 |
-| 4.5 Hasil Pengujian Purwarupa Sistem Terpadu dan Evaluasi Kesiapterapan Teknologi | 21 |
-| Bab V Kesimpulan | 24 |
-| 5.1 Kesimpulan | 24 |
-| 5.2 Saran | 25 |
-| Daftar Pustaka | 26 |
-| Lampiran | 32 |
-| Lampiran 1. Matriks Penelitian Terdahulu | 32 |
-| Lampiran 2. Jadwal, Alat, Bahan, dan Definisi Operasional | 33 |
-| Lampiran 3. Pemetaan Modul Kode, Kontrak API, Matriks Skenario Uji, dan Rancangan Antarmuka | 35 |
-| Lampiran 4. Evaluasi ROC-PR, Studi Ablatif, Bobot Fitur, Analisis Kesalahan, dan Hasil Uji Purwarupa | 38 |
-| Lampiran 5. Daftar Riwayat Hidup Penulis | 41 |
+| 1.6 Metode Penelitian | 5 |
+| Bab II Landasan Metode | 7 |
+| 2.1 Penelitian Terdahulu dan Matriks Komparasi | 7 |
+| 2.2 Landasan Teori dan Metode Khusus | 8 |
+| 2.2.1 Algoritma *Support Vector Machine*, *LinearSVC*, dan Kalibrasi Platt | 8 |
+| 2.2.2 Algoritma *Random Forest* | 9 |
+| 2.2.3 Praproses Teks Bahasa Indonesia dan Pembobotan Fitur TF-IDF | 9 |
+| 2.2.4 Validasi Silang Terstratifikasi, Metrik Evaluasi, dan Kalibrasi Probabilitas | 10 |
+| 2.2.5 Indikator Kelayakan Purwarupa dan Kesiapterapan Teknologi (TKT Level 6) | 11 |
+| 2.3 Prosedur Operasional dan Bagan Alir Penelitian | 12 |
+| 2.4 Waktu dan Lokasi Penelitian | 13 |
+| 2.5 Alat dan Bahan Penelitian | 13 |
+| 2.6 Cara Pengumpulan dan Analisis Data | 14 |
+| 2.7 Definisi Operasional Variabel dan Parameter | 14 |
+| Bab III Implementasi Metode Usulan | 15 |
+| 3.1 Arsitektur Implementasi Metode Usulan | 15 |
+| 3.2 Implementasi Kurasi Korpus dan Praproses Teks | 16 |
+| 3.3 Implementasi Pelatihan Model, Penyetelan Hiperparameter, dan Kalibrasi | 18 |
+| 3.4 Implementasi Purwarupa Sistem Terpadu Tingkat Kesiapan Teknologi 6 | 19 |
+| 3.5 Skenario Pengujian Sistem dan Kesiapan Evaluasi | 21 |
+| Bab IV Hasil dan Analisa | 22 |
+| 4.1 Hasil Eksperimen Komparasi Klasifikasi dan Penyetelan Hiperparameter | 22 |
+| 4.2 Analisis Kalibrasi Probabilitas dan Studi Ablatif Fitur | 24 |
+| 4.3 Analisis Ketahanan Bias Kata Kunci Pajak dan Generalisasi Lintas Korpus | 25 |
+| 4.4 Analisis Interpretabilitas Fitur dan Kesalahan Prediksi | 26 |
+| 4.5 Hasil Pengujian Purwarupa Sistem Terpadu dan Evaluasi Kesiapterapan Teknologi | 27 |
+| Bab V Kesimpulan | 29 |
+| 5.1 Kesimpulan | 29 |
+| 5.2 Saran | 30 |
+| Daftar Pustaka | 31 |
+| Lampiran | 36 |
+| Lampiran 1. Matriks Penelitian Terdahulu | 36 |
+| Lampiran 2. Jadwal, Alat, Bahan, dan Definisi Operasional | 38 |
+| Lampiran 3. Pemetaan Modul Kode, Kontrak API, Matriks Skenario Uji, dan Rancangan Antarmuka | 41 |
+| Lampiran 4. Evaluasi ROC-PR, Studi Ablatif, Bobot Fitur, Analisis Kesalahan, dan Hasil Uji Purwarupa | 44 |
+| Lampiran 5. Daftar Riwayat Hidup Penulis | 50 |
 
 ---
 
@@ -167,18 +168,18 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat
 
 | Nomor Gambar | Judul Gambar | Halaman |
 | :--- | :--- | :---: |
-| Gambar 1.1 | Tahapan Metode Penelitian | 5 |
-| Gambar 2.1 | Bagan Alir Prosedur Eksperimen | 9 |
-| Gambar 3.1 | Arsitektur Sistem Terpadu Deteksi *Phishing* WhatsApp Perpajakan | 11 |
-| Gambar 4.1 | Perbandingan *Confusion Matrix* Uji *Holdout* | 18 |
-| Gambar 4.2 | Evaluasi Kalibrasi Probabilitas Model | 18 |
-| Gambar 4.3 | Komparasi Generalisasi Lintas Korpus dan Subset Pajak | 20 |
-| Gambar 4.4 | Analisis Interpretabilitas Model Berbasis SHAP | 20 |
-| Gambar 4.5 | Tangkapan Layar Antarmuka Web *Cek Pesan Pajak* dan Respons API | 22 |
-| Gambar 4.6 | Tangkapan Layar Ekstensi Chrome pada Simulasi *WhatsApp Web* | 22 |
-| Gambar L.1 | Rancangan Antarmuka Web *Cek Pesan Pajak* dan Ekstensi *WhatsApp Web* | 37 |
-| Gambar L.2 | Evaluasi Diskriminatif Kurva ROC dan *Precision-Recall* | 38 |
-| Gambar L.3 | Analisis Interpretabilitas Fitur TF-IDF Terbaik | 39 |
+| Gambar 1.1 | Tahapan Metode Penelitian | 6 |
+| Gambar 2.1 | Bagan Alir Prosedur Eksperimen | 13 |
+| Gambar 3.1 | Arsitektur Sistem Terpadu Deteksi *Phishing* WhatsApp Perpajakan | 15 |
+| Gambar 4.1 | Perbandingan *Confusion Matrix* Uji *Holdout* | 24 |
+| Gambar 4.2 | Evaluasi Kalibrasi Probabilitas Model | 25 |
+| Gambar 4.3 | Tangkapan Layar Antarmuka Web *Cek Pesan Pajak* dan Respons API | 28 |
+| Gambar L.1 | Rancangan Antarmuka Web *Cek Pesan Pajak* dan Ekstensi *WhatsApp Web* | 44 |
+| Gambar L.2 | Evaluasi Diskriminatif Kurva ROC dan *Precision-Recall* | 44 |
+| Gambar L.3 | Analisis Interpretabilitas Fitur TF-IDF Terbaik | 45 |
+| Gambar L.4 | Komparasi Generalisasi Lintas Korpus dan Subset Pajak | 48 |
+| Gambar L.5 | Analisis Interpretabilitas Model Berbasis SHAP | 49 |
+| Gambar L.6 | Tangkapan Layar Ekstensi Chrome pada Simulasi *WhatsApp Web* | 49 |
 
 ---
 
@@ -186,20 +187,20 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki keterbatasan yang dapat
 
 | Nomor Tabel | Judul Tabel | Halaman |
 | :--- | :--- | :---: |
-| Tabel 1.1 | Komposisi Korpus Dataset Penelitian | 4 |
-| Tabel 3.1 | Konfigurasi Ruang Pencarian Hiperparameter dan Parameter Terpilih | 13 |
-| Tabel 4.1 | Hasil Komparasi Kinerja Klasifikasi pada Berbagai Tahap Evaluasi | 16 |
-| Tabel 4.2 | Komparasi Hasil Penelitian terhadap Studi Terdahulu | 23 |
-| Tabel L.1 | Matriks Penelitian Terdahulu | 32 |
-| Tabel L.2 | Jadwal Pelaksanaan Penelitian | 33 |
-| Tabel L.3 | Spesifikasi Alat dan Bahan Penelitian | 34 |
-| Tabel L.4 | Definisi Operasional Variabel dan Parameter Penelitian | 34 |
-| Tabel L.5 | Pemetaan Modul Kode Sumber terhadap Tahapan Metodologi Penelitian | 35 |
-| Tabel L.6 | Spesifikasi Titik Akhir Layanan Web dan REST API FastAPI (`api.py`) | 36 |
-| Tabel L.7 | Matriks Skenario Pengujian Otomatis Purwarupa dan Integritas Sistem | 36 |
-| Tabel L.8 | Hasil Studi Ablatif Praproses dan Representasi Fitur TF-IDF | 38 |
-| Tabel L.9 | Perbandingan Fitur Teratas `LinearSVC` dan *Random Forest* | 39 |
-| Tabel L.10 | Ringkasan Analisis Kesalahan Prediksi pada Himpunan Uji *Holdout* | 39 |
-| Tabel L.11 | Hasil Pengujian Fungsional Otomatis dan Latensi Inferensi Purwarupa | 40 |
+| Tabel 1.1 | Komposisi Korpus Dataset Penelitian | 5 |
+| Tabel 3.1 | Konfigurasi Ruang Pencarian Hiperparameter pada Penyetelan 10-Fold CV | 18 |
+| Tabel 4.1 | Hasil Komparasi Kinerja Klasifikasi pada Berbagai Tahap Evaluasi | 23 |
+| Tabel L.1 | Matriks Penelitian Terdahulu | 36 |
+| Tabel L.2 | Jadwal Pelaksanaan Penelitian | 38 |
+| Tabel L.3 | Spesifikasi Alat dan Bahan Penelitian | 38 |
+| Tabel L.4 | Definisi Operasional Variabel dan Parameter Penelitian | 39 |
+| Tabel L.5 | Pemetaan Modul Kode Sumber terhadap Tahapan Metodologi Penelitian | 41 |
+| Tabel L.6 | Spesifikasi Titik Akhir Layanan Web dan REST API FastAPI (`app/backend/api.py`) | 42 |
+| Tabel L.7 | Matriks Skenario Pengujian Otomatis Purwarupa dan Integritas Sistem | 42 |
+| Tabel L.8 | Hasil Studi Ablatif Praproses dan Representasi Fitur TF-IDF | 44 |
+| Tabel L.9 | Perbandingan Fitur Teratas `LinearSVC` dan *Random Forest* | 45 |
+| Tabel L.10 | Ringkasan Analisis Kesalahan Prediksi pada Himpunan Uji *Holdout* | 45 |
+| Tabel L.11 | Hasil Pengujian Fungsional Otomatis dan Latensi Inferensi Purwarupa | 47 |
+| Tabel L.12 | Komparasi Hasil Penelitian terhadap Studi Terdahulu | 49 |
 
 ---
