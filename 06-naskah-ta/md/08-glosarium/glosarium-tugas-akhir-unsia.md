@@ -13,7 +13,7 @@
 - **M-Pajak**: Aplikasi resmi DJP untuk layanan pajak di ponsel; kerap ditiru dengan mengirim berkas `.apk` palsu via WhatsApp.
 - **WhatsApp Blast Resmi DJP**: Layanan pengiriman pesan informasi/edukasi resmi DJP melalui WhatsApp yang sahih, sehingga tidak boleh salah diblokir oleh model deteksi.
 - **EFIN (*Electronic Filing Identification Number*)**: Nomor identitas resmi terbitan DJP untuk layanan pajak elektronik; istilah ini sering dipakai penipu agar pesan tampak resmi.
-- **Kode *Billing***: Kode identifikasi pembayaran pajak resmi; penipu kerap memalsukan narasi tagihan/kurang bayar memakai istilah ini.
+- **Kode** ***Billing***: Kode identifikasi pembayaran pajak resmi; penipu kerap memalsukan narasi tagihan/kurang bayar memakai istilah ini.
 - **Pemadanan NIK–NPWP**: Kebijakan integrasi Nomor Induk Kependudukan sebagai NPWP yang sering dijadikan umpan penipuan.
 - **Berkas `.apk` (*Android Package Kit*)**: Format berkas instalasi aplikasi Android. Dalam kasus penipuan pajak, pelaku mengirim `.apk` palsu (misalnya berkedok surat tagihan) untuk mencuri OTP/akses perbankan.
 - **Verifikasi Domain `pajak.go.id`**: Pengecekan apakah tautan di dalam pesan benar-benar mengarah ke domain resmi pemerintah Indonesia (`*.pajak.go.id`) atau domain tiruan.
@@ -29,7 +29,7 @@
 - ***Keyword Bias* (Bias Kata Kunci)**: Kondisi saat model salah menganggap kata netral bertema pajak (misalnya *"pajak"*, *"NPWP"*, *"DJP"*) sebagai ciri penipuan karena model belum pernah melihat contoh pesan pajak resmi yang aman.
 - **Uji Kontrol & Studi Ablasi (*Ablation Study*)**: Pada **45 pesan uji pajak (`n = 45`)**: pelatihan kontrol hanya dengan `712` SMS umum mencatat akurasi **42,22%** (`LinearSVC`, `11/21` pesan aman/resmi terblokir) dan **33,33%** (*Random Forest*), sedangkan korpus seimbang melonjakkan kedua model ke **95,56%** (`20/21` pesan aman — `19` siaran resmi DJP dan `2` normal — lolos; `ROC-AUC 0,9960` pada `LinearSVC`). Pada studi ablatif 10-Fold CV, penghapusan `token_apk`/`token_url` menurunkan *F1-Score* `LinearSVC` **1,35 poin** (`97,16%` ke `95,81%`), sedangkan unigram saja menurunkan **1,22 poin** (`95,94%`).
 - **Uji Lintas-Korpus (`1.360` eksternal & `2.519` diperluas)**: Uji *zero-shot* pada `1.360` pesan unik eksternal (Theodorus & Saragih) mencatat *Recall* `80,28%` pada `LinearSVC`, lalu akurasi pulih ke **96,03%** vs **92,46%** saat dilatih ulang pada `2.519` baris diperluas.
-- **SHA-256 *Checksum***: Sidik jari kriptografis 10 berkas dataset pada `Katalog Asal Sumber Data.csv` untuk menjamin integritas data tidak berubah selama riset.
+- **SHA-256** ***Checksum***: Sidik jari kriptografis 10 berkas dataset pada `Katalog Asal Sumber Data.csv` untuk menjamin integritas data tidak berubah selama riset.
 
 ---
 
@@ -58,7 +58,7 @@
 - ***Confusion Matrix***: Tabel 2×2 pencocokan prediksi vs label asli (`TP`, `TN`, `FP`, `FN`). *False Negative* paling krusial diwaspadai karena meloloskan pesan *phishing*, sedangkan *False Positive* memblokir pesan resmi DJP.
 - ***Accuracy*, *Precision*, *Recall*, *F1-Score***: Empat metrik dasar klasifikasi biner; di holdout `n = 232` selisih diskrit 1–2 sampel antara `LinearSVC` Platt (`95,69%`) dan *Random Forest* (`96,55%`) masih di dalam simpangan baku CV (`± 2,41%`).
 - ***10-Fold Stratified Cross-Validation***: Validasi silang 10 lipatan dengan TF-IDF terisolasi di tiap lipatan untuk mencegah kebocoran data (*data leakage*).
-- **ROC-AUC, PR-AUC, *Brier Score*, & *Log Loss***: Mengukur daya pisah peringkat probabilitas dan seberapa akurat nilai peluang terkalibrasi terhadap kejadian nyata (`LinearSVC` Platt menekan *Brier Score* `39,68%` lebih rendah daripada *Random Forest*).
+- **ROC-AUC, PR-AUC,** ***Brier Score***, **&** ***Log Loss***: Mengukur daya pisah peringkat probabilitas dan seberapa akurat nilai peluang terkalibrasi terhadap kejadian nyata (`LinearSVC` Platt menekan *Brier Score* `39,68%` lebih rendah daripada *Random Forest*).
 
 ---
 

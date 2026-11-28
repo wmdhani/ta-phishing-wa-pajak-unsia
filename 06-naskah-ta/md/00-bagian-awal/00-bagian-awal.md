@@ -57,9 +57,8 @@ Telah berhasil dipertahankan di hadapan Dewan Penguji dan diterima sebagai bagia
 | :--- | :--- | :--- |
 | Ketua Sidang / Dosen Penguji I | (..........................................) | .......................... |
 | Dosen Penguji II | (..........................................) | .......................... |
-| Dosen Pembimbing I | (Novi Dian Nathasia, S.Kom., M.M.S.I.) | .......................... |
-| Dosen Pembimbing II | (..........................................) | .......................... |
-| Ketua Program Studi | (Vika Febri Muliati, S.Kom., M.Kom.) | .......................... |
+| Dosen Pembimbing | (Novi Dian Nathasia, S.Kom, MMSI.) | .......................... |
+| Ketua Program Studi | (Vika Febri Muliati, S.Kom., M.Kom) | .......................... |
 | Ditetapkan di | Jakarta | |
 | Tanggal | ...... / ................ / 2026 | |
 
@@ -87,11 +86,11 @@ Topik ini dipilih karena penipuan lewat WhatsApp yang mencatut otoritas perpajak
 
 a) Bapak Jang Youn Cho, Ph.D., CPA, selaku Rektor Universitas Siber Asia. Beliau memimpin penyelenggaraan pendidikan tinggi daring sehingga proses studi penulis berjalan baik.
 
-b) Bapak Dr. Ucuk Darusalam, S.T., M.T., selaku Wakil Rektor Bidang Akademik, Penelitian, dan Pengabdian Kepada Masyarakat Universitas Siber Asia. Dukungan beliau membantu tersedianya fasilitas belajar dan penelitian mahasiswa.
+b) Bapak Dr. Ucuk Darusalam, S.T., M.T, selaku Wakil Rektor Bidang Akademik, Penelitian, dan Pengabdian Kepada Masyarakat Universitas Siber Asia. Dukungan beliau membantu tersedianya fasilitas belajar dan penelitian mahasiswa.
 
-c) Ibu Vika Febri Muliati, S.Kom., M.Kom., selaku Ketua Program Studi PJJ Sistem Informasi Universitas Siber Asia. Beliau senantiasa memberikan arahan akademik selama penulis menempuh studi.
+c) Ibu Vika Febri Muliati, S.Kom., M.Kom, selaku Ketua Program Studi PJJ Sistem Informasi Universitas Siber Asia. Beliau senantiasa memberikan arahan akademik selama penulis menempuh studi.
 
-d) Bapak Novi Dian Nathasia, S.Kom., M.M.S.I., selaku Dosen Pembimbing Tugas Akhir. Beliau meluangkan waktu dan pikiran untuk membimbing penulis hingga penelitian ini selesai.
+d) Bapak Novi Dian Nathasia, S.Kom, MMSI., selaku Dosen Pembimbing Tugas Akhir. Beliau meluangkan waktu dan pikiran untuk membimbing penulis hingga penelitian ini selesai.
 
 e) Seluruh dosen pengajar Program Studi PJJ Sistem Informasi Universitas Siber Asia. Ilmu sistem informasi yang dibagikan sangat bermanfaat bagi penyusunan penelitian ini.
 
@@ -134,7 +133,7 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki sejumlah keterbatasan y
 | 2.2.3 Praproses Teks Bahasa Indonesia dan Pembobotan Fitur TF-IDF | 9 |
 | 2.2.4 Validasi Silang Terstratifikasi, Metrik Evaluasi, dan Kalibrasi Probabilitas | 10 |
 | 2.2.5 Indikator Kelayakan Purwarupa dan Kesiapterapan Teknologi (TKT Level 6) | 11 |
-| 2.3 Prosedur Operasional dan Bagan Alir Penelitian | 12 |
+| 2.3 Prosedur Operasional dan Bagan Alir Penelitian | 11 |
 | 2.4 Waktu dan Lokasi Penelitian | 13 |
 | 2.5 Alat dan Bahan Penelitian | 13 |
 | 2.6 Cara Pengumpulan dan Analisis Data | 14 |
@@ -142,25 +141,25 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki sejumlah keterbatasan y
 | Bab III Implementasi Metode Usulan | 15 |
 | 3.1 Arsitektur Implementasi Metode Usulan | 15 |
 | 3.2 Implementasi Kurasi Korpus dan Praproses Teks | 16 |
-| 3.3 Implementasi Pelatihan Model, Penyetelan Hiperparameter, dan Kalibrasi | 18 |
+| 3.3 Implementasi Pelatihan Model, Penyetelan Hiperparameter, dan Kalibrasi | 17 |
 | 3.4 Implementasi Purwarupa Sistem Terpadu Tingkat Kesiapan Teknologi 6 | 19 |
-| 3.5 Skenario Pengujian Sistem dan Kesiapan Evaluasi | 21 |
+| 3.5 Skenario Pengujian Sistem dan Kesiapan Evaluasi | 20 |
 | Bab IV Hasil dan Analisa | 22 |
 | 4.1 Hasil Eksperimen Komparasi Klasifikasi dan Penyetelan Hiperparameter | 22 |
 | 4.2 Analisis Kalibrasi Probabilitas dan Studi Ablatif Fitur | 24 |
 | 4.3 Analisis Ketahanan Bias Kata Kunci Pajak dan Generalisasi Lintas Korpus | 25 |
 | 4.4 Analisis Interpretabilitas Fitur dan Kesalahan Prediksi | 26 |
-| 4.5 Hasil Pengujian Purwarupa Sistem Terpadu dan Evaluasi Kesiapterapan Teknologi | 27 |
+| 4.5 Hasil Pengujian Purwarupa Sistem Terpadu dan Evaluasi Kesiapterapan Teknologi | 26 |
 | Bab V Kesimpulan | 29 |
 | 5.1 Kesimpulan | 29 |
 | 5.2 Saran | 30 |
 | Daftar Pustaka | 31 |
 | Lampiran | 36 |
 | Lampiran 1. Matriks Penelitian Terdahulu | 36 |
-| Lampiran 2. Jadwal, Alat, Bahan, dan Definisi Operasional | 38 |
-| Lampiran 3. Pemetaan Modul Kode, Kontrak API, Matriks Skenario Uji, dan Rancangan Antarmuka | 41 |
-| Lampiran 4. Evaluasi ROC-PR, Studi Ablatif, Bobot Fitur, Analisis Kesalahan, dan Hasil Uji Purwarupa | 44 |
-| Lampiran 5. Daftar Riwayat Hidup Penulis | 50 |
+| Lampiran 2. Jadwal, Alat, Bahan, dan Definisi Operasional | 37 |
+| Lampiran 3. Pemetaan Modul Kode, Kontrak API, Matriks Skenario Uji, dan Rancangan Antarmuka | 39 |
+| Lampiran 4. Evaluasi ROC-PR, Studi Ablatif, Bobot Fitur, Analisis Kesalahan, dan Hasil Uji Purwarupa | 42 |
+| Lampiran 5. Daftar Riwayat Hidup Penulis | 48 |
 
 ---
 
@@ -173,13 +172,13 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki sejumlah keterbatasan y
 | Gambar 3.1 | Arsitektur Sistem Terpadu Deteksi *Phishing* WhatsApp Perpajakan | 15 |
 | Gambar 4.1 | Perbandingan *Confusion Matrix* Uji *Holdout* | 24 |
 | Gambar 4.2 | Evaluasi Kalibrasi Probabilitas Model | 25 |
-| Gambar 4.3 | Tangkapan Layar Antarmuka Web *Cek Pesan Pajak* dan Respons API | 28 |
-| Gambar L.1 | Rancangan Antarmuka Web *Cek Pesan Pajak* dan Ekstensi *WhatsApp Web* | 44 |
-| Gambar L.2 | Evaluasi Diskriminatif Kurva ROC dan *Precision-Recall* | 44 |
-| Gambar L.3 | Analisis Interpretabilitas Fitur TF-IDF Terbaik | 45 |
-| Gambar L.4 | Komparasi Generalisasi Lintas Korpus dan Subset Pajak | 48 |
-| Gambar L.5 | Analisis Interpretabilitas Model Berbasis SHAP | 49 |
-| Gambar L.6 | Tangkapan Layar Ekstensi Chrome pada Simulasi *WhatsApp Web* | 49 |
+| Gambar 4.3 | Tangkapan Layar Antarmuka Web *Cek Pesan Pajak* dan Respons API | 27 |
+| Gambar L.1 | Rancangan Antarmuka Web *Cek Pesan Pajak* dan Ekstensi *WhatsApp Web* | 41 |
+| Gambar L.2 | Evaluasi Diskriminatif Kurva ROC dan *Precision-Recall* | 42 |
+| Gambar L.3 | Analisis Interpretabilitas Fitur TF-IDF Terbaik | 43 |
+| Gambar L.4 | Komparasi Generalisasi Lintas Korpus dan Subset Pajak | 46 |
+| Gambar L.5 | Analisis Interpretabilitas Model Berbasis SHAP | 46 |
+| Gambar L.6 | Tangkapan Layar Ekstensi Chrome pada Simulasi *WhatsApp Web* | 47 |
 
 ---
 
@@ -190,17 +189,18 @@ Penulis menyadari laporan Tugas Akhir ini masih memiliki sejumlah keterbatasan y
 | Tabel 1.1 | Komposisi Korpus Dataset Penelitian | 5 |
 | Tabel 3.1 | Konfigurasi Ruang Pencarian Hiperparameter pada Penyetelan 10-Fold CV | 18 |
 | Tabel 4.1 | Hasil Komparasi Kinerja Klasifikasi pada Berbagai Tahap Evaluasi | 23 |
+| Tabel 4.2 | Perbandingan Hasil Pengujian Penelitian terhadap Kondisi Nyata Operasional | 28 |
 | Tabel L.1 | Matriks Penelitian Terdahulu | 36 |
-| Tabel L.2 | Jadwal Pelaksanaan Penelitian | 38 |
-| Tabel L.3 | Spesifikasi Alat dan Bahan Penelitian | 38 |
-| Tabel L.4 | Definisi Operasional Variabel dan Parameter Penelitian | 39 |
-| Tabel L.5 | Pemetaan Modul Kode Sumber terhadap Tahapan Metodologi Penelitian | 41 |
-| Tabel L.6 | Spesifikasi Titik Akhir Layanan Web dan REST API FastAPI (`app/backend/api.py`) | 42 |
-| Tabel L.7 | Matriks Skenario Pengujian Otomatis Purwarupa dan Integritas Sistem | 42 |
-| Tabel L.8 | Hasil Studi Ablatif Praproses dan Representasi Fitur TF-IDF | 44 |
-| Tabel L.9 | Perbandingan Fitur Teratas `LinearSVC` dan *Random Forest* | 45 |
-| Tabel L.10 | Ringkasan Analisis Kesalahan Prediksi pada Himpunan Uji *Holdout* | 45 |
-| Tabel L.11 | Hasil Pengujian Fungsional Otomatis dan Latensi Inferensi Purwarupa | 47 |
-| Tabel L.12 | Komparasi Hasil Penelitian terhadap Studi Terdahulu | 49 |
+| Tabel L.2 | Jadwal Pelaksanaan Penelitian | 37 |
+| Tabel L.3 | Spesifikasi Alat dan Bahan Penelitian | 37 |
+| Tabel L.4 | Definisi Operasional Variabel dan Parameter Penelitian | 38 |
+| Tabel L.5 | Pemetaan Modul Kode Sumber terhadap Tahapan Metodologi Penelitian | 39 |
+| Tabel L.6 | Spesifikasi Titik Akhir Layanan Web dan REST API FastAPI | 39 |
+| Tabel L.7 | Matriks Skenario Pengujian Otomatis Purwarupa dan Integritas Sistem | 40 |
+| Tabel L.8 | Hasil Studi Ablatif Praproses dan Representasi Fitur TF-IDF | 42 |
+| Tabel L.9 | Perbandingan Fitur Teratas `LinearSVC` dan *Random Forest* | 43 |
+| Tabel L.10 | Ringkasan Analisis Kesalahan Prediksi pada Himpunan Uji *Holdout* | 43 |
+| Tabel L.11 | Hasil Pengujian Fungsional Otomatis dan Latensi Inferensi Purwarupa | 44 |
+| Tabel L.12 | Komparasi Hasil Penelitian terhadap Studi Terdahulu | 47 |
 
 ---

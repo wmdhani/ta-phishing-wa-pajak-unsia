@@ -42,10 +42,11 @@ Di atas sepuluh lipatan TF-IDF terisolasi tersebut, fungsi `_run_grid_over_folds
 
 Tabel 3.1 Konfigurasi Ruang Pencarian Hiperparameter pada Penyetelan 10-Fold CV
 
-| Algoritma Klasifikasi | Ruang Pencarian Parameter (`_run_grid_over_folds`) | Jumlah Kandidat |
-| :--- | :--- | :---: |
-| `LinearSVC` | `C`: `0.1, 0.25, 0.5, 1.0, 2.0, 5.0`; `class_weight`: `None, balanced`; `max_iter=5000`; `random_state=42` | 12 |
-| `RandomForestClassifier` | `n_estimators`: `100, 200, 300`; `max_depth`: `None, 30`; `min_samples_split`: `2, 5`; `class_weight`: `None, balanced`; `random_state=42` | 24 |
+| Algoritma | Parameter yang Disetel | Parameter Tetap | Kandidat |
+| :--- | :--- | :--- | :---: |
+| `LinearSVC` | `C`: 0,1; 0,25; 0,5; 1,0; 2,0; 5,0; `class_weight`: None, balanced | `max_iter` = 5.000; `random_state` = 42 | 12 |
+| *Random Forest* | `n_estimators`: 100, 200, 300; `max_depth`: None, 30; `min_samples_split`: 2, 5; `class_weight`: None, balanced | `random_state` = 42 | 24 |
+| **Total** | Pencarian *grid* pada *Stratified 10-Fold CV* terisolasi | `random_state` = 42 | **36** |
 
 Sumber: Implementasi Penyetelan Hiperparameter pada `ml/eksperimen_komparasi.py` (2026).
 

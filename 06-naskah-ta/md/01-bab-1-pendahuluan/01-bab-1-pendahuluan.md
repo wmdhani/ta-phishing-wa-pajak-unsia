@@ -18,11 +18,11 @@ Dari sudut pandang pemanfaatan sistem informasi, pemeriksaan pesan lewat situs w
 
 Berdasarkan kesenjangan literatur serta hambatan verifikasi layanan perpajakan di lapangan, penelitian ini berhadapan dengan tingginya kemiripan diksi pesan penipuan terhadap pengumuman resmi instansi. Situasi tersebut melemahkan pemeriksaan manual oleh wajib pajak maupun keandalan penyaring spam konvensional yang belum terkalibrasi. Masalah utama itu kemudian dirumuskan ke dalam tiga pernyataan sebab-akibat berikut:
 
-a) Peniruan gaya surat dinas dan istilah perpajakan pada pesan *phishing* menyulitkan wajib pajak memverifikasi keaslian informasi secara manual. Kekeliruan penilaian tersebut mendorong korban memasang berkas `.apk` berbahaya yang mengancam keamanan kredensial akun dan dana pribadi.
+a) Peniruan gaya surat dinas, istilah perpajakan, berkas `.apk` berbahaya, dan tautan tiruan pada pesan *phishing* menyulitkan wajib pajak mengenali ciri penipuan secara manual. Akibatnya, korban rentan kehilangan kredensial akun serta dana pribadi.
 
-b) Penyaring spam konvensional yang hanya dilatih memakai korpus SMS umum mudah mengalami bias bobot kata ketika menerima diksi kedinasan pajak. Ketimpangan data latih ini memicu salah blokir pada pengumuman resmi DJP (*false positive*) sekaligus meloloskan pesan *phishing* baru (*false negative*).
+b) Penyaring spam konvensional berbasis korpus SMS umum mengalami bias bobot kata (*keyword bias*) pada diksi kedinasan pajak, sehingga memicu salah blokir pengumuman resmi DJP (*false positive*) sekaligus meloloskan penipuan baru (*false negative*). Selain itu, belum tersedia tolok ukur komparatif terkalibrasi antara klasifier linear dan ansambel pohon pada korpus pajak Indonesia.
 
-c) Ketiadaan tolok ukur komparatif yang terkalibrasi antara klasifier linear dan ansambel pohon pada korpus pajak Indonesia menyulitkan pemilihan model peringatan dini yang andal. Keterbatasan itu diperparah oleh absennya alat verifikasi langsung di *WhatsApp Web*, sehingga masyarakat tetap mengandalkan pengecekan manual tanpa petunjuk risiko.
+c) Ketiadaan alat verifikasi otomatis langsung di *WhatsApp Web* membuat masyarakat tetap mengandalkan pengecekan manual tanpa petunjuk risiko maupun penjelasan indikator bahaya berbahasa awam. Kondisi tersebut meningkatkan risiko warga mengeklik tautan palsu atau memasang berkas `.apk`.
 
 ## 1.3 Batasan Masalah
 
@@ -42,13 +42,13 @@ f) Luaran akhir berwujud purwarupa TKT Level 6 berbahasa Python berupa layanan F
 
 ## 1.4 Tujuan Penelitian
 
-Selaras dengan rumusan masalah di atas, penelitian ini menetapkan tiga tujuan terukur berikut:
+Selaras dengan ketiga rumusan masalah pada Subbab 1.2, penelitian ini menetapkan tiga tujuan terukur berikut:
 
-a) Menyusun korpus teks perpajakan berbahasa Indonesia yang berimbang antara pesan *phishing* dengan pengumuman resmi. Data tersebut lalu diproses melalui penyandian `token_apk` dan `token_url` bersama *stemming* Sastrawi serta pembobotan TF-IDF.
+1. Menyusun korpus teks perpajakan berbahasa Indonesia yang berimbang antara pesan *phishing* bermodus surat dinas, `.apk`, dan tautan tiruan dengan pengumuman resmi DJP. Data tersebut lalu diproses melalui penyandian `token_apk`, `token_url`, *stemming* Sastrawi, serta pembobotan TF-IDF sebagai pemisah pola pesan palsu dan resmi.
 
-b) Menguji dan membandingkan kinerja klasifikasi serta kalibrasi probabilitas antara `LinearSVC` berkalibrasi *Platt scaling* dengan *Random Forest*. Tahap ini turut menjalankan uji kontrol tanpa korpus pajak guna memverifikasi penurunan salah blokir pesan resmi.
+2. Menguji dan membandingkan kinerja klasifikasi serta kalibrasi probabilitas antara `LinearSVC` berkalibrasi *Platt scaling* dengan *Random Forest* pada korpus pajak berimbang. Tahap ini turut menjalankan uji kontrol tanpa korpus pajak guna memverifikasi penurunan *keyword bias* (*false positive* pesan resmi dan *false negative* penipuan).
 
-c) Merancang, membangun, dan menguji purwarupa sistem deteksi terpadu berbasis REST API FastAPI bersama antarmuka web *Cek Pesan Pajak* serta ekstensi *WhatsApp Web*. Sistem tersebut menyajikan tingkat risiko beserta penjelasan indikator pemicu berbahasa awam.
+3. Merancang, membangun, dan menguji purwarupa sistem deteksi terpadu berbasis REST API FastAPI, antarmuka web *Cek Pesan Pajak*, serta ekstensi *WhatsApp Web*. Sistem ini menanamkan model terpilih bersama verifikasi `.apk` dan domain `pajak.go.id` guna menyajikan tingkat risiko beserta alasan pemicu berbahasa awam.
 
 ## 1.5 Manfaat Penelitian
 
@@ -66,11 +66,11 @@ Penelitian ini memadukan metode eksperimen kuantitatif dengan alur *Research and
 
 Tabel 1.1 Komposisi Korpus Dataset Penelitian
 
-| Sumber Korpus | Asal Pengumpulan | Kategori Phishing | Kategori Aman | Jumlah Total |
+| Sumber Korpus | Asal Data | Phishing | Aman | Total |
 | :--- | :--- | :---: | :---: | :---: |
-| Kumpulan SMS Publik Indonesia | Repositori Akademik UPI (Rahmi & Wibisono) [6] | 335 | 569 | 904 |
-| Kumpulan Teks Khusus Perpajakan | Kurasi 65 dari 68 sumber publik 2021–2026 [2], [5] | 130 | 130 | 260 |
-| Himpunan Data Gabungan Induk | Integrasi Korpus SMS Umum serta Teks Pajak | 465 | 699 | 1.164 |
+| SMS Publik Indonesia | Repositori UPI (Rahmi & Wibisono) [6] | 335 | 569 | 904 |
+| Teks Khusus Perpajakan | Kurasi 65 dari 68 sumber publik 2021–2026 [2], [5] | 130 | 130 | 260 |
+| **Total Korpus Induk** | Gabungan SMS publik dan teks pajak | **465** | **699** | **1.164** |
 
 Sumber: Olahan Data Penelitian (2026).
 
