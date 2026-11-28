@@ -407,7 +407,7 @@ def get_academic_summary() -> dict[str, Any]:
                 "Deteksi Pesan Phishing WhatsApp Mengatasnamakan Otoritas Perpajakan"
             ),
             "author": "Wan Mirza Dhani (240101020194)",
-            "advisor": "Bapak Novi Dian Nathasia, S.Kom., M.M.S.I.",
+            "advisor": "Bapak Novi Dian Nathasia, S.Kom, MMSI.",
             "program": "PJJ Sistem Informasi, Universitas Siber Asia",
             "scheme": "Tugas Akhir Prototype (TKT Level 6)",
         },

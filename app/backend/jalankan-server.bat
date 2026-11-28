@@ -3,14 +3,10 @@ setlocal
 if "%PORT%"=="" set "PORT=8000"
 title Cek Pesan Pajak - Server Lokal (127.0.0.1:%PORT%)
 cd /d "%~dp0"
+set "UV_PROJECT_ENVIRONMENT=%LOCALAPPDATA%\venvs\ta-phishing-pajak-unsia"
 
-set "UVICORN=%LOCALAPPDATA%\venvs\ta-phishing-pajak-unsia\Scripts\uvicorn.exe"
+set "UVICORN=%UV_PROJECT_ENVIRONMENT%\Scripts\uvicorn.exe"
 if exist "%UVICORN%" goto :run_uvicorn
-
-if exist "..\..\.venv\Scripts\uvicorn.exe" (
-  set "UVICORN=..\..\.venv\Scripts\uvicorn.exe"
-  goto :run_uvicorn
-)
 
 where uv >nul 2>nul
 if %errorlevel%==0 (
@@ -34,8 +30,8 @@ if %errorlevel%==0 (
 )
 
 echo Virtual environment atau uvicorn tidak ditemukan.
-echo Pastikan virtualenv tersedia di "%LOCALAPPDATA%\venvs\ta-phishing-pajak-unsia" atau ".venv",
-echo atau jalankan "uv sync" dari folder root proyek.
+echo Pastikan virtualenv tersedia di "%UV_PROJECT_ENVIRONMENT%",
+echo atau jalankan "set UV_PROJECT_ENVIRONMENT=%UV_PROJECT_ENVIRONMENT% && uv sync" dari folder root proyek.
 pause
 exit /b 1
 

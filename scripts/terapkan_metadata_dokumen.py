@@ -339,14 +339,6 @@ def align_deliverable_timestamps() -> None:
             datetime(2026, 10, 30, 20, 42, 30, tzinfo=WIB),
             datetime(2026, 11, 13, 17, 0, 15, tzinfo=WIB),
         ),
-        REPO_ROOT
-        / "06-naskah-ta"
-        / "md"
-        / "arsip-draf"
-        / "naskah-bagian-awal-dan-bab-1-ta-unsia.md": (
-            datetime(2026, 11, 5, 19, 18, 40, tzinfo=WIB),
-            datetime(2026, 11, 13, 17, 0, 38, tzinfo=WIB),
-        ),
         REPO_ROOT / "06-naskah-ta" / "aset-gambar" / "Logo UNSIA.png": (
             datetime(2026, 10, 29, 19, 14, 22, tzinfo=WIB),
             datetime(2026, 10, 29, 19, 14, 22, tzinfo=WIB),

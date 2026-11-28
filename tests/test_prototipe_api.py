@@ -160,7 +160,7 @@ def test_web_ui_and_supporting_endpoints() -> None:
     assert academic.status_code == 200
     acad_payload = academic.json()
     assert "Wan Mirza Dhani" in acad_payload["thesis"]["author"]
-    assert acad_payload["thesis"]["advisor"] == "Bapak Novi Dian Nathasia, S.Kom., M.M.S.I."
+    assert acad_payload["thesis"]["advisor"] == "Bapak Novi Dian Nathasia, S.Kom, MMSI."
     assert acad_payload["thesis"]["scheme"] == "Tugas Akhir Prototype (TKT Level 6)"
     assert len(acad_payload["evaluation_rows"]) > 0
 

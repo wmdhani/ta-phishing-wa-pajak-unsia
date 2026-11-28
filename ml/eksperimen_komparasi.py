@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
@@ -19,6 +20,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import shap
+from matplotlib.ticker import FuncFormatter, MultipleLocator
+from scipy.stats import binomtest
 from sklearn.calibration import CalibratedClassifierCV, calibration_curve
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -38,7 +41,6 @@ from sklearn.metrics import (
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
-from scipy.stats import binomtest
 
 from ml.eksperimen_baseline import STEM_WORD, STOP_WORDS, URL_PATTERN, clean_text
 
@@ -61,16 +63,28 @@ APK_PATTERN = re.compile(r"\b[a-z0-9_.-]+\.apk\b")
 RANDOM_STATE = 42
 CV_SPLITS = 10
 
-sns.set_theme(style="whitegrid", font_scale=0.95)
+sns.set_theme(style="whitegrid", font_scale=1.0)
 plt.rcParams.update(
     {
         "figure.dpi": 300,
         "savefig.dpi": 300,
+        "figure.facecolor": "#ffffff",
+        "axes.facecolor": "#ffffff",
         "axes.edgecolor": "#cbd5e1",
-        "axes.linewidth": 0.8,
-        "grid.alpha": 0.35,
+        "axes.linewidth": 0.9,
+        "grid.color": "#e2e8f0",
+        "grid.alpha": 0.7,
+        "font.sans-serif": ["DejaVu Sans", "Arial", "sans-serif"],
     }
 )
+
+
+def _fmt_id(val: float, decimals: int = 1) -> str:
+    return f"{val:.{decimals}f}".replace(".", ",")
+
+
+def _id_decimal_formatter(decimals: int = 1) -> FuncFormatter:
+    return FuncFormatter(lambda x, _pos: f"{x:.{decimals}f}".replace(".", ","))
 
 
 def clean_text_without_entity_tokens(text: str) -> str:
@@ -922,16 +936,28 @@ def _generate_plots(
     svm_m = cal_metrics["svm_calibrated"]
     rf_m = cal_metrics["random_forest"]
 
-    # Gambar 1: Confusion Matrix Komparasi (Holdout n=233)
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.6))
-    class_labels = ["Normal / Resmi (0)", "Phishing / Penipuan (1)"]
+    # Gambar 1: Confusion Matrix Komparasi (Holdout n=232)
+    fig, axes = plt.subplots(1, 2, figsize=(7.6, 3.35), facecolor="white")
+    class_labels = ["Normal / Resmi (0)", "Phishing (1)"]
     for ax, title, y_pred, cmap in (
-        (axes[0], f"SVM Linear (Platt) - Akurasi {svm_m['accuracy'] * 100:.2f}%", pred_svm, "Blues"),
-        (axes[1], f"Random Forest (Tuned) - Akurasi {rf_m['accuracy'] * 100:.2f}%", pred_rf, "Greens"),
+        (
+            axes[0],
+            f"(a) LinearSVC (Platt)\nAkurasi {_fmt_id(svm_m['accuracy'] * 100, 2)}%",
+            pred_svm,
+            "Blues",
+        ),
+        (
+            axes[1],
+            f"(b) Random Forest (Tuned)\nAkurasi {_fmt_id(rf_m['accuracy'] * 100, 2)}%",
+            pred_rf,
+            "Greens",
+        ),
     ):
         cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
         cm_pct = cm / cm.sum(axis=1, keepdims=True) * 100
-        annots = np.array([[f"{cm[r, c]}\n({cm_pct[r, c]:.1f}%)" for c in range(2)] for r in range(2)])
+        annots = np.array(
+            [[f"{cm[r, c]}\n({_fmt_id(cm_pct[r, c], 1)}%)" for c in range(2)] for r in range(2)]
+        )
         sns.heatmap(
             cm,
             annot=annots,
@@ -940,56 +966,96 @@ def _generate_plots(
             cbar=False,
             xticklabels=class_labels,
             yticklabels=class_labels,
-            annot_kws={"size": 11, "weight": "bold"},
+            annot_kws={"size": 11.5, "weight": "bold"},
+            linewidths=0.8,
+            linecolor="#ffffff",
             ax=ax,
         )
-        ax.set_title(title, fontsize=11, fontweight="bold", pad=10)
-        ax.set_xlabel("Label Prediksi", fontsize=10)
-        ax.set_ylabel("Label Aktual", fontsize=10)
-    fig.suptitle(
-        f"Perbandingan Confusion Matrix Uji Holdout (n = {svm_m['n_samples']})",
-        fontsize=12.5,
-        fontweight="bold",
-        y=1.02,
+        ax.set_title(title, fontsize=10, fontweight="bold", pad=8)
+        ax.set_xlabel("Label Prediksi", fontsize=9.5, labelpad=6)
+        ax.set_ylabel("Label Aktual", fontsize=9.5, labelpad=6)
+        ax.tick_params(labelsize=8.8)
+    fig.tight_layout(pad=1.0, w_pad=1.8)
+    fig.savefig(
+        out_dir / "Gambar_Evaluasi_1_Confusion_Matrix_Komparasi.png",
+        bbox_inches="tight",
+        facecolor="white",
     )
-    fig.tight_layout()
-    fig.savefig(out_dir / "Gambar_Evaluasi_1_Confusion_Matrix_Komparasi.png", bbox_inches="tight")
     plt.close(fig)
 
     # Gambar 2: Kurva ROC dan Precision-Recall
-    fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.8))
+    fig, axes = plt.subplots(1, 2, figsize=(7.6, 3.55), facecolor="white")
     fpr_s, tpr_s, _ = roc_curve(y_test, prob_svm)
     fpr_r, tpr_r, _ = roc_curve(y_test, prob_rf)
-    axes[0].plot(fpr_s, tpr_s, lw=2.2, color="#1d4ed8", label=f"SVM Linear (AUC = {svm_m['roc_auc']:.4f})")
-    axes[0].plot(fpr_r, tpr_r, lw=2.2, color="#059669", linestyle="--", label=f"Random Forest (AUC = {rf_m['roc_auc']:.4f})")
-    axes[0].plot([0, 1], [0, 1], lw=1.2, color="#94a3b8", linestyle=":", label="Garis Acak (AUC = 0.5000)")
-    axes[0].set_title("Kurva ROC (Receiver Operating Characteristic)", fontsize=11, fontweight="bold")
-    axes[0].set_xlabel("False Positive Rate (1 - Spesifisitas)")
-    axes[0].set_ylabel("True Positive Rate (Recall)")
-    axes[0].legend(loc="lower right")
+    axes[0].plot(
+        fpr_s,
+        tpr_s,
+        lw=2.3,
+        color="#1d4ed8",
+        label=f"LinearSVC (AUC = {_fmt_id(svm_m['roc_auc'], 4)})",
+    )
+    axes[0].plot(
+        fpr_r,
+        tpr_r,
+        lw=2.3,
+        color="#0f766e",
+        linestyle="--",
+        label=f"Random Forest (AUC = {_fmt_id(rf_m['roc_auc'], 4)})",
+    )
+    axes[0].plot(
+        [0, 1],
+        [0, 1],
+        lw=1.2,
+        color="#94a3b8",
+        linestyle=":",
+        label="Garis Acak (0,5000)",
+    )
+    axes[0].set_title("(a) Kurva ROC (Holdout n = 232)", fontsize=10, fontweight="bold", pad=7)
+    axes[0].set_xlabel("False Positive Rate", fontsize=9.2)
+    axes[0].set_ylabel("True Positive Rate (Recall)", fontsize=9.2)
+    axes[0].xaxis.set_major_formatter(_id_decimal_formatter(1))
+    axes[0].yaxis.set_major_formatter(_id_decimal_formatter(1))
+    axes[0].tick_params(labelsize=8.5)
+    axes[0].legend(loc="lower right", fontsize=8.3, frameon=True, facecolor="white")
+    sns.despine(ax=axes[0])
 
     prec_s, rec_s, _ = precision_recall_curve(y_test, prob_svm)
     prec_r, rec_r, _ = precision_recall_curve(y_test, prob_rf)
-    axes[1].plot(rec_s, prec_s, lw=2.2, color="#1d4ed8", label=f"SVM Linear (PR-AUC = {svm_m['pr_auc']:.4f})")
-    axes[1].plot(rec_r, prec_r, lw=2.2, color="#059669", linestyle="--", label=f"Random Forest (PR-AUC = {rf_m['pr_auc']:.4f})")
-    axes[1].set_title("Kurva Precision-Recall (Kelas Phishing)", fontsize=11, fontweight="bold")
-    axes[1].set_xlabel("Recall (Sensitivitas)")
-    axes[1].set_ylabel("Precision (Presisi)")
-    axes[1].set_ylim(0.5, 1.03)
-    axes[1].legend(loc="lower left")
-
-    fig.suptitle(
-        f"Evaluasi Diskriminatif Kurva ROC dan Precision-Recall (n = {svm_m['n_samples']})",
-        fontsize=12.5,
-        fontweight="bold",
-        y=1.02,
+    axes[1].plot(
+        rec_s,
+        prec_s,
+        lw=2.3,
+        color="#1d4ed8",
+        label=f"LinearSVC (PR-AUC = {_fmt_id(svm_m['pr_auc'], 4)})",
     )
-    fig.tight_layout()
-    fig.savefig(out_dir / "Gambar_Evaluasi_2_Kurva_ROC_dan_PR.png", bbox_inches="tight")
+    axes[1].plot(
+        rec_r,
+        prec_r,
+        lw=2.3,
+        color="#0f766e",
+        linestyle="--",
+        label=f"Random Forest (PR-AUC = {_fmt_id(rf_m['pr_auc'], 4)})",
+    )
+    axes[1].set_title("(b) Kurva Precision-Recall", fontsize=10, fontweight="bold", pad=7)
+    axes[1].set_xlabel("Recall (Sensitivitas)", fontsize=9.2)
+    axes[1].set_ylabel("Precision (Presisi)", fontsize=9.2)
+    axes[1].set_ylim(0.5, 1.03)
+    axes[1].xaxis.set_major_formatter(_id_decimal_formatter(1))
+    axes[1].yaxis.set_major_formatter(_id_decimal_formatter(1))
+    axes[1].tick_params(labelsize=8.5)
+    axes[1].legend(loc="lower left", fontsize=8.3, frameon=True, facecolor="white")
+    sns.despine(ax=axes[1])
+
+    fig.tight_layout(pad=1.0, w_pad=1.8)
+    fig.savefig(
+        out_dir / "Gambar_Evaluasi_2_Kurva_ROC_dan_PR.png",
+        bbox_inches="tight",
+        facecolor="white",
+    )
     plt.close(fig)
 
     # Gambar 3: Kalibrasi Probabilitas Platt (Reliability Diagram + Distribusi)
-    fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.8))
+    fig, axes = plt.subplots(1, 2, figsize=(7.6, 3.7), facecolor="white")
     prob_true_s, prob_pred_s = calibration_curve(y_test, prob_svm, n_bins=10, strategy="uniform")
     prob_true_r, prob_pred_r = calibration_curve(y_test, prob_rf, n_bins=10, strategy="uniform")
 
@@ -998,70 +1064,130 @@ def _generate_plots(
         prob_pred_s,
         prob_true_s,
         "s-",
-        lw=2,
+        lw=2.0,
+        markersize=5,
         color="#1d4ed8",
-        label=f"SVM Platt (Brier={svm_m['brier_score']:.4f}, LogLoss={svm_m['log_loss']:.4f})",
+        label=f"LinearSVC Platt (Brier={_fmt_id(svm_m['brier_score'], 4)})",
     )
     axes[0].plot(
         prob_pred_r,
         prob_true_r,
         "o--",
-        lw=2,
-        color="#059669",
-        label=f"RF Tuned (Brier={rf_m['brier_score']:.4f}, LogLoss={rf_m['log_loss']:.4f})",
+        lw=2.0,
+        markersize=5,
+        color="#0f766e",
+        label=f"RF Tuned (Brier={_fmt_id(rf_m['brier_score'], 4)})",
     )
-    axes[0].set_title("Kurva Reliabilitas Probabilitas (10 Bin)", fontsize=11, fontweight="bold")
-    axes[0].set_xlabel("Rata-rata Probabilitas Prediksi")
-    axes[0].set_ylabel("Proporsi Positif Aktual")
-    axes[0].legend(loc="upper left", fontsize=8.5)
+    axes[0].set_title("(a) Kurva Reliabilitas (10 Bin)", fontsize=10, fontweight="bold", pad=7)
+    axes[0].set_xlabel("Rata-rata Probabilitas Prediksi", fontsize=9.2)
+    axes[0].set_ylabel("Proporsi Positif Aktual", fontsize=9.2)
+    axes[0].xaxis.set_major_formatter(_id_decimal_formatter(1))
+    axes[0].yaxis.set_major_formatter(_id_decimal_formatter(1))
+    axes[0].tick_params(labelsize=8.5)
+    axes[0].legend(loc="lower right", fontsize=8.0, frameon=True, facecolor="white")
+    sns.despine(ax=axes[0])
 
-    axes[1].hist(prob_svm, bins=15, alpha=0.55, color="#1d4ed8", label="SVM Linear (Platt)", edgecolor="white")
-    axes[1].hist(prob_rf, bins=15, alpha=0.55, color="#059669", label="Random Forest (Tuned)", edgecolor="white")
+    axes[1].axvspan(0.2, 0.8, color="#fef3c7", alpha=0.55, zorder=0)
+    axes[1].hist(
+        prob_svm,
+        bins=15,
+        alpha=0.62,
+        color="#1d4ed8",
+        label="LinearSVC (Platt)",
+        edgecolor="white",
+        zorder=2,
+    )
+    axes[1].hist(
+        prob_rf,
+        bins=15,
+        alpha=0.58,
+        color="#0f766e",
+        label="Random Forest (Tuned)",
+        edgecolor="white",
+        zorder=3,
+    )
+    axes[1].text(
+        0.50,
+        92,
+        "Zona Ragu (0,2–0,8)\nSVM: 9,48% | RF: 25,43%",
+        ha="center",
+        va="top",
+        fontsize=8.0,
+        color="#78350f",
+        bbox={"boxstyle": "round,pad=0.35", "facecolor": "#fffbeb", "edgecolor": "#f59e0b", "lw": 0.8},
+    )
     axes[1].set_title(
-        f"Distribusi Probabilitas Prediksi (n = {svm_m['n_samples']})",
-        fontsize=11,
+        f"(b) Distribusi Probabilitas (n = {svm_m['n_samples']})",
+        fontsize=10,
         fontweight="bold",
+        pad=7,
     )
-    axes[1].set_xlabel("Probabilitas Kelas Phishing (P = 1)")
-    axes[1].set_ylabel("Jumlah Pesan")
-    axes[1].legend(loc="upper center", fontsize=9)
+    axes[1].set_xlabel("Probabilitas Kelas Phishing (P = 1)", fontsize=9.2)
+    axes[1].set_ylabel("Jumlah Pesan", fontsize=9.2)
+    axes[1].set_ylim(0, 128)
+    axes[1].xaxis.set_major_formatter(_id_decimal_formatter(1))
+    axes[1].tick_params(labelsize=8.5)
+    axes[1].legend(loc="upper center", fontsize=8.2, frameon=True, facecolor="white")
+    sns.despine(ax=axes[1])
 
-    fig.suptitle("Evaluasi Kalibrasi Probabilitas Model (Platt Scaling vs Random Forest)", fontsize=12.5, fontweight="bold", y=1.02)
-    fig.tight_layout()
-    fig.savefig(out_dir / "Gambar_Evaluasi_3_Kalibrasi_Probabilitas_Platt.png", bbox_inches="tight")
+    fig.tight_layout(pad=1.0, w_pad=1.8)
+    fig.savefig(
+        out_dir / "Gambar_Evaluasi_3_Kalibrasi_Probabilitas_Platt.png",
+        bbox_inches="tight",
+        facecolor="white",
+    )
     plt.close(fig)
 
     # Gambar 4: Top Fitur SVM vs Random Forest
-    top_pos = df_features[df_features["model_kelompok"] == "SVM_Positif_Phishing"].head(12)
-    top_neg = df_features[df_features["model_kelompok"] == "SVM_Negatif_Resmi"].head(12)
+    top_pos = df_features[df_features["model_kelompok"] == "SVM_Positif_Phishing"].head(10)
+    top_neg = df_features[df_features["model_kelompok"] == "SVM_Negatif_Resmi"].head(10)
     svm_plot_df = pd.concat([top_pos, top_neg], ignore_index=True).sort_values("skor")
-    rf_plot_df = df_features[df_features["model_kelompok"] == "RF_Importance"].head(15).sort_values("skor")
+    rf_plot_df = df_features[df_features["model_kelompok"] == "RF_Importance"].head(12).sort_values("skor")
 
-    fig, axes = plt.subplots(1, 2, figsize=(13, 6.2))
-    svm_colors = ["#dc2626" if val > 0 else "#2563eb" for val in svm_plot_df["skor"]]
-    axes[0].barh(svm_plot_df["fitur"], svm_plot_df["skor"], color=svm_colors)
+    fig, axes = plt.subplots(1, 2, figsize=(7.8, 4.9), facecolor="white")
+    svm_colors = ["#c81e1e" if val > 0 else "#2563eb" for val in svm_plot_df["skor"]]
+    axes[0].barh(svm_plot_df["fitur"], svm_plot_df["skor"], color=svm_colors, height=0.72)
     axes[0].axvline(0, color="#334155", lw=1.0)
-    axes[0].set_title("Top Bobot Koefisien LinearSVC\n(Merah = Phishing, Biru = Resmi/Normal)", fontsize=10.5, fontweight="bold")
-    axes[0].set_xlabel("Koefisien Hyperplane")
+    axes[0].set_title(
+        "(a) Top-10 Koefisien LinearSVC\n(Merah: Phishing | Biru: Resmi/Normal)",
+        fontsize=9.8,
+        fontweight="bold",
+        pad=7,
+    )
+    axes[0].set_xlabel("Bobot Koefisien Hyperplane", fontsize=9.2)
+    axes[0].xaxis.set_major_formatter(_id_decimal_formatter(1))
+    axes[0].tick_params(labelsize=9.0)
+    sns.despine(ax=axes[0])
 
-    axes[1].barh(rf_plot_df["fitur"], rf_plot_df["skor"], color="#059669")
-    axes[1].set_title("Top-15 Kepentingan Fitur Random Forest\n(Mean Decrease in Impurity)", fontsize=10.5, fontweight="bold")
-    axes[1].set_xlabel("Skor Gini Importance")
+    axes[1].barh(rf_plot_df["fitur"], rf_plot_df["skor"], color="#0f766e", height=0.72)
+    axes[1].set_title(
+        "(b) Top-12 Fitur Random Forest\n(Mean Decrease in Impurity)",
+        fontsize=9.8,
+        fontweight="bold",
+        pad=7,
+    )
+    axes[1].set_xlabel("Skor Gini Importance", fontsize=9.2)
+    axes[1].xaxis.set_major_formatter(_id_decimal_formatter(2))
+    axes[1].tick_params(labelsize=9.0)
+    sns.despine(ax=axes[1])
 
-    fig.suptitle("Analisis Interpretabilitas Fitur TF-IDF Terbaik", fontsize=12.5, fontweight="bold", y=1.01)
-    fig.tight_layout()
-    fig.savefig(out_dir / "Gambar_Evaluasi_4_Bobot_Fitur_Teratas.png", bbox_inches="tight")
+    fig.tight_layout(pad=1.0, w_pad=2.0)
+    fig.savefig(
+        out_dir / "Gambar_Evaluasi_4_Bobot_Fitur_Teratas.png",
+        bbox_inches="tight",
+        facecolor="white",
+    )
     plt.close(fig)
 
     # Gambar 5: Komparasi Lintas Korpus (Accuracy & F1-Score)
     ext_n = stage4["external_cross_corpus"]["unseen_external_rows"]
     tax_n = stage4["tax_subset"]["holdout_tax_rows"]
     regimes = [
-        f"Holdout\nUtama\n(n={svm_m['n_samples']})",
-        f"Kontrol\nTanpa Pajak\n(n={tax_n})",
-        f"Subset Pajak\nSeimbang\n(n={tax_n})",
-        f"Zero-Shot\nEksternal\n(n={ext_n})",
-        f"Korpus\nDiperluas\n(n={stage4['extended_2521']['n_test']})",
+        f"Holdout\n(n={svm_m['n_samples']})",
+        f"Kontrol\n(n={tax_n})",
+        f"Pajak\n(n={tax_n})",
+        f"Eksternal\n(n={ext_n})",
+        f"Diperluas\n(n={stage4['extended_2521']['n_test']})",
     ]
     svm_acc = [
         svm_m["accuracy"] * 100,
@@ -1093,59 +1219,146 @@ def _generate_plots(
     ]
 
     x_pos = np.arange(len(regimes))
-    width = 0.35
-    fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.9))
-    for ax, metric_label, vals_s, vals_r in (
-        (axes[0], "Akurasi (%)", svm_acc, rf_acc),
-        (axes[1], "F1-Score (%)", svm_f1, rf_f1),
+    width = 0.39
+    fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.85), facecolor="white")
+    handles = None
+    labels = None
+    for ax, metric_label, sub_title, vals_s, vals_r in (
+        (axes[0], "Akurasi (%)", "(a) Perbandingan Akurasi Lintas Skenario", svm_acc, rf_acc),
+        (axes[1], "F1-Score (%)", "(b) Perbandingan F1-Score Lintas Skenario", svm_f1, rf_f1),
     ):
-        b1 = ax.bar(x_pos - width / 2, vals_s, width, label="SVM Linear (Platt)", color="#1d4ed8")
-        b2 = ax.bar(x_pos + width / 2, vals_r, width, label="Random Forest (Tuned)", color="#059669")
-        for bars in (b1, b2):
+        b1 = ax.bar(x_pos - width / 2, vals_s, width, label="LinearSVC (Platt)", color="#1d4ed8")
+        b2 = ax.bar(x_pos + width / 2, vals_r, width, label="Random Forest (Tuned)", color="#0f766e")
+        if handles is None:
+            handles, labels = ax.get_legend_handles_labels()
+        for bars, dx in ((b1, -1.5), (b2, 1.5)):
             for bar in bars:
                 h = bar.get_height()
                 ax.annotate(
-                    f"{h:.1f}%",
+                    _fmt_id(h, 1),
                     xy=(bar.get_x() + bar.get_width() / 2, h),
-                    xytext=(0, 3),
+                    xytext=(dx, 3),
                     textcoords="offset points",
                     ha="center",
                     va="bottom",
-                    fontsize=8,
+                    fontsize=7.1,
+                    fontweight="bold",
+                    color="#1e293b",
                 )
         ax.set_xticks(x_pos)
-        ax.set_xticklabels(regimes, fontsize=9)
-        ax.set_ylim(0, 112)
-        ax.set_ylabel(metric_label)
-        ax.set_title(f"Perbandingan {metric_label} Lintas Skenario", fontsize=11, fontweight="bold")
-        ax.legend(loc="lower left")
+        ax.set_xticklabels(regimes, fontsize=8.3)
+        ax.set_ylim(0, 114)
+        ax.set_ylabel(metric_label, fontsize=9.2)
+        ax.set_title(sub_title, fontsize=9.8, fontweight="bold", pad=8)
+        ax.tick_params(axis="y", labelsize=8.5)
+        sns.despine(ax=ax)
 
-    fig.suptitle("Generalisasi Model: Uji Holdout, Domain Pajak, dan Lintas-Korpus", fontsize=12.5, fontweight="bold", y=1.02)
-    fig.tight_layout()
-    fig.savefig(out_dir / "Gambar_Evaluasi_5_Komparasi_Lintas_Korpus.png", bbox_inches="tight")
+    if handles and labels:
+        fig.legend(
+            handles,
+            labels,
+            loc="upper center",
+            ncol=2,
+            frameon=False,
+            fontsize=9.2,
+            bbox_to_anchor=(0.5, 1.02),
+        )
+    fig.tight_layout(rect=(0, 0, 1, 0.93), pad=0.9, w_pad=1.6)
+    fig.savefig(
+        out_dir / "Gambar_Evaluasi_5_Komparasi_Lintas_Korpus.png",
+        bbox_inches="tight",
+        facecolor="white",
+    )
     plt.close(fig)
 
     # Gambar 6: Komparasi SHAP Global (SVM Linear vs Random Forest)
-    fig, axes = plt.subplots(1, 2, figsize=(13, 6.0))
+    fig, axes = plt.subplots(1, 2, figsize=(7.8, 5.0), facecolor="white")
     for ax, model_key, title in (
-        (axes[0], "SVM_Linear_SHAP", "Top-15 Fitur SHAP: SVM Linear\n(Merah = Mendorong Phishing, Biru = Resmi/Normal)"),
-        (axes[1], "Random_Forest_SHAP", "Top-15 Fitur SHAP: Random Forest\n(Merah = Mendorong Phishing, Biru = Resmi/Normal)"),
+        (
+            axes[0],
+            "SVM_Linear_SHAP",
+            "(a) Top-15 Fitur SHAP: LinearSVC\n(Merah: Phishing | Biru: Resmi/Normal)",
+        ),
+        (
+            axes[1],
+            "Random_Forest_SHAP",
+            "(b) Top-15 Fitur SHAP: Random Forest\n(Merah: Phishing | Biru: Resmi/Normal)",
+        ),
     ):
         sub = df_shap[df_shap["model"] == model_key].head(15).sort_values("mean_abs_shap")
-        colors = ["#dc2626" if val >= 0 else "#2563eb" for val in sub["mean_shap_signed"]]
-        ax.barh(sub["fitur"], sub["mean_abs_shap"], color=colors)
-        ax.set_title(title, fontsize=10.5, fontweight="bold")
-        ax.set_xlabel("Rata-rata |Nilai SHAP| (Dampak Prediksi Holdout)")
+        colors = ["#c81e1e" if val >= 0 else "#2563eb" for val in sub["mean_shap_signed"]]
+        ax.barh(sub["fitur"], sub["mean_abs_shap"], color=colors, height=0.72)
+        ax.set_title(title, fontsize=9.8, fontweight="bold", pad=7)
+        ax.set_xlabel("Rata-rata |Nilai SHAP| (Holdout)", fontsize=9.2)
+        if model_key == "Random_Forest_SHAP":
+            ax.xaxis.set_major_locator(MultipleLocator(0.01))
+        ax.xaxis.set_major_formatter(_id_decimal_formatter(2))
+        ax.tick_params(labelsize=9.0)
+        sns.despine(ax=ax)
 
-    fig.suptitle(
-        f"Interpretabilitas Model Berbasis SHAP (Holdout n = {svm_m['n_samples']})",
-        fontsize=12.5,
-        fontweight="bold",
-        y=1.01,
+    fig.tight_layout(pad=1.0, w_pad=2.0)
+    fig.savefig(
+        out_dir / "Gambar_Evaluasi_6_SHAP_Komparasi.png",
+        bbox_inches="tight",
+        facecolor="white",
     )
-    fig.tight_layout()
-    fig.savefig(out_dir / "Gambar_Evaluasi_6_SHAP_Komparasi.png", bbox_inches="tight")
     plt.close(fig)
+
+
+def regenerate_plots_from_saved_artifacts() -> None:
+    """Render ulang 6 grafik evaluasi dari artefak CSV/JSON final tanpa menimpa hasil eksperimen."""
+    summary_path = EVALUATION_DIR / "json" / "ringkasan_eksperimen_lengkap.json"
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    df_features = pd.read_csv(EVALUATION_DIR / "csv" / "fitur_teratas_svm_vs_rf.csv")
+    df_shap = pd.read_csv(EVALUATION_DIR / "csv" / "shap_fitur_teratas_svm_vs_rf.csv")
+
+    df_primary, _, _ = load_datasets()
+    idx_train, idx_test = train_test_split(
+        df_primary.index.to_numpy(),
+        test_size=0.2,
+        random_state=RANDOM_STATE,
+        stratify=df_primary["label"].to_numpy(),
+    )
+    x_train = df_primary.loc[idx_train, "teks_sastrawi"].to_numpy()
+    y_train = df_primary.loc[idx_train, "label"].to_numpy()
+    x_test = df_primary.loc[idx_test, "teks_sastrawi"].to_numpy()
+    y_test = df_primary.loc[idx_test, "label"].to_numpy()
+
+    best_params = summary["tuning"]["best_params"]
+    svm_cal = _make_calibrated_svm_pipeline(best_params["svm_linear"])
+    svm_cal.fit(x_train, y_train)
+    pred_svm = svm_cal.predict(x_test)
+    prob_svm = svm_cal.predict_proba(x_test)[:, 1]
+
+    vec = TfidfVectorizer(ngram_range=(1, 2), max_features=3000)
+    x_tr_tf = vec.fit_transform(x_train)
+    x_te_tf = vec.transform(x_test)
+    rf = RandomForestClassifier(random_state=RANDOM_STATE, **best_params["random_forest"])
+    rf.fit(x_tr_tf, y_train)
+    pred_rf = rf.predict(x_te_tf)
+    prob_rf = rf.predict_proba(x_te_tf)[:, 1]
+
+    stage2_3 = {
+        "holdout_arrays": {
+            "y_test": y_test,
+            "pred_svm_calibrated": pred_svm,
+            "proba_svm_calibrated": prob_svm,
+            "pred_rf_tuned": pred_rf,
+            "proba_rf_tuned": prob_rf,
+        },
+        "holdout_tuned": {
+            "svm_calibrated": summary["calibration"]["svm_calibrated"],
+            "random_forest": summary["calibration"]["random_forest"],
+        },
+    }
+    stage4 = {
+        "tax_subset": summary["tax_subset"],
+        "external_cross_corpus": summary["external_cross_corpus"],
+        "extended_2521": summary["extended_2521"],
+    }
+    out_dir = EVALUATION_DIR / "gambar"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    _generate_plots(stage2_3, stage4, df_features, df_shap, out_dir)
 
 
 def _build_main_comparison_table(
@@ -1513,16 +1726,30 @@ def run_all_experiments(save_outputs: bool = True) -> dict[str, Any]:
 
 
 if __name__ == "__main__":
-    results = run_all_experiments(save_outputs=True)
-    print(f"Eksperimen komparasi selesai dalam {results['runtime_seconds']:.2f} detik.")
-    print(
-        f"Baseline Holdout -> SVM: {results['baseline']['svm_linear']['accuracy']:.4f} | "
-        f"RF: {results['baseline']['random_forest']['accuracy']:.4f}"
+    parser = argparse.ArgumentParser(description="Eksperimen komparasi LinearSVC vs Random Forest.")
+    parser.add_argument(
+        "--plots-only",
+        action="store_true",
+        help="Render ulang 6 grafik evaluasi dari CSV/JSON tersimpan tanpa menimpa hasil.",
     )
-    print(f"Best Params -> SVM: {results['tuning']['best_params']['svm_linear']} | RF: {results['tuning']['best_params']['random_forest']}")
-    print(
-        f"Holdout Final -> SVM Platt Acc: {results['calibration']['svm_calibrated']['accuracy']:.4f} "
-        f"(Brier={results['calibration']['svm_calibrated']['brier_score']:.5f}) | "
-        f"RF Acc: {results['calibration']['random_forest']['accuracy']:.4f} "
-        f"(Brier={results['calibration']['random_forest']['brier_score']:.5f})"
-    )
+    args = parser.parse_args()
+    if args.plots_only:
+        regenerate_plots_from_saved_artifacts()
+        print("6 grafik evaluasi berhasil dirender ulang dari artefak tersimpan.")
+    else:
+        results = run_all_experiments(save_outputs=True)
+        print(f"Eksperimen komparasi selesai dalam {results['runtime_seconds']:.2f} detik.")
+        print(
+            f"Baseline Holdout -> SVM: {results['baseline']['svm_linear']['accuracy']:.4f} | "
+            f"RF: {results['baseline']['random_forest']['accuracy']:.4f}"
+        )
+        print(
+            f"Best Params -> SVM: {results['tuning']['best_params']['svm_linear']} | "
+            f"RF: {results['tuning']['best_params']['random_forest']}"
+        )
+        print(
+            f"Holdout Final -> SVM Platt Acc: {results['calibration']['svm_calibrated']['accuracy']:.4f} "
+            f"(Brier={results['calibration']['svm_calibrated']['brier_score']:.5f}) | "
+            f"RF Acc: {results['calibration']['random_forest']['accuracy']:.4f} "
+            f"(Brier={results['calibration']['random_forest']['brier_score']:.5f})"
+        )

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import html
 import json
 import re
@@ -53,11 +54,11 @@ FIGURE_COPIES = (
     ),
     (
         "Gambar_Evaluasi_5_Komparasi_Lintas_Korpus.png",
-        "Gambar 4.3 Komparasi Generalisasi Lintas Korpus dan Subset Pajak.png",
+        "Gambar L.4 Komparasi Generalisasi Lintas Korpus dan Subset Pajak.png",
     ),
     (
         "Gambar_Evaluasi_6_SHAP_Komparasi.png",
-        "Gambar 4.4 Analisis Interpretabilitas Model Berbasis SHAP.png",
+        "Gambar L.5 Analisis Interpretabilitas Model Berbasis SHAP.png",
     ),
     (
         "Gambar_Evaluasi_2_Kurva_ROC_dan_PR.png",
@@ -342,6 +343,7 @@ def _capture_html_png(html_path: Path, png_path: Path, width: int = 1600, height
         "--headless=new",
         "--disable-gpu",
         "--hide-scrollbars",
+        "--force-device-scale-factor=2",
         f"--window-size={width},{height}",
         f"--screenshot={png_path.resolve()}",
         url,
@@ -421,31 +423,32 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
   body {{
     display: block;
     min-height: 0;
-    padding: 16px;
-    background: #e9eef4;
+    padding: 12px;
+    background: #eef2f6;
   }}
   .shot-grid {{
     display: grid;
-    grid-template-columns: 1.72fr 1fr;
-    gap: 16px;
-    max-width: 1560px;
+    grid-template-columns: 1.62fr 1fr;
+    gap: 14px;
+    max-width: 1340px;
     margin: 0 auto;
     align-items: start;
   }}
+  .reason-title {{ overflow-wrap: anywhere; }}
   .browser-win {{
     background: #ffffff;
     border: 1px solid #cbd5e1;
-    border-radius: 12px;
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.09);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
   }}
   .win-bar {{
     background: #1e293b;
     color: #e2e8f0;
-    padding: 8px 14px;
+    padding: 7px 12px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     font-size: 12px;
   }}
   .dots {{ display: flex; gap: 5px; }}
@@ -453,28 +456,28 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
   .url-bar {{
     background: #0f172a;
     color: #cbd5e1;
-    padding: 4px 10px;
+    padding: 3px 10px;
     border-radius: 5px;
     font-family: Consolas, monospace;
-    font-size: 11.5px;
+    font-size: 12px;
     flex: 1;
   }}
   .web-stage {{
     background: var(--bg);
-    padding-bottom: 14px;
+    padding-bottom: 10px;
   }}
   .web-stage .topbar {{ position: static; backdrop-filter: none; }}
-  .web-stage .topbar-inner {{ padding: 10px 18px; }}
-  .web-stage .main-content {{ padding: 14px 18px 10px; }}
-  .web-stage .workspace {{ grid-template-columns: 0.9fr 1.1fr; gap: 14px; }}
-  .web-stage .surface {{ padding: 16px; }}
-  .web-stage .message-textarea {{ min-height: 104px; font-size: 0.85rem; }}
-  .web-stage .footer {{ padding: 10px 18px; margin-top: 8px; border-top: 1px solid var(--hairline); }}
+  .web-stage .topbar-inner {{ padding: 8px 14px; }}
+  .web-stage .main-content {{ padding: 12px 14px 8px; }}
+  .web-stage .workspace {{ grid-template-columns: 0.84fr 1.16fr; gap: 12px; }}
+  .web-stage .surface {{ padding: 14px; }}
+  .web-stage .message-textarea {{ min-height: 92px; font-size: 0.92rem; }}
+  .web-stage .footer {{ padding: 8px 14px; margin-top: 6px; border-top: 1px solid var(--hairline); }}
   .web-stage .footer-inner {{ padding: 0; }}
-  .api-body {{ padding: 16px; display: flex; flex-direction: column; gap: 12px; }}
-  .swagger-head {{ border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }}
-  .swagger-head h2 {{ font-size: 16px; margin-bottom: 3px; }}
-  .swagger-sub {{ font-size: 11.5px; color: #475569; }}
+  .api-body {{ padding: 14px; display: flex; flex-direction: column; gap: 10px; }}
+  .swagger-head {{ border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }}
+  .swagger-head h2 {{ font-size: 17px; margin-bottom: 3px; }}
+  .swagger-sub {{ font-size: 12px; color: #475569; }}
   .endpoint-pill {{
     display: flex;
     align-items: center;
@@ -483,7 +486,7 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
     border: 1px solid #10b981;
     border-radius: 6px;
     padding: 7px 10px;
-    font-size: 12px;
+    font-size: 13px;
   }}
   .method {{
     background: #059669;
@@ -491,7 +494,7 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
     font-weight: 700;
     padding: 2px 8px;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 12px;
   }}
   .status-200 {{
     margin-left: auto;
@@ -500,7 +503,7 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
     padding: 2px 8px;
     border-radius: 4px;
     font-weight: 700;
-    font-size: 11px;
+    font-size: 12px;
   }}
   .json-box {{
     background: #0f172a;
@@ -508,8 +511,8 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
     border-radius: 8px;
     padding: 12px;
     font-family: Consolas, monospace;
-    font-size: 11px;
-    line-height: 1.45;
+    font-size: 12.2px;
+    line-height: 1.42;
     white-space: pre-wrap;
     overflow: hidden;
   }}
@@ -518,8 +521,8 @@ def _build_web_api_html(presets_out: dict[str, Any], latency_info: dict[str, Any
     border: 1px solid #cbd5e1;
     border-radius: 8px;
     padding: 10px 12px;
-    font-size: 11.8px;
-    line-height: 1.55;
+    font-size: 12.2px;
+    line-height: 1.5;
   }}
 </style>
 </head>
@@ -1346,10 +1349,14 @@ def generate_prototype_screenshots(
         "Gambar 3.2 Rancangan Antarmuka Purwarupa dan Ekstensi.png",
         "Gambar 4.2 Evaluasi Diskriminatif Kurva ROC dan Precision-Recall.png",
         "Gambar 4.3 Evaluasi Kalibrasi Probabilitas Model.png",
+        "Gambar 4.3 Komparasi Generalisasi Lintas Korpus dan Subset Pajak.png",
         "Gambar 4.4 Analisis Interpretabilitas Fitur TF-IDF Terbaik.png",
+        "Gambar 4.4 Analisis Interpretabilitas Model Berbasis SHAP.png",
         "Gambar 4.5 Komparasi Generalisasi Lintas Korpus dan Subset Pajak.png",
+        "Gambar 4.5 Tangkapan Layar Antarmuka Web Cek Pesan Pajak dan Respons API.png",
         "Gambar 4.6 Tangkapan Layar Antarmuka Dashboard Streamlit dan Respons API.png",
         "Gambar 4.6 Tangkapan Layar Antarmuka Web Cek Pesan Pajak dan Respons API.png",
+        "Gambar 4.6 Tangkapan Layar Ekstensi Chrome pada Simulasi WhatsApp Web.png",
         "Gambar 4.7 Tangkapan Layar Ekstensi Chrome pada Simulasi WhatsApp Web.png",
         "Gambar 4.8 Analisis Interpretabilitas Model Berbasis SHAP.png",
     )
@@ -1360,11 +1367,11 @@ def generate_prototype_screenshots(
 
     web_png = (
         ASSET_DIR
-        / "Gambar 4.5 Tangkapan Layar Antarmuka Web Cek Pesan Pajak dan Respons API.png"
+        / "Gambar 4.3 Tangkapan Layar Antarmuka Web Cek Pesan Pajak dan Respons API.png"
     )
     ext_png = (
         ASSET_DIR
-        / "Gambar 4.6 Tangkapan Layar Ekstensi Chrome pada Simulasi WhatsApp Web.png"
+        / "Gambar L.6 Tangkapan Layar Ekstensi Chrome pada Simulasi WhatsApp Web.png"
     )
 
     if include_methodology_diagrams:
@@ -1389,14 +1396,34 @@ def generate_prototype_screenshots(
         tmp_html = Path(tmp.name)
 
     try:
-        _capture_html_png(tmp_html, web_png, width=1600, height=920)
+        _capture_html_png(tmp_html, web_png, width=1360, height=900)
     finally:
         tmp_html.unlink(missing_ok=True)
 
-    _capture_html_png(sim_html_path, ext_png, width=1520, height=880)
+    _capture_html_png(sim_html_path, ext_png, width=1440, height=870)
+
+
+def refresh_screenshots_only() -> None:
+    """Render ulang Gambar 4.3 & L.6 dari benchmark_latensi_purwarupa.json tersimpan."""
+    json_path = EVAL_DIR / "json" / "benchmark_latensi_purwarupa.json"
+    saved = json.loads(json_path.read_text(encoding="utf-8"))
+    latency_info = saved["latency_benchmark"]
+    presets_out = saved["preset_verification"]
+    generate_prototype_screenshots(presets_out, latency_info, include_methodology_diagrams=False)
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Benchmark & tangkapan layar purwarupa TKT 6.")
+    parser.add_argument(
+        "--screenshots-only",
+        action="store_true",
+        help="Render ulang tangkapan layar Gambar 4.3 & L.6 tanpa menimpa JSON/CSV benchmark.",
+    )
+    args = parser.parse_args()
+    if args.screenshots_only:
+        refresh_screenshots_only()
+        print("Gambar 4.3 dan L.6 berhasil dirender ulang dari JSON tersimpan.")
+        return
     (EVAL_DIR / "json").mkdir(parents=True, exist_ok=True)
     (EVAL_DIR / "csv").mkdir(parents=True, exist_ok=True)
     latency_info, presets_out = measure_latency()

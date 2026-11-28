@@ -161,7 +161,7 @@ def build_proposal_docx(docx_path: Path) -> None:
         ("NIM", ": 240101020194"),
         ("Program Studi", ": PJJ Sistem Informasi"),
         ("Ketua Program Studi", ": Vika Febri Muliati, S.Kom., M.Kom"),
-        ("Dosen Pembimbing", ": Novi Dian Nathasia, S.Kom., MMSI"),
+        ("Dosen Pembimbing", ": Novi Dian Nathasia, S.Kom, MMSI."),
         ("Skema Tugas Akhir", ": Tugas Akhir Prototype (Target TKT Level 6)"),
     ]
     meta_table = doc.add_table(rows=len(meta_rows), cols=2)

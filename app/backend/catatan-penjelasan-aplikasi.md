@@ -1,7 +1,7 @@
 # Catatan Penjelasan Aplikasi Cek Pesan Pajak untuk Bimbingan TA UNSIA
 
 **Penulis:** Wan Mirza Dhani (240101020194)  
-**Dosen Pembimbing:** Bapak Novi Dian Nathasia, S.Kom., MMSI  
+**Dosen Pembimbing:** Bapak Novi Dian Nathasia, S.Kom, MMSI.  
 **Tautan Live (Utama - Railway):** https://cek-pesan-pajak-production.up.railway.app  
 **Tautan Cadangan (Render):** https://cek-pesan-pajak.onrender.com  
 **Repositori GitHub:** https://github.com/wmdhani/ta-phishing-wa-pajak-unsia  
