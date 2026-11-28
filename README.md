@@ -4,14 +4,14 @@
 **Mahasiswa:** Wan Mirza Dhani (`240101020194`)  
 **Program Studi:** PJJ Sistem Informasi  
 **Ketua Program Studi:** Vika Febri Muliati, S.Kom., M.Kom  
-**Dosen Pembimbing:** Novi Dian Nathasia, S.Kom., MMSI  
+**Dosen Pembimbing:** Novi Dian Nathasia, S.Kom, MMSI.  
 
 ---
 
 ## Struktur Direktori (Sesuai Alur Kerja Tugas Akhir)
-- `01-administrasi/`: Pedoman resmi TA UNSIA 2024 dan daftar pembagian dosen pembimbing.
+- `01-administrasi/`: Pedoman penulisan TA UNSIA 2024, panduan bimbingan TA (`panduan-bimbingan-ta-unsia.pdf`), daftar pembagian dosen pembimbing, dan arsip cek plagiarisme (`arsip-cek-plagiarisme/`).
 - `02-proposal/`: Draf usulan judul dan berkas pengajuan judul (`.docx` dan `.pdf`).
-- `03-referensi/`: Catatan cek kebaruan, daftar pustaka (`daftar-pustaka/`), serta buku metodologi (`ebook-metodologi/`).
+- `03-referensi/`: Catatan cek kebaruan, daftar pustaka & indeks (`daftar-pustaka/indeks-daftar-pustaka.md`), serta buku metodologi (`ebook-metodologi/`).
 - `04-dataset/`: Dokumentasi sumber data (`readme-dataset.md`), korpus mentah (`01-data-mentah/`), serta korpus terkurasi dan dataset gabungan (`02-data-olahan/`).
 - `05-hasil-evaluasi/`: Grafik evaluasi model (`gambar/`), tabel CSV (`csv/`), ringkasan JSON (`json/`), dan laporan (`laporan/`).
 - `app/`: Aplikasi web **Cek Pesan Pajak** (`app/frontend/`), layanan REST API FastAPI & mesin inferensi (`app/backend/api.py`, `app/backend/inference.py`), serta ekstensi Chrome WhatsApp Web (`app/extension/`).
@@ -22,7 +22,7 @@
   - `ml/eksperimen_baseline.py`: Praproses Sastrawi, tokenisasi khusus, TF-IDF, dan komparasi baseline SVM vs Random Forest.
   - `ml/eksperimen_komparasi.py`: Pipeline lengkap Stratified 10-Fold CV, GridSearchCV, kalibrasi Platt, studi ablatif, uji lintas-korpus, grafik evaluasi, dan ekspor model `.joblib`.
   - `ml/benchmark_purwarupa.py`: Pengukuran latensi `TestClient`, penangkapan tangkapan layar web/ekstensi, dan salin aset gambar evaluasi.
-- `scripts/`: Pembangun dokumen proposal dan penyuntik metadata/PDF Word (`buat_dokumen_proposal.py`, `terapkan_metadata_dokumen.py`).
+- `scripts/`: Pembangun proposal, bagan, ekspor naskah Word/PDF, dan metadata (`buat_dokumen_proposal.py`, `buat_bagan_ta.py`, `ekspor_naskah_unsia.py`, `terapkan_metadata_dokumen.py`).
 - `tests/`: Pengujian otomatis (`pytest`) untuk integritas korpus, pipeline eksperimen, dan purwarupa API/ekstensi.
 
 ---
@@ -49,7 +49,7 @@ uv sync
 # 5. Jalankan aplikasi web Cek Pesan Pajak dan REST API (http://127.0.0.1:8000/)
 & "$env:LOCALAPPDATA\venvs\ta-phishing-pajak-unsia\Scripts\uvicorn.exe" api:app --app-dir "app/backend" --reload
 
-# 6. Validasi draf naskah UNSIA dan ekspor ke Word (.docx)
+# 6. Validasi draf naskah UNSIA dan ekspor ulang ke Word (.docx) & PDF
 & "$env:LOCALAPPDATA\venvs\ta-phishing-pajak-unsia\Scripts\python.exe" "%USERPROFILE%\.gemini\skill-vault\unsia-ta-prototype\scripts\validate_unsia.py" "06-naskah-ta\md\07-naskah-lengkap\naskah-lengkap-tugas-akhir-ta-unsia.md"
-& "$env:LOCALAPPDATA\venvs\ta-phishing-pajak-unsia\Scripts\python.exe" "%USERPROFILE%\.gemini\skill-vault\unsia-ta-prototype\scripts\export_unsia_docx.py" "<input.md>" "<output.docx>"
+& "$env:LOCALAPPDATA\venvs\ta-phishing-pajak-unsia\Scripts\python.exe" scripts\ekspor_naskah_unsia.py --all
 ```

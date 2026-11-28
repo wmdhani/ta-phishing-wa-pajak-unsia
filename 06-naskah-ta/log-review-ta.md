@@ -550,3 +550,87 @@ Reviu mendalam dan verifikasi ulang numerik penuh terhadap **BAB IV (`04-bab-4-h
   - `naskah-lengkap-tugas-akhir-ta-unsia.md` (`328` blok, sitasi `[1]`–`[36]`): **`0 ERROR, 0 WARNING`** (`[OK] Lulus`).
 - **Metrik Bahasa (`humanizer-indonesia/scripts/metrik.py --preset akademik`):** `00-bagian-awal.md`, `02-bab-2-landasan-metode.md`, `04-bab-4-hasil-dan-analisa.md`, dan `05-bab-5-kesimpulan.md` masing-masing **`9/9 LULUS`**.
 - **Jumlah Halaman Word (`.docx` Terpadu):** Total dokumen `61` halaman; bagian isi **Bab I–V tepat `30` halaman** (Bab I hlm. `1–6`, Bab II hlm. `7–14`, Bab III hlm. `15–21`, Bab IV hlm. `22–28`, Bab V hlm. `29–30`; Daftar Pustaka hlm. `31–35`; Lampiran hlm. `36–50`), memenuhi rentang resmi UNSIA `10–30` halaman.
+
+---
+
+## 23. Revisi Pasca-Bimbingan Bab I–III & Penguatan Pembahasan Bab IV (28 November 2026)
+
+**Status Tahap Ini:** Seluruh empat catatan bimbingan dosen untuk Bab I–III beserta penguatan pembahasan Bab IV telah diterapkan pada naskah `.md`, dikompilasi ke `.docx` serta `.pdf`, dan diverifikasi.
+
+### 23.1 Ringkasan Perubahan Berdasarkan Masukan Bimbingan
+
+1. **Batas 30 Halaman untuk Bab I–V:** Naskah terpadu (`naskah-lengkap-tugas-akhir-ta-unsia.docx` dan `.pdf`, total `61` halaman) terkonfirmasi menempatkan **Bab I–V tepat `30` halaman** (Bab I hlm. `1–6`, Bab II hlm. `7–14`, Bab III hlm. `15–21`, Bab IV hlm. `22–28`, Bab V hlm. `29–30`; Daftar Pustaka mulai hlm. `31`, Lampiran hlm. `36–50`).
+2. **Halaman Pengesahan Satu Dosen Pembimbing (`00-bagian-awal.md`):** Menghapus baris `Dosen Pembimbing II` dan mengubah `Dosen Pembimbing I` menjadi `Dosen Pembimbing` untuk `(Novi Dian Nathasia, S.Kom., M.M.S.I.)` (tetap memakai ejaan gelar EYD V yang seragam dengan Kata Pengantar, Kaprodi `S.Kom., M.Kom.`, `api.py`, `app.js`, dan `test_prototipe_api.py`).
+3. **Penomoran `1.4 Tujuan Penelitian` & Keselarasan dengan `1.2 Rumusan Masalah` (`01-bab-1-pendahuluan.md`):** Mengubah perincian Subbab `1.4` menjadi penomoran `1.`, `2.`, `3.` dengan kata kerja terukur (`Menyusun`, `Menguji dan membandingkan`, `Merancang, membangun, dan menguji`) yang dipetakan 1-ke-1 dengan Subbab `1.2` butir `a)`, `b)`, `c)`.
+4. **Penguatan Pembahasan Perbandingan vs Kondisi Nyata di Bab IV (`04-bab-4-hasil-dan-analisa.md` & `05-bab-5-kesimpulan.md`):**
+   - Menjelaskan implikasi lapangan pada Subbab `4.1–4.5`: responsivitas latih ulang `79,36×` saat modus *Coretax* berubah, dampak `FN=7` (risiko `.apk` lolos) vs `FP=3` (hambatan siaran DJP), risiko *alert fatigue* dari zona ragu *Random Forest* (`25,43%` vs `9,48%`), serta perbandingan kasus pesan nyata (`idx=1003` tertangkap `LinearSVC` `0,787` vs *Random Forest* `0,340`; `idx=960` `.apk` dieskalasi aturan `has_apk`; `idx=1082` dilindungi `is_official_djp_domain`; batas leksikal pada `idx=314`/`102`).
+   - Menambahkan **`Tabel 4.2 Perbandingan Hasil Pengujian Penelitian terhadap Kondisi Nyata Operasional`** pada Subbab `4.5` (hlm. `27`) serta memperbarui `DAFTAR ISI`, `DAFTAR GAMBAR`, dan `DAFTAR TABEL` di `00-bagian-awal.md`.
+
+### 23.2 Hasil Verifikasi Pasca-Revisi (28 November 2026)
+
+- **`validate_unsia.py` (`naskah-lengkap-tugas-akhir-ta-unsia.md`):** `326` blok diperiksa, sitasi `[1]`–`[36]` berurutan utuh, **`0 ERROR, 0 WARNING`** (`[OK] Lulus`).
+- **`humanizer-indonesia/scripts/metrik.py --preset akademik`:** `00-bagian-awal.md`, `01-bab-1-pendahuluan.md`, `04-bab-4-hasil-dan-analisa.md`, dan `05-bab-5-kesimpulan.md` masing-masing **`9/9 LULUS`** (Bab IV: rerata `18,4`, SD `6,9`, kalimat $\ge 28$ kata `5,9%`, *em/en-dash* `0`).
+- **Verifikasi XML & Ekspor `.docx`/`.pdf`:** `Dosen Pembimbing II` terkonfirmasi absen, `Dosen Pembimbing` (`Novi Dian Nathasia, S.Kom., M.M.S.I.`) hadir, `1.4` bernomor `1.`, `2.`, `3.`, `Tabel 4.2` muncul `1` kali, serta `00-bagian-awal.pdf` (`10` hlm.), `01-bab-1-pendahuluan.pdf` (`13` hlm.), `04-bab-4-hasil-dan-analisa.pdf` (`7` hlm.), `05-bab-5-kesimpulan.pdf` (`3` hlm.), dan `naskah-lengkap-tugas-akhir-ta-unsia.pdf` (`61` hlm.) berhasil diekspor ulang. *(Catatan: berkas `Wan Mirza Dhani_Tugas Akir_Progress 26112026.docx` tidak disentuh karena sedang terbuka/terkunci oleh pengguna.)*
+
+---
+
+## 24. Perombakan Total Format Word Native, Eliminasi Artefak OneDrive, dan Audit Visual Penuh (28 November 2026)
+
+**Status Tahap Ini:** Seluruh berkas `.docx` dan `.pdf` TA dibangun ulang dari nol memakai modul lokal [scripts/ekspor_naskah_unsia.py](../scripts/ekspor_naskah_unsia.py) melalui tahapan *staging* non-OneDrive (`%TEMP%\unsia_docx_build\<uuid>`) agar bebas konflik sinkronisasi OneDrive/Office Cache, memanfaatkan penuh fitur native Microsoft Word, serta diaudit menyeluruh secara OOXML dan visual halaman demi halaman.
+
+### 24.1 Akar Masalah Sebelumnya & Perbaikan Pipeline Ekspor
+
+1. **Eliminasi Konflik OneDrive Office File Cache:** Pembuatan serta otomasi Word COM (`$word.Documents.Open`, pembaruan daftar isi/gambar/tabel, repaginasi, dan ekspor PDF) sebelumnya menyentuh langsung folder tersinkronisasi OneDrive sehingga memicu *three-way auto-merge* (2 logo UNSIA di sampul, gambar menumpuk, dan duplikasi bab/paragraf). Pipeline baru merender, memproses Word COM, dan menambal metadata di direktori sementara lokal `%TEMP%`, lalu menyalin secara atomik ke `06-naskah-ta/`.
+2. **Pemanfaatan Penuh Fitur Native Microsoft Word (`scripts/ekspor_naskah_unsia.py`):**
+   - **Persamaan Matematika OMML Native:** Konverter rekursif LaTeX ke MathML lalu transformasi `MML2OMML.XSL` ke blok `<m:oMathPara>` / `<m:oMath>` berbahasa *Cambria Math* dengan penomoran kanan `(2.1)`–`(2.8)` (`8` persamaan tampilan + `42` ekspresi sebaris pada Bab II; total `50` `<m:oMath>` pada naskah terpadu).
+   - **Daftar Native (`word/numbering.xml`):** Seluruh daftar huruf (`a)`, `b)`), angka (`1.`, `2.`, `3.`), dan butir memakai definisi abstrak/penomoran asli Word (`41` blok `<w:numPr>` pada naskah terpadu), bukan teks polos.
+   - **Struktur Navigasi, Caption, dan Daftar Otomatis:** Menggunakan gaya bawaan `Heading 1`/`2`/`3` untuk *Navigation Pane*, gaya `Caption` / `Caption Tabel` dengan field `{ SEQ Gambar }` (`12` buah) dan `{ SEQ Tabel }` (`16` buah), serta field dinamis `{ TOC \o "1-3" \f C \h \z \u }` (`DAFTAR ISI`), `{ TOC \h \z \c "Gambar" }` (`DAFTAR GAMBAR`), dan `{ TOC \h \z \c "Tabel" }` (`DAFTAR TABEL`) dengan pembaruan gaya bawaan `toc 1`–`3` dan `table of figures` (`RightIndent = 1,35 cm`, *dot leader*, spasi seragam).
+   - **Tabel Akademik & Bibliografi Rapi:** Grid lebar kolom tetap `14,0 cm` (`<w:tblHeader/>` berulang di tiap halaman sambungan, `<w:cantSplit/>` agar baris tidak terpotong antarhalaman, perataan kiri untuk tabel 2 kolom biodata, serta peluasan kolom pengenal garis bawah pada tabel ablatif `Tabel L.8`), dan daftar pustaka `[1]`–`[36]` IEEE rata gantung bertabulasi `\t`.
+   - **Kompatibilitas, Bahasa Pemeriksa, & Metadata Autentik:** Mode kompatibilitas Word 2013+ (`compatibilityMode=15`), bahasa pemeriksa `id-ID` (`en-US` khusus `ABSTRACT`), nomor halaman `12 pt` pada seluruh bagian (`BAB I–V`, `DAFTAR PUSTAKA`, `LAMPIRAN`), Halaman Pengesahan 4 posisi dengan satu `Dosen Pembimbing` (`Novi Dian Nathasia, S.Kom., M.M.S.I.`), serta metadata `Application=Microsoft Office Word` (`16.0000`) dan `creator=Wan Mirza Dhani`.
+   - **Perbaikan Format Glosarium (`glosarium-tugas-akhir-unsia.md`):** Memisahkan penanda tebal dan miring pada butir `Kode Billing`, `SHA-256 Checksum`, serta `ROC-AUC, PR-AUC, Brier Score, & Log Loss` agar tidak ada tanda `*` mentah yang bocor ke PDF.
+
+### 24.2 Ringkasan Halaman & Verifikasi Akhir (28 November 2026)
+
+- **Jumlah Halaman Final (`--all --print-page-map`):**
+  - `00-bagian-awal.pdf`: `11` hlm. (`1.616` kata) | `01-bab-1-pendahuluan.pdf`: `6` hlm. (`1.499` kata) | `02-bab-2-landasan-metode.pdf`: `8` hlm. (`1.885` kata) | `03-bab-3-implementasi-metode.pdf`: `7` hlm. (`1.592` kata) | `04-bab-4-hasil-dan-analisa.pdf`: `7` hlm. (`1.545` kata) | `05-bab-5-kesimpulan.pdf`: `2` hlm. (`541` kata) | `06-lampiran.pdf`: `19` hlm. (`4.488` kata) | `glosarium-tugas-akhir-unsia.pdf`: `5` hlm. | `naskah-lengkap-tugas-akhir-ta-unsia.pdf`: **`60` hlm. (`13.163` kata)** dengan rincian **Bab I–V tepat `30` halaman** (`Bab I` hlm. `1–6`, `Bab II` hlm. `7–14`, `Bab III` hlm. `15–21`, `Bab IV` hlm. `22–28`, `Bab V` hlm. `29–30`; `DAFTAR PUSTAKA` hlm. `31–35`; `LAMPIRAN` hlm. `36–49`).
+- **Audit OOXML (`.docx` `00`–`07`):** `0` token LaTeX mentah, `0` sisa Markdown bocor, `0` pesan kesalahan TOC/TOF, `0` `Dosen Pembimbing II`, tepat `1` logo sampul pada `00` dan `naskah-lengkap`, serta `WINWORD_COUNT=0` (tidak ada proses Word menggantung).
+- **Kepatuhan, Bahasa, Lint, & Unit Test:** `validate_unsia.py` pada `naskah-lengkap-tugas-akhir-ta-unsia.md` lulus **`0 ERROR, 0 WARNING`** (`326` blok, `[1]`–`[36]` utuh); `metrik.py --preset akademik` pada `00-bagian-awal.md` lulus **`9/9 LULUS`**; `ruff check scripts/ekspor_naskah_unsia.py` lulus; `pytest -q` lulus **`29 passed`**.
+- **Inspeksi Visual PDF & Berkas Terjaga:** Pemeriksaan visual atas seluruh PDF (`00` s.d. `08`, termasuk `naskah-lengkap-tugas-akhir-ta-unsia.pdf` hlm. `1–60`) memastikan `1` logo sampul, OMML utuh, `DAFTAR ISI`/`DAFTAR GAMBAR`/`DAFTAR TABEL` rapi tanpa tabrakan nomor halaman, `Tabel L.8` dan `Lampiran 5` (NIM rata kiri) bersih, serta berkas arsip/bimbingan pengguna (`Wan Mirza Dhani_Tugas Akir_Progress 26112026.docx`, `Tugas Akhir_Bab 3.pdf`, `Panduan-Bimbingan-TA-UNSIA.pdf`, dan `arsip-draf/*`) tetap utuh tidak tersentuh.
+
+
+---
+
+## 25. Penyelarasan Nama/Gelar Excel serta Revisi Total Tabel, Grafik, dan Bagan TA (28 November 2026)
+
+**Status Tahap Ini:** Seluruh penamaan nama dan gelar telah diselaraskan terhadap berkas administrasi `01-administrasi/daftar-pembagian-dosen-pembimbing-ta.xlsx`, seluruh 16 tabel akademik (+ Lampiran 5) diperbarui menjadi ringkas (*to the point*) dengan tata letak Word profesional, seluruh 6 grafik Matplotlib (`ml/eksperimen_komparasi.py --plots-only`), 4 bagan (`scripts/buat_bagan_ta.py`), dan 2 tangkapan layar purwarupa (`ml/benchmark_purwarupa.py --screenshots-only`) dibangun ulang agar tajam dan terbaca jelas di kertas A4.
+
+### 25.1 Penyelarasan Nama & Gelar Sesuai Excel Pembimbing
+- **Dosen Pembimbing:** `Novi Dian Nathasia, S.Kom, MMSI.` (sapaan `Bapak` di Kata Pengantar & kode dipertahankan sesuai keputusan pengguna pada Bagian 6 / `K-01`).
+- **Ketua Program Studi:** `Vika Febri Muliati, S.Kom., M.Kom`.
+- **Wakil Rektor:** `Dr. Ucuk Darusalam, S.T., M.T`.
+- Diterapkan konsisten pada `00-bagian-awal.md` (Halaman Pengesahan & Kata Pengantar), `app/backend/api.py`, `app/frontend/app.js`, `tests/test_prototipe_api.py`, `README.md`, `app/backend/catatan-penjelasan-aplikasi.md`, `02-proposal/draf-usulan-judul-ta.md`, dan `scripts/buat_dokumen_proposal.py`.
+
+### 25.2 Revisi Mesin Render & Konten 16 Tabel Tugas Akhir
+- **`scripts/ekspor_naskah_unsia.py`:** Menambahkan warna latar header `#EAEFF5`, garis pemisah sel tegas (`#B8C2CC`/`#CBD5E1`), sorotan penanda jadwal `✓` (`#E2E8F0`), penggabungan vertikal otomatis (*vertical merge*) untuk pasangan model pada `Tabel 4.1` dan `Tabel L.8` beserta penjagaan baris awal agar `Tabel 4.1` tidak terpotong baris yatim, perbaikan rata tengah kolom `:---:`, perluasan lebar kolom untuk nama berkas `.py`, dan perbesaran lebar gambar cetak ke `14,0 cm` (tinggi maks. `12,2 cm`).
+- **Perampingan 16 Tabel (`Tabel 1.1`, `3.1`, `4.1`, `4.2`, `L.1`–`L.12`):** Menghapus tanda `/` ganda dua model per sel pada `Tabel 4.1` dan `Tabel L.8` menjadi pasangan baris bersih, menghapus `snake_case` dan pengulangan nama berkas uji di `Tabel L.7`, memadatkan seluruh deskripsi ke poin inti 1–3 baris tanpa pemenggalan kata/URL, serta menyinkronkan nomor halaman statis `DAFTAR ISI`, `DAFTAR GAMBAR`, dan `DAFTAR TABEL` pada `00-bagian-awal.md` (total naskah terpadu `59` halaman; **Bab I–V tetap tepat `30` halaman**).
+
+### 25.3 Pembaruan 6 Grafik, 4 Bagan, & 2 Tangkapan Layar
+- **6 Grafik Evaluasi (`ml/eksperimen_komparasi.py --plots-only`):** Dirancang khusus untuk lebar cetak `14,0 cm` (`figsize` `7,6–8,4` inci, `300 dpi`), latar putih bersih tanpa *top/right spines*, tanpa `suptitle` duplikat, desimal koma Indonesia, legenda gabungan di atas pada `Gambar 4.3`, anotasi zona ragu pada `Gambar 4.2`, serta tick sumbu-x rapi `0,01` pada `Gambar L.5`.
+- **4 Bagan (`scripts/buat_bagan_ta.py`, `2400 px` lebar, `scale=3`):** `Gambar 1.1`, `Gambar 2.1`, `Gambar 3.1`, dan `Gambar L.1` dibangun ulang pada `viewBox` kompak `800 px` dengan latar putih bersih dan lulus `4/4 self_check.py = OK` serta `4/4 verify_geometry.py = 0 finding(s)`.
+- **2 Tangkapan Layar (`ml/benchmark_purwarupa.py --screenshots-only`):** `Gambar 4.5` (`1360×900`, `2×`) dan `Gambar 4.6` (`1440×870`, `2×`) dirapatkan agar teks antarmuka, respons JSON, dan lencana hijau simulasi terbaca utuh.
+
+---
+
+## 26. Perapian Penamaan Berkas, Pembaruan Proposal, Pembersihan .venv/Arsip, dan Sinkronisasi Repositori
+
+**Status Tahap Ini:** Seluruh penamaan berkas gambar, administrasi, referensi, serta video demo telah dirapikan, berkas proposal dan naskah terdampak dibangun ulang, lingkungan `.venv` beserta cache Python dan draf usang dihapus dari folder OneDrive, lalu seluruh pembaruan disinkronkan lewat *commit* atomik ke `origin/main`.
+
+### 26.1 Perapian Penamaan & Pemindahan Berkas
+- **Aset Gambar Naskah (`06-naskah-ta/aset-gambar/`):** Menyelaraskan 4 nama berkas gambar terhadap nomor keterangan di naskah: `Gambar 4.5 ... Web Cek Pesan Pajak ...` → `Gambar 4.3 ...`, `Gambar 4.3 ... Lintas Korpus ...` → `Gambar L.4 ...`, `Gambar 4.4 ... SHAP ...` → `Gambar L.5 ...`, dan `Gambar 4.6 ... Ekstensi Chrome ...` → `Gambar L.6 ...`, serta memperbarui rujukan di `04-bab-4-hasil-dan-analisa.md`, `06-lampiran.md`, `naskah-lengkap-tugas-akhir-ta-unsia.md`, dan `ml/benchmark_purwarupa.py`.
+- **Administrasi, Daftar Pustaka, & Akar Proyek:** Memindahkan dan merapikan `Panduan-Bimbingan-TA-UNSIA.pdf` menjadi `01-administrasi/panduan-bimbingan-ta-unsia.pdf`; mengganti `Indeks Daftar Pustaka Bab I.md` menjadi `03-referensi/daftar-pustaka/indeks-daftar-pustaka.md` beserta menyelaraskan 6 awalan nomor PDF lokal (`26`, `27`, `28`, `30`, `31`, `34`); serta mengganti `Demo Website.mp4` menjadi `demo-website.mp4`.
+- **Skrip & Dokumentasi:** Menghapus rujukan `arsip-draf` pada `scripts/terapkan_metadata_dokumen.py`, mengunci `UV_PROJECT_ENVIRONMENT` serta menghapus fallback `.venv` lokal pada `app/backend/jalankan-server.bat`, dan memutakhirkan struktur direktori serta perintah ekspor pada `README.md`.
+
+### 26.2 Pembaruan Proposal, Ekspor Naskah Terdampak, & Pembersihan Workspace
+- **Regenerasi Proposal & Naskah:** Membangun ulang `02-proposal/usulan-judul-ta-wan-mirza-dhani-240101020194.docx` dan `.pdf` (`2` hlm., `606` kata; gelar pembimbing sesuai Excel `Novi Dian Nathasia, S.Kom, MMSI.`) serta mengekspor ulang `04-bab-4` (`7` hlm.), `06-lampiran` (`18` hlm.), dan `07-naskah-lengkap` (`59` hlm., **Bab I–V tetap tepat `30` hlm.**) lewat `scripts/ekspor_naskah_unsia.py`.
+- **Pembersihan Berkas Tak Terpakai & Bebas Sync OneDrive:** Menghapus permanen folder `.venv` (`376,09 MB` / `11.765` berkas; lingkungan kerja menggunakan `%LOCALAPPDATA%\venvs\ta-phishing-pajak-unsia`), `.pytest_cache`, `.ruff_cache`, seluruh `**/__pycache__`, `06-naskah-ta/docx/arsip-draf/`, `Wan Mirza Dhani_Tugas Akir_Progress 26112026.docx`, serta `Tugas Akhir_Bab 3.pdf`.
+- **Verifikasi Akhir:** `validate_unsia.py` (`0 ERROR, 0 WARNING`, sitasi `[1]`–`[36]` lengkap), `ruff check --no-cache` (`All checks passed!`), `pytest -q` (`29 passed`), audit rujukan gambar Markdown (`26/26` valid), audit rujukan PDF indeks (`31/31` valid), audit OOXML proposal dan naskah lengkap (`13` media tertanam, bebas galat TOC dan `M.M.S.I.`), serta kebersihan folder (`VENV_EXISTS=False`, `DIRTY_DIRS=0`, `DIRTY_FILES=0`, `WINWORD_COUNT=0`).
